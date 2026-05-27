@@ -29,7 +29,7 @@
       --soft-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
       --radius: 16px;
 
-      /* [기본값: 월요일 블루] */
+      /* [기본값: 월요일 블루 - 스크립트가 덮어씁니다] */
       --primary: #2563eb;      
       --primary-light: #eff6ff;
       --primary-dark: #1d4ed8;
@@ -147,16 +147,162 @@
     .chip { border: 1px solid #e2e8f0; color: var(--muted); background: #ffffff; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; transition: all 0.15s ease; }
     .chip:hover { background: var(--primary-light); color: var(--primary); border-color: transparent; }
 
-    .hero-art { height: 410px; position: relative; display: grid; place-items: center; }
-    .orbit { position: absolute; width: 500px; height: 160px; border: 2px solid rgba(0, 0, 0, 0.04); border-radius: 50%; transform: rotate(-10deg); }
-    .cube-wrap { position: relative; transform: rotate(12deg); animation: float 5s ease-in-out infinite; }
-    .cube {
-      width: 190px; height: 190px; border-radius: 40px; display: grid; place-items: center; background: radial-gradient(circle at 20% 14%, rgba(255, 255, 255, 0.6), transparent 30%), linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: inset 0 6px 12px rgba(255, 255, 255, 0.3), 0 20px 40px rgba(0, 0, 0, 0.07); position: relative; transition: background 0.5s ease;
+    /* ==========================================================================
+       HERO ART - FULL VANILLA 3D CUBE, ORBIT & SPARKS (THEME LINKED)
+       ========================================================================== */
+    .hero-art { 
+      height: 480px; 
+      position: relative; 
+      display: grid; 
+      place-items: center;
+      perspective: 1200px; /* 3D 기하학 뎁스 정의 */
     }
-    .cube-letter { color: #fff; font-size: 100px; line-height: 1; font-weight: 900; transform: rotate(-12deg); }
 
-    @keyframes float { 0%, 100% { transform: rotate(12deg) translateY(0); } 50% { transform: rotate(12deg) translateY(-12px); } }
+    /* 배경에서 회전하는 로컬 흐름 궤도선 */
+    .orbit { 
+      position: absolute; 
+      width: 500px; 
+      height: 160px; 
+      border: 2px solid rgba(148, 163, 184, 0.12); 
+      border-radius: 50%; 
+      transform: rotate(-10deg); /* 원본 고유 기울기 축 */
+      pointer-events: none;
+      z-index: 1;
+    }
 
+    /* 3D 큐브 플로팅 및 축 기울기 제어 레이어 */
+    .cube-wrap { 
+      position: relative; 
+      transform-style: preserve-3d;
+      transform: rotate(12deg); 
+      animation: float 5s ease-in-out infinite; 
+      z-index: 2;
+    }
+
+    /* 6면체 리얼 입체 디바이스 (정속 공간 회전 매핑) */
+    .cube {
+      width: 160px; 
+      height: 160px; 
+      position: relative;
+      transform-style: preserve-3d;
+      animation: cubeRotate3D 15s linear infinite; 
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      border-radius: 36px; /* 반투명 글래스모피즘 라운딩 */
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.3), 0 12px 30px rgba(15, 23, 42, 0.04);
+      transition: background-color 0.5s ease, border-color 0.5s ease;
+    }
+
+    /* 3D 공간 하드코딩 반경 계산 (Z축 오프셋 80px) */
+    .cube-face.front  { transform: rotateY(0deg) translateZ(80px); background-color: var(--primary); }
+    .cube-face.back   { transform: rotateY(180deg) translateZ(80px); background-color: var(--primary-dark); }
+    .cube-face.right  { transform: rotateY(90deg) translateZ(80px); background-color: var(--primary-dark); opacity: 0.88; }
+    .cube-face.left   { transform: rotateY(-90deg) translateZ(80px); background-color: var(--primary); opacity: 0.88; }
+    .cube-face.top    { transform: rotateX(90deg) translateZ(80px); background-color: #ffffff; border-color: var(--primary); }
+    .cube-face.bottom { transform: rotateX(-90deg) translateZ(80px); background-color: var(--primary-dark); filter: brightness(0.7); }
+
+    .cube-letter { 
+      color: #fff; 
+      font-size: 80px; 
+      line-height: 1; 
+      font-weight: 900; 
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      user-select: none;
+    }
+    
+    .cube-face.top .cube-letter {
+      color: var(--primary);
+      font-size: 68px;
+      transition: color 0.5s ease;
+    }
+
+    /* 리얼 물리 기반 도플러 그림자 */
+    .cube-shadow {
+      position: absolute;
+      bottom: -40px;
+      width: 145px;
+      height: 25px;
+      background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+      border-radius: 50%;
+      animation: shadowPulse 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* 우주 입자 및 별 파티클 시스템 (SPARKS & DOTS) */
+    .dot, .spark {
+      position: absolute;
+      pointer-events: none;
+      user-select: none;
+      z-index: 3;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 4px 12px var(--primary-light);
+      transition: background-color 0.5s ease, box-shadow 0.5s ease;
+      animation: particleFloat 4s ease-in-out infinite alternate;
+    }
+
+    .dot.d1 { left: 60px; top: 110px; animation-delay: 0.2s; }
+    .dot.d2 { left: 110px; bottom: 85px; width: 10px; height: 10px; animation-delay: 0.8s; }
+    .dot.d3 { right: 120px; top: 45px; width: 8px; height: 8px; opacity: 0.75; animation-delay: 1.2s; }
+    .dot.d4 { right: 80px; bottom: 105px; width: 11px; height: 11px; opacity: 0.5; animation-delay: 0.5s; }
+    .dot.d5 { left: 240px; top: 50px; width: 7px; height: 7px; opacity: 0.6; animation-delay: 1.4s; }
+
+    .spark {
+      color: var(--primary);
+      font-size: 22px;
+      opacity: 0.5;
+      transition: color 0.5s ease;
+      animation: sparkBlink 3s ease-in-out infinite alternate;
+    }
+
+    .spark.s1 { left: 90px; top: 75px; animation-delay: 0.1s; }
+    .spark.s2 { left: 130px; bottom: 60px; font-size: 16px; animation-delay: 0.6s; }
+    .spark.s3 { right: 150px; bottom: 95px; font-size: 14px; animation-delay: 1.0s; }
+
+    /* CORE ANIMATION ENGINE */
+    @keyframes float { 
+      0%, 100% { transform: rotate(12deg) translateY(0); } 
+      50% { transform: rotate(12deg) translateY(-14px); } 
+    }
+
+    @keyframes cubeRotate3D {
+      0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(0deg); }
+    }
+
+    @keyframes shadowPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.85); opacity: 0.4; filter: blur(1px); }
+    }
+
+    @keyframes particleFloat {
+      0% { transform: translateY(0); opacity: 0.4; }
+      100% { transform: translateY(-10px); opacity: 0.8; }
+    }
+
+    @keyframes sparkBlink {
+      0% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
+      100% { opacity: 0.7; transform: scale(1.1) rotate(20deg); }
+    }
+
+    /* ==========================================================================
+       CONTENT SECTIONS
+       ========================================================================== */
     /* 메인 컨텐츠 그리드 구성 */
     .main-grid { display: grid; grid-template-columns: 1.58fr 0.97fr; gap: 24px; margin-top: 24px; }
     .card { background: var(--card); border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: var(--soft-shadow); }
@@ -188,7 +334,6 @@
     .promo { min-height: 184px; padding: 28px 24px; position: relative; overflow: hidden; }
     .promo h3 { margin: 0 0 10px; font-size: 18px; font-weight: 800; letter-spacing: -0.03em; }
     .promo p { width: 68%; margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.45; font-weight: 500; }
-
     .outline-btn { height: 38px; padding: 0 16px; border: 1px solid #cbd5e1; border-radius: 8px; color: var(--text); background: #ffffff; font-size: 13px; font-weight: 600; transition: all 0.2s; }
     .outline-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
     .promo-art { position: absolute; right: 16px; top: 36px; }
@@ -198,15 +343,11 @@
     .heart { width: 80px; height: 80px; display: grid; place-items: center; color: #e11d48; font-size: 48px; background: #ffe4e6; clip-path: path("M40 70 C22 56 4 43 4 23 C4 11 13 3 25 3 C32 3 37 7 40 12 C43 7 48 3 55 3 C67 3 76 11 76 23 C76 43 58 56 40 70 Z"); }
 
     /* 공통 모달 기본 레이아웃 오버레이 */
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
-    }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
     .modal-overlay.show { opacity: 1; pointer-events: all; }
     
     /* 개인정보 처리방침 & 브랜드 소개 모달 박스 공통 구조 */
-    .privacy-modal, .about-modal { 
-      width: min(500px, calc(100% - 32px)); max-height: 85vh; background: #ffffff; border-radius: 20px; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15); padding: 32px 24px; transform: translateY(20px); transition: transform 0.25s ease; position: relative; border: 1px solid #e2e8f0; display: flex; flex-direction: column;
-    }
+    .privacy-modal, .about-modal { width: min(500px, calc(100% - 32px)); max-height: 85vh; background: #ffffff; border-radius: 20px; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15); padding: 32px 24px; transform: translateY(20px); transition: transform 0.25s ease; position: relative; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
     .modal-overlay.show .privacy-modal, .modal-overlay.show .about-modal { transform: translateY(0); }
     
     .modal-close-btn { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; font-size: 24px; color: var(--muted); font-weight: 300; cursor: pointer; }
@@ -229,9 +370,7 @@
     .privacy-date { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: right; font-weight: 500; }
 
     /* 모달 하단 메인 확인 버튼 */
-    .modal-confirm-btn { 
-      height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); transition: all 0.15s ease; flex-shrink: 0; cursor: pointer;
-    }
+    .modal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); transition: all 0.15s ease; flex-shrink: 0; cursor: pointer; }
     .modal-confirm-btn:hover { filter: brightness(1.04); }
 
     .footer { border-top: 1px solid #e2e8f0; background: #ffffff; }
@@ -247,7 +386,7 @@
     @media (max-width: 980px) {
       .nav { gap: 20px; }
       .hero { grid-template-columns: 1fr; min-height: auto; padding-bottom: 20px; }
-      .hero-art { display: none; }
+      .hero-art { height: 410px; }
       .main-grid, .promo-grid { grid-template-columns: 1fr; }
       .promo p { width: 70%; }
     }
@@ -272,6 +411,8 @@
       .promo-art { opacity: 0.2; }
       .footer-inner { flex-direction: column; align-items: flex-start; padding: 20px 0; }
       .footer-links { flex-wrap: wrap; }
+      /* 모바일에서는 레이아웃 확보를 위해 3D 아트를 숨깁니다 */
+      .hero-art { display: none; } 
     }
   </style>
 </head>
@@ -335,16 +476,31 @@
 
       <div class="hero-art" aria-hidden="true">
         <div class="orbit"></div>
+        
+        <span class="spark s1">✦</span>
+        <span class="spark s2">✦</span>
+        <span class="spark s3">✦</span>
+        <span class="dot d1"></span>
+        <span class="dot d2"></span>
+        <span class="dot d3"></span>
+        <span class="dot d4"></span>
+        <span class="dot d5"></span>
+
         <div class="cube-wrap">
           <div class="cube">
-            <div class="cube-letter">L</div>
+            <div class="cube-face front"><span class="cube-letter">플</span></div>
+            <div class="cube-face back"><span class="cube-letter">래</span></div>
+            <div class="cube-face right"><span class="cube-letter">닛</span></div>
+            <div class="cube-face left"><span class="cube-letter">충</span></div>
+            <div class="cube-face top"><span class="cube-letter">주</span></div>
+            <div class="cube-face bottom"><span class="cube-letter">ㅋ?</span></div>
           </div>
         </div>
+        <div class="cube-shadow"></div>
       </div>
     </section>
 
     <section class="main-grid">
-      <!-- 쿠폰 추첨 일정 리스트 컴포넌트 -->
       <article class="card event-card" id="schedule">
         <div class="card-head">
           <h2 class="card-title">📅 실시간 쿠폰 추첨 일정</h2>
@@ -385,7 +541,6 @@
         <div class="promo-art new-store-badge">🏪</div>
       </article>
 
-      <!-- [수정] 클릭 시 하단 소개 모달이 작동하도록 변경 -->
       <article class="card promo">
         <h3>♡ LocalFlow란?</h3>
         <p>우리의 작은 선택이 모여<br />더 나은 지역을 만듭니다.</p>
@@ -413,7 +568,6 @@
     </div>
   </footer>
 
-  <!-- 개인정보 처리방침 모달 팝업 레이아웃 -->
   <div class="modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
     <div class="privacy-modal" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closePrivacyModal()">×</button>
@@ -450,7 +604,6 @@
     </div>
   </div>
 
-  <!-- [추가] LocalFlow 브랜드 소개 모달 팝업 레이아웃 -->
   <div class="modal-overlay" id="aboutModalOverlay" onclick="closeAboutModal()">
     <div class="about-modal" onclick="event.stopPropagation()">
       <button class="modal-close-btn" onclick="closeAboutModal()">×</button>
@@ -578,7 +731,7 @@
       document.body.style.overflow = "auto";
     };
 
-    // [추가] 브랜드 소개 모달 제어
+    // 브랜드 소개 모달 제어
     window.openAboutModal = function() {
       document.getElementById("aboutModalOverlay").classList.add("show");
       document.body.style.overflow = "hidden";
