@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>LocalFlow - 충주 갤러리</title>
+  <title>LocalFlow - 로컬플로우</title>
   <meta name="description" content="LocalFlow는 오늘 먹고 싶은 메뉴를 모아 충주의 다음 흐름을 만드는 시민 참여형 로컬 프로젝트입니다. 실시간 맛집 랭킹을 확인하고 투표해보세요!" />
   <meta name="keywords" content="충주, 충주맛집, 로컬플로우, LocalFlow, 충주여행, 맛집투표, 오늘뭐먹지, 성서동맛집" />
   <meta name="author" content="Planet Chungju" />
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="LocalFlow - 충주 맛집 투표" />
   <meta property="og:description" content="오늘, 뭐 먹고 싶어? 충주 시민들이 직접 만드는 로컬 맛집 흐름에 참여하세요." />
-  <meta property="og:image" content="https://archive.localflow.info/assets/img/localflow.png" />
+  <meta property="og:image" content="https://localflow.info/oi.png" />
   <meta property="og:url" content="https://localflow.info" />
 
   <style>
@@ -235,6 +235,138 @@
     }
     .modal-close:hover { transform: rotate(90deg); }
 
+    /* 약관/개인정보 모달 UI */
+    .legal-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 110;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .legal-modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .legal-modal {
+      width: min(500px, calc(100% - 32px));
+      max-height: 85vh;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+      padding: 32px 24px;
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+      position: relative;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+    .legal-modal-overlay.show .legal-modal {
+      transform: translateY(0);
+    }
+
+    .legal-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: 0;
+      font-size: 24px;
+      color: var(--muted);
+      font-weight: 300;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .legal-modal-close:hover { color: var(--text); }
+
+    .legal-modal-head {
+      text-align: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+    .legal-modal-head h3 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .legal-modal-head p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .legal-modal-body {
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #334155;
+      text-align: left;
+    }
+    .legal-modal-body::-webkit-scrollbar { width: 4px; }
+    .legal-modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .legal-modal-body h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 18px 0 6px;
+    }
+    .legal-modal-body h4:first-child { margin-top: 0; }
+    .legal-modal-body p {
+      margin: 0 0 10px;
+      font-weight: 500;
+      color: #475569;
+    }
+    .legal-modal-body code {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-weight: 600;
+    }
+    .legal-modal-body .theme-text {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .legal-date {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 20px;
+      text-align: right;
+      font-weight: 500;
+    }
+
+    .legal-confirm-btn {
+      height: 50px;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      box-shadow: 0 4px 14px var(--primary-light);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .legal-confirm-btn:hover { filter: brightness(1.04); }
+
     /* 푸터 */
     .footer { border-top: 1px solid #e2e8f0; background: #ffffff; }
     .footer-inner { width: min(1148px, calc(100% - 48px)); margin: 0 auto; min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -299,11 +431,11 @@
     <div class="footer-inner">
       <div>
         <div class="footer-brand">LocalFlow</div>
-        <div class="copyright">© 2026 LocalFlow. All rights reserved.</div>
+        <div class="copyright">© 2026 STANCE. LocalFlow Project. All rights reserved.</div>
       </div>
       <div class="footer-links">
-        <a href="#">이용약관</a><span>|</span>
-        <a href="#">개인정보처리방침</a><span>|</span>
+        <a href="javascript:void(0);" onclick="openTermsModal()">이용약관</a><span>|</span>
+        <a href="javascript:void(0);" onclick="openPrivacyModal()">개인정보처리방침</a><span>|</span>
         <a href="#">문의하기</a>
         <span class="footer-icons"><span>◎</span><span>N</span><span>☁</span></span>
       </div>
@@ -317,6 +449,87 @@
       <img src="" alt="상세 이미지" class="modal-img" id="modalImg" />
     </div>
   </div>
+
+  <!-- 이용약관 모달 -->
+  <div class="legal-modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
+    <div class="legal-modal" onclick="event.stopPropagation()">
+      <button class="legal-modal-close" onclick="closeTermsModal()">×</button>
+
+      <div class="legal-modal-head">
+        <h3>이용약관</h3>
+        <p>LocalFlow 서비스 이용 안내</p>
+      </div>
+
+      <div class="legal-modal-body">
+        <h4>1. 서비스 소개</h4>
+        <p>LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다. 사용자는 맛집 추천, 투표, 갤러리 열람, 쿠폰 이벤트 참여 등 다양한 기능을 이용할 수 있습니다.</p>
+
+        <h4>2. 서비스 이용 목적</h4>
+        <p>본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다. 이용자는 건전한 방식으로 서비스를 이용해야 하며, 허위 정보 등록이나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.</p>
+
+        <h4>3. 콘텐츠 이용 안내</h4>
+        <p>갤러리에 표시되는 이미지와 콘텐츠는 LocalFlow 서비스 분위기 연출 및 로컬 정보 제공을 위한 목적으로 사용됩니다. 이용자는 콘텐츠를 무단 복제, 배포, 상업적으로 활용해서는 안 됩니다.</p>
+
+        <h4>4. 이벤트 및 쿠폰 정책</h4>
+        <p>쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다. 추첨 이벤트는 내부 기준에 따라 공정하게 선정되며, 중복 참여 또는 비정상적인 이용이 확인될 경우 응모가 제한될 수 있습니다.</p>
+
+        <h4>5. 이용 제한</h4>
+        <p>다음과 같은 행위가 확인될 경우 서비스 이용이 제한될 수 있습니다.</p>
+        <p>• 타인의 개인정보 도용<br>• 비정상적인 반복 응모 및 자동화 이용<br>• 서비스 운영 방해 행위<br>• 법령 및 공공질서에 위반되는 행위</p>
+
+        <h4>6. 책임의 제한</h4>
+        <p>LocalFlow는 천재지변, 시스템 장애, 외부 서비스 문제 등 불가항력적인 사유로 발생한 서비스 중단에 대해 책임을 지지 않습니다.</p>
+
+        <h4>7. 약관 변경</h4>
+        <p>본 약관은 서비스 운영상 필요한 경우 변경될 수 있으며, 중요한 변경 사항은 서비스 내 공지사항 또는 모달을 통해 사전 안내됩니다.</p>
+
+        <h4>8. 문의</h4>
+        <p>서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br><strong>문의 이메일:</strong> <span class="theme-text">contact@localflow.info</span></p>
+
+        <div class="legal-date">공고 및 시행일자: 2026년 5월 27일</div>
+      </div>
+
+      <button class="legal-confirm-btn" onclick="closeTermsModal()">확인했습니다</button>
+    </div>
+  </div>
+
+  <!-- 개인정보 처리방침 모달 -->
+  <div class="legal-modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
+    <div class="legal-modal" onclick="event.stopPropagation()">
+      <button class="legal-modal-close" onclick="closePrivacyModal()">×</button>
+
+      <div class="legal-modal-head">
+        <h3>개인정보 처리방침</h3>
+        <p>LocalFlow 서비스 이용을 위한 안내</p>
+      </div>
+
+      <div class="legal-modal-body">
+        <h4>1. 수집하는 개인정보 항목 및 방법</h4>
+        <p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br>
+        <strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
+
+        <h4>2. 개인정보의 수집 및 이용 목적</h4>
+        <p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br>
+        <strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
+
+        <h4>3. 개인정보의 보유 및 이용 기간</h4>
+        <p>이용자의 개인정보는 원칙적으로 <strong>개인정보 수집 및 이용 목적이 달성되면 지체 없이 파기</strong>합니다.<br>
+        <strong>보유 기간:</strong> 결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
+
+        <h4>4. 제3자 제공 및 위탁</h4>
+        <p>LocalFlow는 이용자의 사전 동의 없이는 원칙적으로 외부(제3자)에 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+
+        <h4>5. 이용자의 권리 및 문의처</h4>
+        <p>이용자는 언제든지 본인의 개인정보 처리에 대한 동의 철회 및 삭제를 요구할 수 있습니다. 관련 문의는 하단 이메일로 연락하시면 지체 없이 조치하겠습니다.<br>
+        <strong>문의 이메일:</strong> <span class="theme-text">contact@localflow.info</span></p>
+
+        <div class="legal-date">공고 및 시행일자: 2026년 5월 27일</div>
+      </div>
+
+      <button class="legal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
+    </div>
+  </div>
+
 
   <script>
     // [연동] 메인과 싱크를 맞춘 요일별 테마 컬러 데이터 세트
@@ -338,7 +551,7 @@
 
       root.style.setProperty('--primary', theme.primary);
       root.style.setProperty('--primary-light', theme.primaryLight);
-      root.style.setProperty('--primary-dark', theme.themeDark || theme.primary);
+      root.style.setProperty('--primary-dark', theme.primaryDark);
     }
 
     // 초기 테마 로드
@@ -407,7 +620,17 @@
       `).join('');
     }
 
-    // 모달 제어
+    function unlockBodyIfNoModalOpen() {
+      const imageOpen = modalOverlay.classList.contains("active");
+      const termsOpen = document.getElementById("termsModalOverlay").classList.contains("show");
+      const privacyOpen = document.getElementById("privacyModalOverlay").classList.contains("show");
+
+      if (!imageOpen && !termsOpen && !privacyOpen) {
+        document.body.style.overflow = "auto";
+      }
+    }
+
+    // 이미지 라이트박스 제어
     window.openModal = function(imageUrl) {
       modalImg.src = imageUrl;
       modalOverlay.classList.add("active");
@@ -416,12 +639,36 @@
 
     window.closeModal = function() {
       modalOverlay.classList.remove("active");
-      document.body.style.overflow = "auto";
+      unlockBodyIfNoModalOpen();
+    };
+
+    // 이용약관 모달 제어
+    window.openTermsModal = function() {
+      document.getElementById("termsModalOverlay").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+
+    window.closeTermsModal = function() {
+      document.getElementById("termsModalOverlay").classList.remove("show");
+      unlockBodyIfNoModalOpen();
+    };
+
+    // 개인정보 처리방침 모달 제어
+    window.openPrivacyModal = function() {
+      document.getElementById("privacyModalOverlay").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+
+    window.closePrivacyModal = function() {
+      document.getElementById("privacyModalOverlay").classList.remove("show");
+      unlockBodyIfNoModalOpen();
     };
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && modalOverlay.classList.contains("active")) {
+      if (e.key === "Escape") {
         closeModal();
+        closeTermsModal();
+        closePrivacyModal();
       }
     });
 
