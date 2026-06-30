@@ -756,6 +756,33 @@
   <script>
     const API_BASE = "https://localflow.ddns.net/lf";
 
+
+    const THEMES = [
+      { primary: "#0d9488", primaryLight: "#f0fdfa", primaryDark: "#115e59", badgeBg: "#f0fdfa", badgeBorder: "#ccfbf1", badgeText: "#115e59" },
+      { primary: "#2563eb", primaryLight: "#eff6ff", primaryDark: "#1d4ed8", badgeBg: "#eff6ff", badgeBorder: "#bfdbfe", badgeText: "#1d4ed8" },
+      { primary: "#059669", primaryLight: "#ecfdf5", primaryDark: "#047857", badgeBg: "#ecfdf5", badgeBorder: "#d1fae5", badgeText: "#047857" },
+      { primary: "#7c3aed", primaryLight: "#f5f3ff", primaryDark: "#6d28d9", badgeBg: "#f5f3ff", badgeBorder: "#ede9fe", badgeText: "#6d28d9" },
+      { primary: "#ea580c", primaryLight: "#fff7ed", primaryDark: "#c2410c", badgeBg: "#fff7ed", badgeBorder: "#ffedd5", badgeText: "#c2410c" },
+      { primary: "#e11d48", primaryLight: "#fff1f2", primaryDark: "#be123c", badgeBg: "#fff1f2", badgeBorder: "#ffe4e6", badgeText: "#be123c" },
+      { primary: "#4f46e5", primaryLight: "#eef2ff", primaryDark: "#3730a3", badgeBg: "#eef2ff", badgeBorder: "#e0e7ff", badgeText: "#3730a3" }
+    ];
+
+    function applyDailyTheme() {
+      const currentDay = new Date().getDay();
+      const theme = THEMES[currentDay];
+      const root = document.documentElement;
+
+      root.style.setProperty("--primary", theme.primary);
+      root.style.setProperty("--primary-light", theme.primaryLight);
+      root.style.setProperty("--primary-dark", theme.primaryDark);
+      root.style.setProperty("--badge-bg", theme.badgeBg);
+      root.style.setProperty("--badge-border", theme.badgeBorder);
+      root.style.setProperty("--badge-text", theme.badgeText);
+    }
+
+    applyDailyTheme();
+
+
     function apiUrl(path) {
       if (/^https?:\/\//i.test(path)) return path;
       return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
