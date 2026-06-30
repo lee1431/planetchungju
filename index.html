@@ -113,7 +113,7 @@
       const input = document.getElementById("voteInput");
       const text = input.value.trim();
       if (!text) return;
-      const data = await apiSend("/api/votes", "POST", {text, source: "home"});
+      const data = await apiSend("https://localflow.ddns.net/lf/api/votes", "POST", {text, source: "home"});
       if (data.ok) {
         showToast(`🎉 "${text}" 의견이 로컬플로우에 기록되었습니다.`);
         input.value = "";
@@ -123,8 +123,8 @@
     });
 
     async function renderHomeData() {
-      const coupons = (await apiGet("/api/coupons")).items || [];
-      const gallery = (await apiGet("/api/gallery")).items || [];
+      const coupons = (await apiGet("https://localflow.ddns.net/lf/api/coupons")).items || [];
+      const gallery = (await apiGet("https://localflow.ddns.net/lf/api/gallery")).items || [];
 
       const activeCoupons = coupons.filter(c => c.active !== false).slice(0, 4);
       document.getElementById("scheduleList").innerHTML = activeCoupons.length ? activeCoupons.map(c => `
