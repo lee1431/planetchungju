@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalFlow 쿠폰</title>
+  <link rel="stylesheet" href="./static/common.css">
+  <style>
+    .sub-hero { padding:54px 0 32px; text-align:center; }
+    .sub-title { font-size:38px; font-weight:900; letter-spacing:-.05em; margin:0 0 12px; }
+    .sub-title span { color:var(--primary); }
+    .sub-desc { color:var(--muted); margin:0; }
+    .filter-chips { display:flex; justify-content:center; gap:10px; margin-bottom:32px; flex-wrap:wrap; }
+    .filter-chip { border:1px solid var(--line); color:var(--muted); background:#fff; border-radius:999px; padding:10px 22px; font-weight:800; }
+    .filter-chip.active { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; border-color:transparent; }
+    .coupon-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:24px; padding-bottom:60px; }
+    .coupon-card { overflow:hidden; position:relative; }
+    .coupon-head { min-height:110px; padding:24px; display:flex; flex-direction:column; justify-content:center; color:#fff; }
+    .bg-purple { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); }
+    .bg-dark { background:linear-gradient(135deg,#1e293b,#0f172a); }
+    .bg-light { background:linear-gradient(135deg,var(--primary-light),#e2e8f0); color:var(--primary); }
+    .coupon-type { font-size:13px; font-weight:900; opacity:.9; margin-bottom:6px; }
+    .coupon-title { font-size:24px; font-weight:900; margin:0; line-height:1.1; }
+    .draw-badge { position:absolute; top:16px; right:20px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:900; background:rgba(255,255,255,.22); color:#fff; }
+    .bg-light .draw-badge { color:var(--primary); background:rgba(255,255,255,.7); }
+    .coupon-body { padding:24px; background:#fff; }
+    .store-name { margin:0 0 8px; font-size:18px; font-weight:900; }
+    .expire-date { font-size:14px; color:var(--muted); font-weight:700; margin-bottom:20px; }
+    .use-btn { width:100%; height:48px; border:0; border-radius:8px; background:var(--primary-light); color:var(--primary); font-weight:900; }
+    .use-btn:hover { background:var(--primary); color:#fff; }
+    .expired-card { filter:grayscale(.9); opacity:.7; }
+    .modal-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,.6); backdrop-filter:blur(6px); z-index:100; }
+    .modal-overlay.show { display:flex; }
+    .entry-modal { width:min(440px,calc(100% - 32px)); background:#fff; border-radius:20px; padding:32px 28px; position:relative; }
+    .modal-close-btn { position:absolute; top:18px; right:18px; background:transparent; border:0; font-size:24px; color:var(--muted); }
+    .modal-input { width:100%; height:54px; padding:0 18px; border:2px solid var(--line); border-radius:10px; outline:0; font-weight:700; }
+    .modal-submit-btn { width:100%; height:54px; margin-top:14px; }
+  </style>
+</head>
+<body>
+<header class="topbar"><div class="nav-inner">
+  <a href="./index.html" class="brand"><span class="brand-icon">L</span><span><span class="brand-name">LocalFlow</span><span class="brand-sub">충주 로컬플로우</span></span></a>
+  <nav class="nav"><a href="./index.html">홈</a><a href="./gallery.html">갤러리</a><a class="active" href="./coupon.html">쿠폰</a></nav>
+</div></header>
+
+<main class="page">
+  <section class="sub-hero"><h1 class="sub-title">로컬 쿠폰 & <span>추첨</span></h1><p class="sub-desc">관리자에서 생성한 쿠폰을 불러옵니다.</p></section>
+  <div class="filter-chips" id="filterContainer"></div>
+  <div class="coupon-grid" id="couponList"></div>
+</main>
+
+<div class="modal-overlay" id="entryModalOverlay" onclick="closeEntryModal()">
+  <div class="entry-modal" onclick="event.stopPropagation()">
+    <button class="modal-close-btn" onclick="closeEntryModal()">×</button>
+    <h3 style="margin:0 0 8px;font-size:22px;font-weight:900;">이벤트 응모하기</h3>
+    <p style="color:var(--muted);font-weight:700;">추첨 결과를 전달받을 네이버 이메일을 입력해주세요.</p>
+    <strong id="modalTargetTitle" style="display:block;color:var(--primary);margin:12px 0;"></strong>
+    <form id="modalForm">
+      <input id="modalEmailInput" class="modal-input" placeholder="localflow@naver.com">
+      <button class="btn modal-submit-btn" type="submit">응모 완료하기</button>
+    </form>
+  </div>
+</div>
+
+<footer class="footer"><div class="footer-inner"><div><div class="footer-brand">LocalFlow</div><div class="copyright">© 2026 STANCE. LocalFlow Project.</div></div></div></footer>
+<div class="toast" id="toast"></div>
+<script src="./static/common.js"></script>
+<script>
+let rawCoupons = [];
+let currentFilter = "전체";
+let activeCouponId = null;
+
+async function loadCoupons() {
+  const data = await apiGet("/api/coupons");
+  rawCoupons = (data.items || []).filter(c => c.active !== false);
+  renderFilters();
+  renderCoupons();
+}
+
+function renderFilters() {
+  const types = ["전체", ...new Set(rawCoupons.map(c => c.type || "기타"))];
+  document.getElementById("filterContainer").innerHTML = types.map(type => `
+    <button class="filter-chip ${type === currentFilter ? "active" : ""}" data-type="${escapeHtml(type)}">${escapeHtml(type)}</button>
+  `).join("");
+  document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => {
+    currentFilter = btn.dataset.type;
+    renderFilters();
+    renderCoupons();
+  }));
+}
+
+function renderCoupons() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const filtered = currentFilter === "전체" ? rawCoupons : rawCoupons.filter(c => c.type === currentFilter);
+  document.getElementById("couponList").innerHTML = filtered.length ? filtered.map(coupon => {
+    const exp = new Date(coupon.expire); exp.setHours(0,0,0,0);
+    const expired = exp < today;
+    return `
+      <article class="card coupon-card ${expired ? "expired-card" : ""}">
+        <div class="coupon-head ${escapeHtml(coupon.style || "bg-purple")}">
+          <span class="draw-badge">${expired ? "추첨완료" : escapeHtml(coupon.drawDate || coupon.expire)}</span>
+          <div class="coupon-type">${escapeHtml(coupon.type)}</div>
+          <h3 class="coupon-title">${escapeHtml(coupon.title)}</h3>
+        </div>
+        <div class="coupon-body">
+          <h4 class="store-name">${escapeHtml(coupon.store)}</h4>
+          <div class="expire-date">추첨/마감일: ${escapeHtml(coupon.expire)}</div>
+          <button class="use-btn" ${expired ? "disabled" : ""} onclick="openEntryModal('${escapeHtml(coupon.id)}','${escapeHtml(coupon.title)}')">${expired ? "추첨완료" : "이벤트 응모하기 ✈"}</button>
+        </div>
+      </article>
+    `;
+  }).join("") : `<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 0;">등록된 쿠폰이 없습니다.</p>`;
+}
+
+function openEntryModal(id, title) {
+  activeCouponId = id;
+  document.getElementById("modalTargetTitle").textContent = `[${title}]`;
+  document.getElementById("modalEmailInput").value = "";
+  document.getElementById("entryModalOverlay").classList.add("show");
+}
+
+function closeEntryModal() {
+  document.getElementById("entryModalOverlay").classList.remove("show");
+  activeCouponId = null;
+}
+
+document.getElementById("modalForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("modalEmailInput").value.trim();
+  const naverRegex = /^[a-z0-9_.-]+@naver\.com$/i;
+  if (!naverRegex.test(email)) return showToast("❌ 네이버 이메일(@naver.com)만 입력 가능합니다.");
+
+  const data = await apiSend("/api/coupon_entries", "POST", {coupon_id: activeCouponId, email});
+  if (data.ok) {
+    closeEntryModal();
+    showToast(`🎉 응모 완료! 추첨 결과는 ${email}로 발송됩니다.`);
+  } else if (data.error === "DUPLICATE_ENTRY") {
+    showToast("이미 이 쿠폰에 응모한 이메일입니다.");
+  } else {
+    showToast("응모 저장 실패");
+  }
+});
+
+loadCoupons();
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalFlow - 로컬플로우</title>
+  <meta name="description" content="LocalFlow는 충주 시민들의 선택과 참여로 지역의 흐름을 만들고 다시 지역으로 순환시키는 시민 참여형 로컬 플랫폼입니다." />
+  <link rel="stylesheet" href="./static/common.css">
+  <style>
+    .hero { min-height: 506px; display: grid; grid-template-columns: 1.08fr .92fr; align-items: center; gap: 42px; padding-top: 54px; }
+    .badge { width: fit-content; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; color: var(--badge-text); font-size: 14px; font-weight: 700; background: var(--badge-bg); border: 1px solid var(--badge-border); }
+    .hero-title { margin: 19px 0 18px; font-size: clamp(46px, 5vw, 64px); line-height: 1.16; letter-spacing: -.05em; font-weight: 900; }
+    .hero-title span { color: var(--primary); }
+    .hero-desc { margin: 0 0 41px; color: var(--muted); font-size: 16px; line-height: 1.72; font-weight: 500; }
+    .vote-box { width: 100%; max-width: 660px; min-height: 76px; padding: 10px 10px 10px 24px; display: flex; align-items: center; gap: 14px; border: 1px solid #cbd5e1; border-radius: 14px; background: #fff; box-shadow: 0 12px 30px rgba(15,23,42,.06); }
+    .vote-box input { min-width: 0; flex: 1; height: 54px; border: 0; outline: 0; font-size: 16px; font-weight: 700; }
+    .vote-box button { width: 180px; height: 54px; }
+    .chips { margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .chip { border: 1px solid #e2e8f0; color: var(--muted); background: #fff; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 700; }
+    .chip:hover { background: var(--primary-light); color: var(--primary); border-color: transparent; }
+    .hero-art { height: 440px; position: relative; display: grid; place-items: center; perspective: 1200px; }
+    .cube { width: 160px; height: 160px; border-radius: 36px; display: grid; place-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-size: 80px; font-weight: 1000; box-shadow: 0 26px 80px var(--primary-light); animation: float 4s ease-in-out infinite; }
+    .orbit { position: absolute; width: 470px; height: 150px; border: 2px solid rgba(148,163,184,.18); border-radius: 50%; transform: rotate(-10deg); }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(8deg); } 50% { transform: translateY(-18px) rotate(18deg); } }
+    .main-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin: 24px 0; }
+    .section-card { min-height: 330px; padding: 32px; }
+    .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom: 22px; }
+    .card-title { margin: 0; font-size:20px; font-weight:900; }
+    .more { color: var(--primary); font-weight: 800; }
+    .schedule-row { min-height: 58px; display:grid; grid-template-columns: auto 1fr auto; align-items:center; gap:16px; border-bottom:1px solid var(--line); font-weight:700; }
+    .schedule-date { background: var(--primary-light); color: var(--primary); padding:4px 10px; border-radius: 6px; font-size: 12px; font-weight: 900; }
+    .gallery-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .gallery-thumb { height: 121px; border-radius: 10px; background-size: cover; background-position: center; }
+    .promo-grid { margin:24px 0; display:grid; grid-template-columns: repeat(3,1fr); gap:24px; }
+    .promo { padding:28px 24px; min-height:168px; }
+    .promo h3 { margin:0 0 10px; font-size:18px; font-weight:900; }
+    .promo p { color:var(--muted); line-height:1.45; font-weight:600; }
+    @media(max-width: 900px){ .hero,.main-grid,.promo-grid{grid-template-columns:1fr;} .hero-art{display:none;} }
+    @media(max-width:680px){ .vote-box{flex-direction:column; align-items:stretch; padding:17px;} .vote-box button{width:100%;} .gallery-grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="nav-inner">
+      <a href="./index.html" class="brand"><span class="brand-icon">L</span><span><span class="brand-name">LocalFlow</span><span class="brand-sub">충주 로컬플로우</span></span></a>
+      <nav class="nav">
+        <a class="active" href="./index.html">홈</a>
+        <a href="./gallery.html">갤러리</a>
+        <a href="./coupon.html">쿠폰</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <div class="badge" id="dayBadge">♣ 로컬의 선택이 지역의 흐름이 됩니다</div>
+        <h1 class="hero-title">오늘,<br><span>뭐 먹고 싶어?</span></h1>
+        <p class="hero-desc">LocalFlow는 오늘 먹고 싶은 한마디를 모아<br>충주의 다음 흐름을 만드는 시민 참여형 로컬 프로젝트입니다.</p>
+        <form class="vote-box" id="voteForm">
+          <input id="voteInput" placeholder="오늘 먹고 싶은 메뉴나 가게를 적어주세요!" required>
+          <button class="btn" type="submit">✈ 투표하기</button>
+        </form>
+        <div class="chips">
+          <strong>추천 키워드</strong>
+          <button class="chip" type="button">마라탕</button>
+          <button class="chip" type="button">칼국수</button>
+          <button class="chip" type="button">떡볶이</button>
+          <button class="chip" type="button">카페</button>
+          <button class="chip" type="button">초밥</button>
+          <button class="chip" type="button">삼겹살</button>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="orbit"></div>
+        <div class="cube">L</div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <article class="card section-card">
+        <div class="card-head"><h2 class="card-title">📅 실시간 쿠폰 추첨 일정</h2><a class="more" href="./coupon.html">캘린더 보기 ›</a></div>
+        <div id="scheduleList"></div>
+      </article>
+      <article class="card section-card">
+        <div class="card-head"><h2 class="card-title">▣ 오늘의 갤러리</h2><a class="more" href="./gallery.html">더보기 ›</a></div>
+        <div class="gallery-grid" id="homeGallery"></div>
+        <p style="color:var(--primary);font-weight:800;">#충주맛집 #오늘뭐먹지 #LocalFlow</p>
+      </article>
+    </section>
+
+    <section class="promo-grid">
+      <article class="card promo"><h3>🎁 Local 쿠폰 이벤트</h3><p>투표하고 쿠폰 받아가세요. 매장별 혜택을 관리페이지에서 바로 등록할 수 있습니다.</p><a href="./coupon.html"><button class="btn-soft" style="height:38px;padding:0 16px;">이벤트 참여하기 ›</button></a></article>
+      <article class="card promo"><h3>🌱 갤러리 등록</h3><p>로컬 매장, 메뉴, 풍경 사진을 JSON으로 관리하고 페이지에 바로 반영합니다.</p><a href="https://localflow.ddns.net/lf/admin" target="_blank" rel="noopener noreferrer"><button class="btn-soft" style="height:38px;padding:0 16px;">관리자 열기 ›</button></a></article>
+      <article class="card promo"><h3>♡ LocalFlow란?</h3><p>작은 선택이 모여 충주의 흐름이 되는 시민 참여형 로컬 순환 프로젝트입니다.</p></article>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="footer-inner"><div><div class="footer-brand">LocalFlow</div><div class="copyright">© 2026 STANCE. LocalFlow Project.</div></div></div></footer>
+  <div class="toast" id="toast"></div>
+  <script src="./static/common.js"></script>
+  <script>
+    const dayNames = ["일","월","화","수","목","금","토"];
+    document.getElementById("dayBadge").innerHTML = `♣ 오늘은 ${dayNames[new Date().getDay()]}요일! 상큼한 로컬의 흐름에 참여해보세요`;
+
+    document.querySelectorAll(".chip").forEach(chip => chip.addEventListener("click", () => {
+      document.getElementById("voteInput").value = chip.textContent.trim();
+      document.getElementById("voteInput").focus();
+    }));
+
+    document.getElementById("voteForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("voteInput");
+      const text = input.value.trim();
+      if (!text) return;
+      const data = await apiSend("/api/votes", "POST", {text, source: "home"});
+      if (data.ok) {
+        showToast(`🎉 "${text}" 의견이 로컬플로우에 기록되었습니다.`);
+        input.value = "";
+      } else {
+        showToast("❌ 저장 실패");
+      }
+    });
+
+    async function renderHomeData() {
+      const coupons = (await apiGet("/api/coupons")).items || [];
+      const gallery = (await apiGet("/api/gallery")).items || [];
+
+      const activeCoupons = coupons.filter(c => c.active !== false).slice(0, 4);
+      document.getElementById("scheduleList").innerHTML = activeCoupons.length ? activeCoupons.map(c => `
+        <div class="schedule-row">
+          <span class="schedule-date">${escapeHtml((c.expire || "").slice(5))}</span>
+          <span>${escapeHtml(c.store)} - ${escapeHtml(c.title)}</span>
+          <span style="color:var(--primary)">● 대기중</span>
+        </div>
+      `).join("") : `<p style="color:var(--muted)">등록된 쿠폰 일정이 없습니다. 관리자에서 쿠폰을 생성하세요.</p>`;
+
+      document.getElementById("homeGallery").innerHTML = gallery.slice(0, 4).map(g => `
+        <div class="gallery-thumb" title="${escapeHtml(g.title)}" style="background-image:url('${escapeHtml(g.url)}')"></div>
+      `).join("") || `<p style="color:var(--muted)">등록된 갤러리가 없습니다.</p>`;
+    }
+
+    renderHomeData();
+  </script>
+</body>
+</html>

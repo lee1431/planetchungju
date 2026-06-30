@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalFlow 갤러리</title>
+  <link rel="stylesheet" href="./static/common.css">
+  <style>
+    .sub-hero { padding:54px 0 32px; text-align:center; }
+    .sub-title { font-size:38px; font-weight:900; letter-spacing:-.05em; margin:0 0 12px; }
+    .sub-title span { color:var(--primary); }
+    .sub-desc { color:var(--muted); margin:0; }
+    .filter-chips { display:flex; justify-content:center; gap:10px; margin-bottom:40px; flex-wrap:wrap; }
+    .filter-chip { border:1px solid var(--line); color:var(--muted); background:#fff; border-radius:999px; padding:10px 22px; font-weight:800; }
+    .filter-chip.active { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; border-color:transparent; }
+    .gallery-masonry { column-count:3; column-gap:24px; }
+    .gallery-item { break-inside:avoid; margin-bottom:24px; overflow:hidden; cursor:pointer; }
+    .gallery-img { width:100%; display:block; }
+    .gallery-info { padding:20px; }
+    .gallery-type { color:var(--primary); font-size:12px; font-weight:900; margin-bottom:6px; }
+    .gallery-title { font-size:18px; font-weight:900; margin:0 0 12px; }
+    .tag { font-size:12px; color:var(--primary); font-weight:800; background:var(--primary-light); padding:4px 10px; border-radius:6px; margin-right:6px; display:inline-block; margin-bottom:6px; }
+    .modal { position:fixed; inset:0; display:none; place-items:center; background:rgba(15,23,42,.82); z-index:100; padding:24px; }
+    .modal.show { display:grid; }
+    .modal img { max-width:90vw; max-height:86vh; border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.4); }
+    @media(max-width:900px){.gallery-masonry{column-count:2;}}
+    @media(max-width:680px){.gallery-masonry{column-count:1;}.sub-title{font-size:32px;}}
+  </style>
+</head>
+<body>
+<header class="topbar"><div class="nav-inner">
+  <a href="./index.html" class="brand"><span class="brand-icon">L</span><span><span class="brand-name">LocalFlow</span><span class="brand-sub">충주 로컬플로우</span></span></a>
+  <nav class="nav"><a href="./index.html">홈</a><a class="active" href="./gallery.html">갤러리</a><a href="./coupon.html">쿠폰</a></nav>
+</div></header>
+
+<main class="page">
+  <section class="sub-hero"><h1 class="sub-title">눈으로 맛보는 <span>로컬</span></h1><p class="sub-desc">관리자에서 등록한 충주의 일상과 맛집이 표시됩니다.</p></section>
+  <div class="filter-chips" id="filterContainer"></div>
+  <div class="gallery-masonry" id="galleryList"></div>
+</main>
+
+<div class="modal" id="imageModal" onclick="this.classList.remove('show')"><img id="modalImg" src=""></div>
+<footer class="footer"><div class="footer-inner"><div><div class="footer-brand">LocalFlow</div><div class="copyright">© 2026 STANCE. LocalFlow Project.</div></div></div></footer>
+<script src="./static/common.js"></script>
+<script>
+let rawGallery = [];
+let currentFilter = "전체";
+
+async function loadGallery() {
+  const data = await apiGet("/api/gallery");
+  rawGallery = data.items || [];
+  renderFilters();
+  renderGallery();
+}
+
+function renderFilters() {
+  const types = ["전체", ...new Set(rawGallery.map(g => g.type || "기타"))];
+  document.getElementById("filterContainer").innerHTML = types.map(type => `
+    <button class="filter-chip ${type === currentFilter ? "active" : ""}" data-type="${escapeHtml(type)}">${escapeHtml(type)}</button>
+  `).join("");
+  document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => {
+    currentFilter = btn.dataset.type;
+    renderFilters();
+    renderGallery();
+  }));
+}
+
+function renderGallery() {
+  const filtered = currentFilter === "전체" ? rawGallery : rawGallery.filter(g => g.type === currentFilter);
+  document.getElementById("galleryList").innerHTML = filtered.length ? filtered.map(item => `
+    <article class="card gallery-item" onclick="openModal('${escapeHtml(item.url)}')">
+      <img src="${escapeHtml(item.url)}" alt="${escapeHtml(item.title)}" class="gallery-img" loading="lazy">
+      <div class="gallery-info">
+        <div class="gallery-type">${escapeHtml(item.type)}</div>
+        <h3 class="gallery-title">${escapeHtml(item.title)}</h3>
+        <div>${(item.tags || []).map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`).join("")}</div>
+      </div>
+    </article>
+  `).join("") : `<p style="text-align:center;color:var(--muted);padding:40px 0;">등록된 갤러리가 없습니다.</p>`;
+}
+
+function openModal(url) {
+  document.getElementById("modalImg").src = url;
+  document.getElementById("imageModal").classList.add("show");
+}
+
+loadGallery();
+</script>
+</body>
+</html>
