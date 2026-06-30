@@ -1,147 +1,830 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LocalFlow 쿠폰</title>
-  <link rel="stylesheet" href="./assets/css/common.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>LocalFlow - 로컬플로우</title>
+  <meta name="description" content="LocalFlow는 충주 시민들의 선택과 참여로 지역의 흐름을 만들고 다시 지역으로 순환시키는 시민 참여형 로컬 플랫폼입니다. 오늘 사람들의 선택이 내일 충주의 흐름이 됩니다." />
+  <meta name="keywords" content="로컬플로우, LocalFlow, 충주, 로컬플랫폼, 지역순환, 충주여행, 지역경제, 로컬커뮤니티" />
+  <meta name="author" content="STANCE" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="LocalFlow | 충주의 흐름을 순환시키는 로컬 플랫폼" />
+  <meta property="og:description" content="사람들의 선택은 흐름이 되고, 흐름은 다시 지역으로 돌아옵니다. 충주 시민들과 함께 만드는 로컬 순환 프로젝트 LocalFlow." />
+  <meta property="og:image" content="https://localflow.info/oi.png" />
+  <meta property="og:url" content="https://localflow.info" />
+
   <style>
-    .sub-hero { padding:54px 0 32px; text-align:center; }
-    .sub-title { font-size:38px; font-weight:900; letter-spacing:-.05em; margin:0 0 12px; }
-    .sub-title span { color:var(--primary); }
-    .sub-desc { color:var(--muted); margin:0; }
-    .filter-chips { display:flex; justify-content:center; gap:10px; margin-bottom:32px; flex-wrap:wrap; }
-    .filter-chip { border:1px solid var(--line); color:var(--muted); background:#fff; border-radius:999px; padding:10px 22px; font-weight:800; }
-    .filter-chip.active { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; border-color:transparent; }
-    .coupon-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:24px; padding-bottom:60px; }
-    .coupon-card { overflow:hidden; position:relative; }
-    .coupon-head { min-height:110px; padding:24px; display:flex; flex-direction:column; justify-content:center; color:#fff; }
-    .bg-purple { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); }
-    .bg-dark { background:linear-gradient(135deg,#1e293b,#0f172a); }
-    .bg-light { background:linear-gradient(135deg,var(--primary-light),#e2e8f0); color:var(--primary); }
-    .coupon-type { font-size:13px; font-weight:900; opacity:.9; margin-bottom:6px; }
-    .coupon-title { font-size:24px; font-weight:900; margin:0; line-height:1.1; }
-    .draw-badge { position:absolute; top:16px; right:20px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:900; background:rgba(255,255,255,.22); color:#fff; }
-    .bg-light .draw-badge { color:var(--primary); background:rgba(255,255,255,.7); }
-    .coupon-body { padding:24px; background:#fff; }
-    .store-name { margin:0 0 8px; font-size:18px; font-weight:900; }
-    .expire-date { font-size:14px; color:var(--muted); font-weight:700; margin-bottom:20px; }
-    .use-btn { width:100%; height:48px; border:0; border-radius:8px; background:var(--primary-light); color:var(--primary); font-weight:900; }
-    .use-btn:hover { background:var(--primary); color:#fff; }
-    .expired-card { filter:grayscale(.9); opacity:.7; }
-    .modal-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(15,23,42,.6); backdrop-filter:blur(6px); z-index:100; }
-    .modal-overlay.show { display:flex; }
-    .entry-modal { width:min(440px,calc(100% - 32px)); background:#fff; border-radius:20px; padding:32px 28px; position:relative; }
-    .modal-close-btn { position:absolute; top:18px; right:18px; background:transparent; border:0; font-size:24px; color:var(--muted); }
-    .modal-input { width:100%; height:54px; padding:0 18px; border:2px solid var(--line); border-radius:10px; outline:0; font-weight:700; }
-    .modal-submit-btn { width:100%; height:54px; margin-top:14px; }
+    /* 기본 컬러스케임 뼈대 (스크립트에서 요일별로 변수를 동적 변경합니다) */
+    :root {
+      --bg: #ffffff;
+      --nav: #ffffff;          
+      --nav-text: #0f172a;     
+      --text: #0f172a;         
+      --muted: #64748b;
+      --line: #e2e8f0;         
+      --card: #ffffff;
+      --shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
+      --soft-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+      --radius: 16px;
+
+      /* [기본값: 월요일 블루] */
+      --primary: #2563eb;      
+      --primary-light: #eff6ff;
+      --primary-dark: #1d4ed8;
+      --badge-bg: #ecfdf5;
+      --badge-border: #d1fae5;
+      --badge-text: #047857;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+      /* 은은한 수채화 배경 그라데이션에도 실시간 변수 적용 */
+      background:
+        radial-gradient(circle at 15% 15%, var(--primary-light), transparent 25%),
+        radial-gradient(circle at 80% 20%, rgba(13, 184, 157, 0.03), transparent 30%),
+        #f8fafc;
+      transition: background 0.5s ease;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    /* 상단 네비게이션 */
+    .topbar {
+      height: 72px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--nav-text);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      position: sticky; top: 0; z-index: 20;
+    }
+
+    .nav-inner { width: min(1148px, calc(100% - 48px)); height: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -0.03em; }
+    
+    .brand-icon { 
+      width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 19px; 
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
+      box-shadow: 0 4px 12px var(--primary-light); transition: background 0.5s ease;
+    }
+    .brand-name { font-size: 20px; line-height: 1; }
+    .brand-sub { margin-left: 2px; color: var(--muted); font-size: 12px; font-weight: 600; }
+    
+    .nav { display: flex; align-items: center; gap: 40px; font-size: 15px; font-weight: 700; }
+    .nav a { height: 72px; display: flex; align-items: center; color: var(--muted); position: relative; transition: color 0.2s; }
+    .nav a:hover { color: var(--primary); }
+    .nav a.active { color: var(--primary); font-weight: 800; }
+    .nav a.active::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 100%; height: 3px; border-radius: 99px; transform: translateX(-50%); background: var(--primary); }
+
+    .page { width: min(1148px, calc(100% - 48px)); margin: 0 auto; padding-bottom: 60px; }
+    .sub-hero { padding: 54px 0 32px; text-align: center; }
+    .sub-title { font-size: 38px; font-weight: 900; letter-spacing: -0.05em; margin: 0 0 12px; color: var(--text); }
+    .sub-title span { color: var(--primary); transition: color 0.5s ease; }
+    .sub-desc { color: var(--muted); font-size: 16px; font-weight: 500; margin: 0; }
+
+    /* 캘린더 위젯 스타일 */
+    .calendar-wrap {
+      max-width: 660px; margin: 0 auto 48px; background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: var(--soft-shadow); padding: 28px;
+    }
+    .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .cal-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px; }
+    .cal-title span { color: var(--primary); transition: color 0.5s ease; }
+    .cal-nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e2e8f0; background: #fff; color: var(--text); font-weight: 900; display: grid; place-items: center; transition: 0.2s; }
+    .cal-nav-btn:hover { background: var(--primary-light); color: var(--primary); border-color: transparent; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+    .cal-day-name { font-size: 13px; font-weight: 700; color: var(--muted); padding-bottom: 12px; }
+    .cal-day-name.sun { color: #ef4444; }
+    .cal-day-name.sat { color: #3b82f6; }
+    
+    .cal-cell {
+      aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; border: 2px solid transparent;
+      transition: all 0.2s; position: relative; padding-top: 4px;
+    }
+    .cal-cell:not(.empty):hover { background: var(--primary-light); color: var(--primary); transform: translateY(-2px); }
+    .cal-cell.empty { pointer-events: none; }
+    
+    /* 오늘 날짜 하이라이트 */
+    .cal-cell.today { background: var(--text); color: #fff; font-weight: 700; }
+    
+    /* 이벤트가 있는 날 */
+    .cal-cell.has-event { background: var(--primary-light); color: var(--primary); border-color: rgba(37, 99, 235, 0.15); font-weight: 800; }
+    .cal-cell.has-event::after { content: "🎁"; position: absolute; top: -2px; right: 2px; font-size: 12px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); animation: bounce 2s infinite ease-in-out; }
+
+    .cal-cell.cal-expired { background: #f1f5f9; color: #94a3b8; border-color: transparent; filter: grayscale(0.4); }
+    .cal-cell.cal-expired::after { content: ""; }
+
+    .cal-done-text {
+      font-size: 9px; font-weight: 700; color: #ef4444; margin-top: 2px;
+      background: #fef2f2; padding: 1px 4px; border-radius: 4px;
+      letter-spacing: -0.05em; display: inline-block; transform: scale(0.95);
+    }
+
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+    /* 카테고리 필터 칩 */
+    .filter-chips { display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap; }
+    .filter-chip { border: 1px solid #e2e8f0; color: var(--muted); background: #ffffff; border-radius: 999px; padding: 10px 22px; font-size: 15px; font-weight: 600; transition: 0.2s ease; box-shadow: var(--soft-shadow); }
+    .filter-chip.active { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff; border-color: transparent; box-shadow: 0 8px 16px var(--primary-light); }
+    .filter-chip:hover:not(.active) { background: var(--primary-light); color: var(--primary); border-color: transparent; transform: translateY(-2px); }
+
+    /* 쿠폰 그리드 */
+    .coupon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+    .coupon-card { background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: var(--soft-shadow); display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease; position: relative; }
+    .coupon-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    
+    .coupon-head { height: 110px; padding: 24px; display: flex; flex-direction: column; justify-content: center; position: relative; border-bottom: 2px dashed rgba(255, 255, 255, 0.4); }
+    
+    /* [변경] 스타일 프리셋을 요일별 테마 연동 스케임으로 바인딩 */
+    .bg-purple { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff; }
+    .bg-dark { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #fff; }
+    .bg-light { background: linear-gradient(135deg, var(--primary-light) 0%, #e2e8f0 100%); color: var(--primary); }
+    
+    .coupon-card.expired-card { filter: grayscale(0.85); opacity: 0.75; }
+    
+    .draw-badge {
+      position: absolute; top: 16px; right: 20px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: -0.02em; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: #fff; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    }
+    .bg-light .draw-badge { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.05); color: var(--primary); }
+    .draw-badge.expired-badge { background: #ef4444 !important; border-color: transparent !important; color: #fff !important; }
+
+    .coupon-type { font-size: 13px; font-weight: 700; opacity: 0.9; margin-bottom: 6px; }
+    .coupon-title { font-size: 24px; font-weight: 800; letter-spacing: -0.04em; margin: 0; line-height: 1.1; }
+    .coupon-card::before, .coupon-card::after { content: ''; position: absolute; top: 98px; width: 24px; height: 24px; background: #f8fafc; border-radius: 50%; border: 1px solid #e2e8f0; z-index: 2; }
+    .coupon-card::before { left: -13px; border-right-color: transparent; border-top-color: transparent; transform: rotate(-45deg); }
+    .coupon-card::after { right: -13px; border-left-color: transparent; border-top-color: transparent; transform: rotate(45deg); }
+    
+    .coupon-body { padding: 24px; display: flex; flex-direction: column; flex: 1; background: #fff; }
+    .store-name { font-size: 18px; font-weight: 800; color: var(--text); margin: 0 0 8px; }
+    .expire-date { font-size: 14px; color: var(--muted); font-weight: 500; margin-bottom: 20px; }
+    
+    .use-btn { margin-top: auto; height: 48px; border: 0; border-radius: 8px; background: var(--primary-light); color: var(--primary); font-size: 15px; font-weight: 700; transition: 0.2s ease; }
+    .use-btn:hover { background: var(--primary); color: #fff; }
+    .use-btn.used { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+    /* 커스텀 응모 모달창 스타일 */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .entry-modal { width: min(440px, calc(100% - 32px)); background: #ffffff; border-radius: 20px; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15); padding: 32px 28px; transform: translateY(20px); transition: transform 0.25s ease; position: relative; border: 1px solid #e2e8f0; }
+    .modal-overlay.show .entry-modal { transform: translateY(0); }
+
+    /* 개인정보 처리방침 모달 */
+    .privacy-modal {
+      width: min(500px, calc(100% - 32px));
+      max-height: 85vh;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+      padding: 32px 24px;
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+      position: relative;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-overlay.show .privacy-modal { transform: translateY(0); }
+
+    .modal-close-btn { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; font-size: 24px; color: var(--muted); font-weight: 300; transition: color 0.2s; }
+    .modal-close-btn:hover { color: var(--text); }
+
+    .modal-head-title { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+    .modal-head-title h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: var(--text); }
+    .modal-head-title p { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+
+    .modal-scroll-body { overflow-y: auto; padding-right: 6px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: #334155; text-align: left; }
+    .modal-scroll-body::-webkit-scrollbar { width: 4px; }
+    .modal-scroll-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .modal-scroll-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 18px 0 6px; }
+    .modal-scroll-body h4:first-child { margin-top: 0; }
+    .modal-scroll-body p { margin: 0 0 10px; font-weight: 500; color: #475569; }
+    .modal-scroll-body code { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-family: inherit; font-weight: 600; }
+    .modal-scroll-body .theme-text { color: var(--primary); font-weight: 600; }
+    .privacy-date { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: right; font-weight: 500; }
+
+    .modal-confirm-btn {
+      height: 50px;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      box-shadow: 0 4px 14px var(--primary-light);
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .modal-confirm-btn:hover { filter: brightness(1.04); }
+    .modal-head { text-align: center; margin-bottom: 24px; }
+    .modal-icon { font-size: 32px; margin-bottom: 10px; display: inline-block; animation: wingwing 2.5s infinite linear; }
+    .modal-head h3 { margin: 0 0 8px; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    .modal-head p { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); line-height: 1.4; }
+    .modal-target-info { color: var(--primary); font-weight: 700; display: block; margin-top: 4px; transition: color 0.5s ease; }
+    .modal-body form { display: flex; flex-direction: column; gap: 14px; }
+    .input-wrap { position: relative; }
+    .modal-input { width: 100%; height: 54px; padding: 0 20px; border-radius: 10px; border: 2px solid #e2e8f0; outline: 0; font-size: 15px; font-weight: 600; color: var(--text); transition: border-color 0.2s; }
+    .modal-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
+    .modal-input::placeholder { color: #94a3b8; }
+    
+    .modal-submit-btn { 
+      height: 54px; border: 0; border-radius: 10px; color: #fff; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; 
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
+      box-shadow: 0 8px 20px var(--primary-light); transition: all 0.15s ease; 
+    }
+    .modal-submit-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+
+    @keyframes wingwing { 0%, 100% { transform: rotate(0deg); } 10%, 20% { transform: rotate(-8deg); } 15%, 25% { transform: rotate(8deg); } 30% { transform: rotate(0deg); } }
+
+    /* 푸터 및 토스트 */
+    .footer { border-top: 1px solid #e2e8f0; background: #ffffff; }
+    .footer-inner { width: min(1148px, calc(100% - 48px)); margin: 0 auto; min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-brand { color: var(--primary); font-size: 18px; font-weight: 800; margin-bottom: 4px; transition: color 0.5s ease; }
+    .copyright { color: var(--muted); font-size: 13px; font-weight: 500; }
+    .footer-links { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 13px; font-weight: 500; }
+    .footer-icons { display: flex; gap: 16px; margin-left: 20px; color: #94a3b8; }
+
+    .toast { position: fixed; left: 50%; bottom: 30px; z-index: 120; transform: translateX(-50%) translateY(30px); opacity: 0; pointer-events: none; padding: 14px 24px; border-radius: 999px; color: #fff; background: #0f172a; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15); font-weight: 700; transition: 0.25s ease; text-align: center; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* 모바일 최적화 미디어 쿼리 */
+    @media (max-width: 680px) {
+      .topbar { height: auto; }
+      .nav-inner { width: min(100% - 28px, 1148px); min-height: 72px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; padding: 16px 0; }
+      .nav { width: 100%; overflow-x: auto; gap: 24px; padding-bottom: 4px; }
+      .nav a { height: 34px; flex: 0 0 auto; }
+      .nav a.active::after { bottom: -4px; }
+      .page, .footer-inner { width: min(100% - 28px, 1148px); }
+      .sub-title { font-size: 32px; }
+      .coupon-grid { grid-template-columns: 1fr; }
+      
+      .calendar-wrap { padding: 18px 12px 20px; margin-bottom: 32px; }
+      .cal-header { margin-bottom: 16px; }
+      .cal-title { font-size: 19px; }
+      .cal-grid { gap: 4px; }
+      .cal-day-name { font-size: 12px; padding-bottom: 8px; }
+      
+      .cal-cell { 
+        font-size: 13px;  
+        border-radius: 8px; 
+        padding-top: 2px;
+        justify-content: flex-start; 
+        padding: 4px 0;
+      }
+      
+      .cal-cell span:first-child { display: block; line-height: 1.2; }
+
+      .cal-done-text {
+        font-size: 8px; padding: 0px 2px; margin-top: 1px; border-radius: 3px;
+        transform: scale(0.88); white-space: nowrap; max-width: 100%; overflow: hidden;
+      }
+      
+      .cal-cell.has-event::after { font-size: 10px; top: -3px; right: 0px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; padding: 20px 0; }
+      .footer-links { flex-wrap: wrap; }
+    }
   </style>
 </head>
+
 <body>
-<header class="topbar"><div class="nav-inner">
-  <a href="./index.html" class="brand"><span class="brand-icon">L</span><span><span class="brand-name">LocalFlow</span><span class="brand-sub">충주 로컬플로우</span></span></a>
-  <nav class="nav"><a href="./index.html">홈</a><a href="./gallery.html">갤러리</a><a class="active" href="./coupon.html">쿠폰</a></nav>
-</div></header>
+  <header class="topbar">
+    <div class="nav-inner">
+      <a href="index.html" class="brand" aria-label="LocalFlow 홈">
+        <span class="brand-icon">L</span>
+        <span>
+          <span class="brand-name">LocalFlow</span>
+          <span class="brand-sub">충주 로컬플로우</span>
+        </span>
+      </a>
 
-<main class="page">
-  <section class="sub-hero"><h1 class="sub-title">로컬 쿠폰 & <span>추첨</span></h1><p class="sub-desc">관리자에서 생성한 쿠폰을 불러옵니다.</p></section>
-  <div class="filter-chips" id="filterContainer"></div>
-  <div class="coupon-grid" id="couponList"></div>
-</main>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="index.html">홈</a>
+        <a href="./gallery.html">갤러리</a>
+        <a class="active" href="./coupon.html">쿠폰</a>
+      </nav>
+    </div>
+  </header>
 
-<div class="modal-overlay" id="entryModalOverlay" onclick="closeEntryModal()">
-  <div class="entry-modal" onclick="event.stopPropagation()">
-    <button class="modal-close-btn" onclick="closeEntryModal()">×</button>
-    <h3 style="margin:0 0 8px;font-size:22px;font-weight:900;">이벤트 응모하기</h3>
-    <p style="color:var(--muted);font-weight:700;">추첨 결과를 전달받을 네이버 이메일을 입력해주세요.</p>
-    <strong id="modalTargetTitle" style="display:block;color:var(--primary);margin:12px 0;"></strong>
-    <form id="modalForm">
-      <input id="modalEmailInput" class="modal-input" placeholder="localflow@naver.com">
-      <button class="btn modal-submit-btn" type="submit">응모 완료하기</button>
-    </form>
+  <main class="page">
+    <section class="sub-hero">
+      <h1 class="sub-title">로컬 쿠폰 & <span>추첨</span></h1>
+      <p class="sub-desc">달력에 표시된 추첨일을 확인하고 이벤트에 응모하세요.</p>
+    </section>
+
+    <section class="calendar-wrap">
+      <div class="cal-header">
+        <button class="cal-nav-btn" id="prevMonth" aria-label="이전 달">‹</button>
+        <h2 class="cal-title" id="calTitle">2026년 <span>5월</span></h2>
+        <button class="cal-nav-btn" id="nextMonth" aria-label="다음 달">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-day-name sun">일</div>
+        <div class="cal-day-name">월</div>
+        <div class="cal-day-name">화</div>
+        <div class="cal-day-name">수</div>
+        <div class="cal-day-name">목</div>
+        <div class="cal-day-name">금</div>
+        <div class="cal-day-name sat">토</div>
+      </div>
+      <div class="cal-grid" id="calDays"></div>
+    </section>
+
+    <div class="filter-chips" id="filterContainer"></div>
+
+    <div class="coupon-grid" id="couponList"></div>
+  </main>
+
+  <div class="modal-overlay" id="entryModalOverlay" onclick="closeEntryModal()">
+    <div class="entry-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeEntryModal()">×</button>
+      
+      <div class="modal-head">
+        <span class="modal-icon">✈</span>
+        <h3>이벤트 응모하기</h3>
+        <p>추첨 결과를 전달받을 <br><strong>네이버 이메일</strong>을 입력해주세요.</p>
+        <span class="modal-target-info" id="modalTargetTitle">쿠폰명 정보</span>
+      </div>
+
+      <div class="modal-body">
+        <form id="modalForm">
+          <div class="input-wrap">
+            <input 
+              type="text" 
+              id="modalEmailInput" 
+              class="modal-input" 
+              placeholder="localflow@naver.com" 
+              autocomplete="off"
+            />
+          </div>
+          <button type="submit" class="modal-submit-btn">응모 완료하기</button>
+        </form>
+      </div>
+    </div>
   </div>
-</div>
 
-<footer class="footer"><div class="footer-inner"><div><div class="footer-brand">LocalFlow</div><div class="copyright">© 2026 STANCE. LocalFlow Project.</div></div></div></footer>
-<div class="toast" id="toast"></div>
-<script src="./assets/js/common.js"></script>
-<script>
-let rawCoupons = [];
-let currentFilter = "전체";
-let activeCouponId = null;
+  <footer class="footer" id="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">LocalFlow</div>
+        <div class="copyright">© 2026 STANCE. LocalFlow Project. All rights reserved.</div>
+      </div>
 
-async function loadCoupons() {
-  const data = await apiGet("https://localflow.ddns.net/lf/api/coupons");
-  rawCoupons = (data.items || []).filter(c => c.active !== false);
-  renderFilters();
-  renderCoupons();
-}
+      <div class="footer-links">
+        <a href="javascript:void(0);" onclick="openTermsModal()">이용약관</a>
+        <span>|</span>
+        <a href="javascript:void(0);" onclick="openPrivacyModal()">개인정보처리방침</a>
+        <span>|</span>
+        <a href="https://llsshh.com/cs.html" target="_blank" rel="noopener noreferrer">문의하기</a>
+        <span class="footer-icons"><span>◎</span><span>N</span><span>☁</span></span>
+      </div>
+    </div>
+  </footer>
+  
+	<div class="modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
+	  <div class="privacy-modal" onclick="event.stopPropagation()">
+		<button class="modal-close-btn" onclick="closeTermsModal()">×</button>
+		
+		<div class="modal-head-title">
+		  <h3>이용약관</h3>
+		  <p>LocalFlow 서비스 이용 안내</p>
+		</div>
 
-function renderFilters() {
-  const types = ["전체", ...new Set(rawCoupons.map(c => c.type || "기타"))];
-  document.getElementById("filterContainer").innerHTML = types.map(type => `
-    <button class="filter-chip ${type === currentFilter ? "active" : ""}" data-type="${escapeHtml(type)}">${escapeHtml(type)}</button>
-  `).join("");
-  document.querySelectorAll(".filter-chip").forEach(btn => btn.addEventListener("click", () => {
-    currentFilter = btn.dataset.type;
-    renderFilters();
-    renderCoupons();
-  }));
-}
+		<div class="modal-scroll-body">
+		  <h4>1. 서비스 소개</h4>
+		  <p>
+			LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다.
+			사용자는 맛집 추천, 투표, 쿠폰 이벤트 참여 등 다양한 기능을 자유롭게 이용할 수 있습니다.
+		  </p>
 
-function renderCoupons() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const filtered = currentFilter === "전체" ? rawCoupons : rawCoupons.filter(c => c.type === currentFilter);
-  document.getElementById("couponList").innerHTML = filtered.length ? filtered.map(coupon => {
-    const exp = new Date(coupon.expire); exp.setHours(0,0,0,0);
-    const expired = exp < today;
-    return `
-      <article class="card coupon-card ${expired ? "expired-card" : ""}">
-        <div class="coupon-head ${escapeHtml(coupon.style || "bg-purple")}">
-          <span class="draw-badge">${expired ? "추첨완료" : escapeHtml(coupon.drawDate || coupon.expire)}</span>
-          <div class="coupon-type">${escapeHtml(coupon.type)}</div>
-          <h3 class="coupon-title">${escapeHtml(coupon.title)}</h3>
-        </div>
-        <div class="coupon-body">
-          <h4 class="store-name">${escapeHtml(coupon.store)}</h4>
-          <div class="expire-date">추첨/마감일: ${escapeHtml(coupon.expire)}</div>
-          <button class="use-btn" ${expired ? "disabled" : ""} onclick="openEntryModal('${escapeHtml(coupon.id)}','${escapeHtml(coupon.title)}')">${expired ? "추첨완료" : "이벤트 응모하기 ✈"}</button>
-        </div>
-      </article>
-    `;
-  }).join("") : `<p style="grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 0;">등록된 쿠폰이 없습니다.</p>`;
-}
+		  <h4>2. 서비스 이용 목적</h4>
+		  <p>
+			본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다.
+			이용자는 건전한 방식으로 서비스를 이용해야 하며, 허위 정보 등록이나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.
+		  </p>
 
-function openEntryModal(id, title) {
-  activeCouponId = id;
-  document.getElementById("modalTargetTitle").textContent = `[${title}]`;
-  document.getElementById("modalEmailInput").value = "";
-  document.getElementById("entryModalOverlay").classList.add("show");
-}
+		  <h4>3. 이벤트 및 쿠폰 정책</h4>
+		  <p>
+			쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다.
+			추첨 이벤트의 당첨 여부는 내부 기준에 따라 공정하게 선정되며,
+			동일 이용자의 중복 참여 또는 비정상적인 이용이 확인될 경우 응모가 제한될 수 있습니다.
+		  </p>
 
-function closeEntryModal() {
-  document.getElementById("entryModalOverlay").classList.remove("show");
-  activeCouponId = null;
-}
+		  <h4>4. 이용 제한</h4>
+		  <p>
+			다음과 같은 행위가 확인될 경우 서비스 이용이 제한될 수 있습니다.
+		  </p>
 
-document.getElementById("modalForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email = document.getElementById("modalEmailInput").value.trim();
-  const naverRegex = /^[a-z0-9_.-]+@naver\.com$/i;
-  if (!naverRegex.test(email)) return showToast("❌ 네이버 이메일(@naver.com)만 입력 가능합니다.");
+		  <p>
+			• 타인의 개인정보 도용<br>
+			• 비정상적인 반복 응모 및 자동화 이용<br>
+			• 서비스 운영 방해 행위<br>
+			• 법령 및 공공질서에 위반되는 행위
+		  </p>
 
-  const data = await apiSend("/api/coupon_entries", "POST", {coupon_id: activeCouponId, email});
-  if (data.ok) {
-    closeEntryModal();
-    showToast(`🎉 응모 완료! 추첨 결과는 ${email}로 발송됩니다.`);
-  } else if (data.error === "DUPLICATE_ENTRY") {
-    showToast("이미 이 쿠폰에 응모한 이메일입니다.");
-  } else {
-    showToast("응모 저장 실패");
-  }
-});
+		  <h4>5. 책임의 제한</h4>
+		  <p>
+			LocalFlow는 천재지변, 시스템 장애, 외부 서비스 문제 등 불가항력적인 사유로 발생한 서비스 중단에 대해 책임을 지지 않습니다.
+		  </p>
 
-loadCoupons();
-</script>
+		  <h4>6. 약관 변경</h4>
+		  <p>
+			본 약관은 서비스 운영상 필요한 경우 변경될 수 있으며,
+			중요한 변경 사항은 서비스 내 공지사항 또는 모달을 통해 사전 안내됩니다.
+		  </p>
+
+		  <h4>7. 문의</h4>
+		  <p>
+			서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br>
+			<strong>문의 이메일:</strong>
+			<span class="theme-text">llsshh1431@naver.com</span>
+		  </p>
+
+		  <div class="privacy-date">
+			공고 및 시행일자: 2026년 5월 27일
+		  </div>
+		</div>
+
+		<button class="modal-confirm-btn" onclick="closeTermsModal()">
+		  확인했습니다
+		</button>
+	  </div>
+	</div>
+	<div class="modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
+		<div class="privacy-modal" onclick="event.stopPropagation()">
+		  <button class="modal-close-btn" onclick="closePrivacyModal()">×</button>
+		  
+		  <div class="modal-head-title">
+			<h3>개인정보 처리방침</h3>
+			<p>LocalFlow 서비스 이용을 위한 안내</p>
+		  </div>
+
+		  <div class="privacy-body modal-scroll-body">
+			<h4>1. 수집하는 개인정보 항목 및 방법</h4>
+			<p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br>
+			<strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
+
+			<h4>2. 개인정보의 수집 및 이용 목적</h4>
+			<p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br>
+			<strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
+
+			<h4>3. 개인정보의 보유 및 이용 기간</h4>
+			<p>이용자의 개인정보는 원칙적으로 <strong>개인정보 수집 및 이용 목적이 달성되면 지체 없이 파기</strong>합니다.<br>
+			<strong>보유 기간:</strong> 결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
+
+			<h4>4. 제3자 제공 및 위탁</h4>
+			<p>LocalFlow는 이용자의 사전 동의 없이는 원칙적으로 외부(제3자)에 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+
+			<h4>5. 이용자의 권리 및 문의처</h4>
+			<p>이용자는 언제든지 본인의 개인정보 처리에 대한 동의 철회 및 삭제를 요구할 수 있습니다. 관련 문의는 하단 이메일로 연락하시면 지체 없이 조치하겠습니다.<br>
+			<strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
+			
+			<div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
+		  </div>
+		  
+		  <button class="modal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
+		</div>
+	</div>
+
+  <div class="toast" id="toast">메시지</div>
+
+  <script>
+    // [연동] 메인 및 갤러리와 연동되는 요일별 테마 데이터 세트
+    const THEMES = [
+      { primary: "#0d9488", primaryLight: "#f0fdfa", primaryDark: "#115e59" }, // 0: 일요일 (Teal)
+      { primary: "#2563eb", primaryLight: "#eff6ff", primaryDark: "#1d4ed8" }, // 1: 월요일 (Blue)
+      { primary: "#059669", primaryLight: "#ecfdf5", primaryDark: "#047857" }, // 2: 화요일 (Emerald)
+      { primary: "#7c3aed", primaryLight: "#f5f3ff", primaryDark: "#6d28d9" }, // 3: 수요일 (Purple)
+      { primary: "#ea580c", primaryLight: "#fff7ed", primaryDark: "#c2410c" }, // 4: 목요일 (Orange)
+      { primary: "#e11d48", primaryLight: "#fff1f2", primaryDark: "#be123c" }, // 5: 금요일 (Rose)
+      { primary: "#4f46e5", primaryLight: "#eef2ff", primaryDark: "#3730a3" }  // 6: 토요일 (Indigo)
+    ];
+
+    function applyDailyTheme() {
+      const currentDay = new Date().getDay();
+      const theme = THEMES[currentDay];
+      const root = document.documentElement;
+
+      root.style.setProperty('--primary', theme.primary);
+      root.style.setProperty('--primary-light', theme.primaryLight);
+      root.style.setProperty('--primary-dark', theme.primaryDark);
+    }
+
+    // 초기 테마 로드
+    applyDailyTheme();
+
+    const toast = document.getElementById("toast");
+
+    // 캘린더 추첨일 데이터는 서버 쿠폰 JSON에서 생성합니다.
+    let drawEvents = [];
+
+    let currentDate = new Date();
+    let currYear = currentDate.getFullYear();
+    let currMonth = currentDate.getMonth();
+
+    const calTitle = document.getElementById("calTitle");
+    const calDays = document.getElementById("calDays");
+
+    function renderCalendar(year, month) {
+      calDays.innerHTML = "";
+      calTitle.innerHTML = `${year}년 <span>${month + 1}월</span>`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      const todayMidnight = new Date();
+      todayMidnight.setHours(0,0,0,0);
+
+      for (let i = 0; i < firstDay; i++) {
+        calDays.innerHTML += `<div class="cal-cell empty"></div>`;
+      }
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const eventMatch = drawEvents.find(e => e.date === dateString);
+        
+        const cellDate = new Date(year, month, i);
+        cellDate.setHours(0,0,0,0);
+        
+        const isExpiredEvent = eventMatch && (cellDate < todayMidnight);
+
+        let cellClasses = ["cal-cell"];
+        if (todayMidnight.getTime() === cellDate.getTime()) cellClasses.push("today");
+        
+        let innerHtml = `<span>${i}</span>`;
+        let onClick = `onclick="showToast('${month + 1}월 ${i}일은 일정이 없습니다.')"`;
+
+        if (eventMatch) {
+          if (isExpiredEvent) {
+            cellClasses.push("cal-expired");
+            innerHtml += `<span class="cal-done-text">✓ 추첨완료</span>`;
+            onClick = `onclick="showToast('✅ ${eventMatch.date} : [${eventMatch.title}] 추첨이 완료된 이벤트입니다.')"`;
+          } else {
+            cellClasses.push("has-event");
+            onClick = `onclick="showToast('🎁 ${eventMatch.date} : ${eventMatch.title}')"`;
+          }
+        }
+
+        calDays.innerHTML += `<div class="${cellClasses.join(' ')}" ${onClick}>${innerHtml}</div>`;
+      }
+    }
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      currMonth--; if (currMonth < 0) { currMonth = 11; currYear--; } renderCalendar(currYear, currMonth);
+    });
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      currMonth++; if (currMonth > 11) { currMonth = 0; currYear++; } renderCalendar(currYear, currMonth);
+    });
+
+    renderCalendar(currYear, currMonth);
+
+    const API_BASE = "https://localflow.ddns.net/lf";
+
+    function apiUrl(path) {
+      if (/^https?:\/\//i.test(path)) return path;
+      return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(apiUrl(path), {
+        method: "GET",
+        mode: "cors"
+      });
+      return await res.json();
+    }
+
+    async function apiSend(path, method, body) {
+      const res = await fetch(apiUrl(path), {
+        method,
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    }
+
+    let rawCoupons = [];
+
+    const couponListEl = document.getElementById("couponList");
+    const filterContainerEl = document.getElementById("filterContainer");
+    let currentFilter = "전체";
+
+    function renderFilters() {
+      const types = ["전체", ...new Set(rawCoupons.map(c => c.type))];
+      filterContainerEl.innerHTML = types.map(type => `<button class="filter-chip ${type === currentFilter ? 'active' : ''}" data-type="${type}">${type}</button>`).join('');
+
+      document.querySelectorAll("#filterContainer .filter-chip").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          currentFilter = e.target.getAttribute("data-type");
+          renderFilters(); renderCoupons();
+        });
+      });
+    }
+
+    function renderCoupons() {
+      const filtered = currentFilter === "전체" ? rawCoupons : rawCoupons.filter(c => c.type === currentFilter);
+      if (filtered.length === 0) {
+        couponListEl.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 40px 0;">해당 카테고리의 쿠폰이 없습니다.</p>`;
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      couponListEl.innerHTML = filtered.map(coupon => {
+        const expireDate = new Date(coupon.expire);
+        expireDate.setHours(0,0,0,0);
+        const isExpired = expireDate < today;
+
+        let btnClass = "use-btn";
+        let btnText = "이벤트 응모하기 ✈";
+        let disabled = "";
+        let cardClass = "coupon-card";
+        let badgeHtml = "";
+
+        if (isExpired) {
+          btnClass = "use-btn used"; btnText = "추첨완료!"; disabled = "disabled";
+          cardClass = "coupon-card expired-card";
+          badgeHtml = `<span class="draw-badge expired-badge">추첨완료</span>`;
+        } else {
+          btnClass = coupon.used ? "use-btn used" : "use-btn";
+          btnText = coupon.used ? "응모 완료" : "이벤트 응모하기 ✈";
+          disabled = coupon.used ? "disabled" : "";
+          badgeHtml = coupon.drawDate ? `<span class="draw-badge">${escapeHtml(coupon.drawDate)}</span>` : "";
+        }
+
+        return `
+          <article class="${cardClass}">
+            <div class="coupon-head ${coupon.style}">
+              ${badgeHtml}
+              <div class="coupon-type">${coupon.type}</div>
+              <h3 class="coupon-title">${escapeHtml(coupon.title)}</h3>
+            </div>
+            <div class="coupon-body">
+              <h4 class="store-name">${escapeHtml(coupon.store)}</h4>
+              <div class="expire-date">추첨/마감일: ${coupon.expire}</div>
+              <button class="${btnClass}" ${disabled} onclick="openEntryModal('${coupon.id}', '${escapeHtml(coupon.title)}')">
+                ${btnText}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    const modalOverlay = document.getElementById("entryModalOverlay");
+    const modalTargetTitle = document.getElementById("modalTargetTitle");
+    const modalEmailInput = document.getElementById("modalEmailInput");
+    const modalForm = document.getElementById("modalForm");
+    let activeCouponId = null;
+
+    window.openEntryModal = function(id, title) {
+      activeCouponId = id;
+      modalTargetTitle.textContent = `[${title}]`;
+      modalEmailInput.value = "";
+      modalOverlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => modalEmailInput.focus(), 100);
+    };
+
+    window.closeEntryModal = function() {
+      modalOverlay.classList.remove("show");
+      activeCouponId = null;
+      if (!document.getElementById("privacyModalOverlay").classList.contains("show")) {
+        document.body.style.overflow = "auto";
+      }
+    };
+
+    modalForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = modalEmailInput.value.trim();
+      const naverRegex = /^[a-z0-9_.-]+@naver\.com$/i;
+
+      if (!email) { showToast("❌ 이메일을 입력하셔야 응모가 가능합니다."); return; }
+      if (!naverRegex.test(email)) { showToast("❌ 네이버 이메일(@naver.com)만 입력 가능합니다! ㅋ"); return; }
+
+      closeEntryModal();
+      showToast(`🎉 응모 완료! 추첨 결과는 ${email}로 발송됩니다.`);
+      
+      const targetCoupon = rawCoupons.find(c => c.id === activeCouponId);
+      if (targetCoupon) {
+        targetCoupon.used = true;
+        renderCoupons();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeEntryModal(); });
+
+    function showToast(message) {
+      toast.textContent = message; toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => { toast.classList.remove("show"); }, 3000);
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+    }
+
+
+    const navLinks = document.querySelectorAll('.nav a');
+		navLinks.forEach(link => {
+		  link.addEventListener('click', function() {
+			navLinks.forEach(n => n.classList.remove('active'));
+			this.classList.add('active');
+		  });
+		});
+		
+		window.openTermsModal = function() {
+	  document.getElementById("termsModalOverlay").classList.add("show");
+	  document.body.style.overflow = "hidden";
+	};
+
+	window.closeTermsModal = function() {
+	  document.getElementById("termsModalOverlay").classList.remove("show");
+
+	  if (
+		!document.getElementById("privacyModalOverlay").classList.contains("show") &&
+		!document.getElementById("entryModalOverlay").classList.contains("show")
+	  ) {
+		document.body.style.overflow = "auto";
+	  }
+	};
+	
+	// 개인정보 처리방침 모달 제어
+    window.openPrivacyModal = function() {
+      document.getElementById("privacyModalOverlay").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+    window.closePrivacyModal = function() {
+      document.getElementById("privacyModalOverlay").classList.remove("show");
+      if (!document.getElementById("entryModalOverlay").classList.contains("show")) {
+        document.body.style.overflow = "auto";
+      }
+    };
+
+    // ESC 통합 키 바인딩
+    document.addEventListener("keydown", (e) => { 
+      if (e.key === "Escape") {
+        closeEntryModal();
+        closePrivacyModal();
+      }
+    });
+
+
+    function buildDrawEventsFromCoupons() {
+      drawEvents = rawCoupons
+        .filter(c => c.active !== false && c.expire)
+        .map(c => ({
+          date: c.expire,
+          title: `${c.store || ""} ${c.title || ""}`.trim()
+        }));
+    }
+
+    async function loadCouponsFromApi() {
+      try {
+        const data = await apiGet("/api/coupons");
+        rawCoupons = (data.items || []).map(c => ({
+          id: c.id,
+          store: c.store || "",
+          title: c.title || "",
+          type: c.type || "기타",
+          expire: c.expire || "",
+          style: c.style || "bg-purple",
+          used: false,
+          active: c.active !== false,
+          drawDate: c.drawDate || c.expire || ""
+        })).filter(c => c.active !== false);
+
+        buildDrawEventsFromCoupons();
+        renderCalendar(currYear, currMonth);
+        renderFilters();
+        renderCoupons();
+      } catch (err) {
+        showToast("❌ 쿠폰 데이터를 불러오지 못했습니다.");
+        rawCoupons = [];
+        drawEvents = [];
+        renderCalendar(currYear, currMonth);
+        renderFilters();
+        renderCoupons();
+      }
+    }
+
+    loadCouponsFromApi();
+  </script>
 </body>
 </html>
