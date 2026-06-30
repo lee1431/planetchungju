@@ -564,7 +564,7 @@
           <a href="./gallery.html" class="more">더보기 ›</a>
         </div>
 
-        <div class="gallery-grid">
+        <div class="gallery-grid" id="homeGallery">
           <div class="food-img food-1" role="img" aria-label="매콤한 전골 음식"></div>
           <div class="food-img food-2" role="img" aria-label="디저트와 커피"></div>
           <div class="food-img food-3" role="img" aria-label="크림 파스타"></div>
@@ -812,7 +812,11 @@
         const gallery = (await localApiGet("/api/gallery")).items || [];
 
         const activeCoupons = coupons.filter(c => c.active !== false).slice(0, 4);
-        document.getElementById("scheduleList").innerHTML = activeCoupons.length ? activeCoupons.map(c => `
+        const scheduleListEl = document.getElementById("scheduleList");
+        const homeGalleryEl = document.getElementById("homeGallery");
+        if (!scheduleListEl || !homeGalleryEl) return;
+
+        scheduleListEl.innerHTML = activeCoupons.length ? activeCoupons.map(c => `
           <div class="schedule-row">
             <span class="schedule-date">${escapeHtml((c.expire || "").slice(5))}</span>
             <span class="schedule-name">${escapeHtml(c.store)} - ${escapeHtml(c.title)}</span>
@@ -820,12 +824,14 @@
           </div>
         `).join("") : `<p style="color:var(--muted)">등록된 쿠폰 일정이 없습니다. 관리자에서 쿠폰을 생성하세요.</p>`;
 
-        document.getElementById("homeGallery").innerHTML = gallery.slice(0, 4).map(g => `
+        homeGalleryEl.innerHTML = gallery.slice(0, 4).map(g => `
           <div class="gallery-thumb food-img" title="${escapeHtml(g.title)}" style="background-image:url('${escapeHtml(g.url)}')"></div>
         `).join("") || `<p style="color:var(--muted)">등록된 갤러리가 없습니다.</p>`;
       } catch (err) {
-        document.getElementById("scheduleList").innerHTML = `<p style="color:var(--muted)">쿠폰 일정을 불러오지 못했습니다.</p>`;
-        document.getElementById("homeGallery").innerHTML = `<p style="color:var(--muted)">갤러리를 불러오지 못했습니다.</p>`;
+        const scheduleListEl = document.getElementById("scheduleList");
+        const homeGalleryEl = document.getElementById("homeGallery");
+        if (scheduleListEl) scheduleListEl.innerHTML = `<p style="color:var(--muted)">쿠폰 일정을 불러오지 못했습니다.</p>`;
+        if (homeGalleryEl) homeGalleryEl.innerHTML = `<p style="color:var(--muted)">갤러리를 불러오지 못했습니다.</p>`;
       }
     }
 
