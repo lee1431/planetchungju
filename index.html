@@ -1,50 +1,484 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>LocalFlow - 로컬플로우</title>
-  <meta name="description" content="LocalFlow는 충주 시민들의 선택과 참여로 지역의 흐름을 만들고 다시 지역으로 순환시키는 시민 참여형 로컬 플랫폼입니다." />
-  <link rel="stylesheet" href="./assets/css/common.css">
+  <meta name="description" content="LocalFlow는 충주 시민들의 선택과 참여로 지역의 흐름을 만들고 다시 지역으로 순환시키는 시민 참여형 로컬 플랫폼입니다. 오늘 사람들의 선택이 내일 충주의 흐름이 됩니다." />
+  <meta name="keywords" content="로컬플로우, LocalFlow, 충주, 로컬플랫폼, 지역순환, 충주여행, 지역경제, 로컬커뮤니티" />
+  <meta name="author" content="STANCE" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="LocalFlow | 충주의 흐름을 순환시키는 로컬 플랫폼" />
+  <meta property="og:description" content="사람들의 선택은 흐름이 되고, 흐름은 다시 지역으로 돌아옵니다. 충주 시민들과 함께 만드는 로컬 순환 프로젝트 LocalFlow." />
+  <meta property="og:image" content="https://localflow.info/oi.png" />
+  <meta property="og:url" content="https://localflow.info" />
+
   <style>
-    .hero { min-height: 506px; display: grid; grid-template-columns: 1.08fr .92fr; align-items: center; gap: 42px; padding-top: 54px; }
-    .badge { width: fit-content; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; color: var(--badge-text); font-size: 14px; font-weight: 700; background: var(--badge-bg); border: 1px solid var(--badge-border); }
-    .hero-title { margin: 19px 0 18px; font-size: clamp(46px, 5vw, 64px); line-height: 1.16; letter-spacing: -.05em; font-weight: 900; }
-    .hero-title span { color: var(--primary); }
-    .hero-desc { margin: 0 0 41px; color: var(--muted); font-size: 16px; line-height: 1.72; font-weight: 500; }
-    .vote-box { width: 100%; max-width: 660px; min-height: 76px; padding: 10px 10px 10px 24px; display: flex; align-items: center; gap: 14px; border: 1px solid #cbd5e1; border-radius: 14px; background: #fff; box-shadow: 0 12px 30px rgba(15,23,42,.06); }
-    .vote-box input { min-width: 0; flex: 1; height: 54px; border: 0; outline: 0; font-size: 16px; font-weight: 700; }
-    .vote-box button { width: 180px; height: 54px; }
-    .chips { margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .chip { border: 1px solid #e2e8f0; color: var(--muted); background: #fff; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 700; }
+    /* 기본 컬러스케임 뼈대 (스크립트에서 요일별로 변수를 동적 변경합니다) */
+    :root {
+      --bg: #ffffff;
+      --nav: #ffffff;          
+      --nav-text: #0f172a;     
+      --text: #0f172a;         
+      --muted: #64748b;
+      --line: #e2e8f0;         
+      --card: #ffffff;
+      --shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
+      --soft-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+      --radius: 16px;
+
+      /* [기본값: 월요일 블루 - 스크립트가 덮어씁니다] */
+      --primary: #2563eb;      
+      --primary-light: #eff6ff;
+      --primary-dark: #1d4ed8;
+      --badge-bg: #ecfdf5;
+      --badge-border: #d1fae5;
+      --badge-text: #047857;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px; 
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 15% 15%, var(--primary-light), transparent 25%),
+        radial-gradient(circle at 80% 20%, rgba(13, 184, 157, 0.03), transparent 30%),
+        #f8fafc;
+      transition: background 0.5s ease;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      height: 72px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--nav-text);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .nav-inner {
+      width: min(1148px, calc(100% - 48px));
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 19px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      box-shadow: 0 4px 12px var(--primary-light);
+      transition: background 0.5s ease;
+    }
+
+    .brand-name { font-size: 20px; line-height: 1; }
+    .brand-sub { margin-left: 2px; color: var(--muted); font-size: 12px; font-weight: 600; }
+
+    .nav { display: flex; align-items: center; gap: 40px; font-size: 15px; font-weight: 700; }
+    .nav a { height: 72px; display: flex; align-items: center; color: var(--muted); position: relative; transition: color 0.2s; }
+    .nav a:hover { color: var(--primary); }
+    .nav a.active { color: var(--primary); font-weight: 800; }
+    .nav a.active::after {
+      content: ""; position: absolute; left: 50%; bottom: 0; width: 100%; height: 3px; border-radius: 99px; transform: translateX(-50%); background: var(--primary);
+    }
+
+    .page { width: min(1148px, calc(100% - 48px)); margin: 0 auto; }
+
+    .hero {
+      min-height: 506px; display: grid; grid-template-columns: 1.08fr 0.92fr; align-items: center; gap: 42px; padding-top: 54px; position: relative;
+    }
+
+    .badge {
+      width: fit-content; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; color: var(--badge-text); font-size: 14px; font-weight: 700; background: var(--badge-bg); border: 1px solid var(--badge-border); transition: all 0.5s ease;
+    }
+
+    .hero-title { margin: 19px 0 18px; font-size: clamp(46px, 5vw, 64px); line-height: 1.16; letter-spacing: -0.05em; font-weight: 900; }
+    .hero-title span { display: inline-block; color: var(--primary); transition: color 0.5s ease; }
+    .hero-desc { margin: 0 0 41px; color: var(--muted); font-size: 16px; line-height: 1.72; letter-spacing: -0.025em; font-weight: 500; }
+
+    .vote-box {
+      width: 100%; max-width: 660px; height: 76px; padding: 10px 10px 10px 24px; display: flex; align-items: center; gap: 14px; border: 1px solid #cbd5e1; border-radius: 14px; background: #ffffff; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06); transition: border-color 0.2s;
+    }
+    .vote-box:focus-within { border-color: var(--primary); }
+    .vote-box input { min-width: 0; flex: 1; height: 100%; border: 0; outline: 0; color: var(--text); background: transparent; font-size: 16px; font-weight: 600; }
+    .vote-box input::placeholder { color: #94a3b8; }
+
+    .vote-box button {
+      width: 180px; height: 54px; border: 0; border-radius: 10px; color: #fff; font-size: 16px; font-weight: 700; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1); transition: all 0.18s ease;
+    }
+    .vote-box button:hover { transform: translateY(-1px); filter: brightness(1.06); }
+
+    .chips { margin-top: 25px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .chips strong { color: var(--text); font-size: 14px; font-weight: 700; margin-right: 4px; }
+    .chip { border: 1px solid #e2e8f0; color: var(--muted); background: #ffffff; border-radius: 8px; padding: 8px 14px; font-size: 14px; font-weight: 600; transition: all 0.15s ease; }
     .chip:hover { background: var(--primary-light); color: var(--primary); border-color: transparent; }
-    .hero-art { height: 440px; position: relative; display: grid; place-items: center; perspective: 1200px; }
-    .cube { width: 160px; height: 160px; border-radius: 36px; display: grid; place-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-size: 80px; font-weight: 1000; box-shadow: 0 26px 80px var(--primary-light); animation: float 4s ease-in-out infinite; }
-    .orbit { position: absolute; width: 470px; height: 150px; border: 2px solid rgba(148,163,184,.18); border-radius: 50%; transform: rotate(-10deg); }
-    @keyframes float { 0%,100% { transform: translateY(0) rotate(8deg); } 50% { transform: translateY(-18px) rotate(18deg); } }
-    .main-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin: 24px 0; }
-    .section-card { min-height: 330px; padding: 32px; }
-    .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom: 22px; }
-    .card-title { margin: 0; font-size:20px; font-weight:900; }
-    .more { color: var(--primary); font-weight: 800; }
-    .schedule-row { min-height: 58px; display:grid; grid-template-columns: auto 1fr auto; align-items:center; gap:16px; border-bottom:1px solid var(--line); font-weight:700; }
-    .schedule-date { background: var(--primary-light); color: var(--primary); padding:4px 10px; border-radius: 6px; font-size: 12px; font-weight: 900; }
-    .gallery-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .gallery-thumb { height: 121px; border-radius: 10px; background-size: cover; background-position: center; }
-    .promo-grid { margin:24px 0; display:grid; grid-template-columns: repeat(3,1fr); gap:24px; }
-    .promo { padding:28px 24px; min-height:168px; }
-    .promo h3 { margin:0 0 10px; font-size:18px; font-weight:900; }
-    .promo p { color:var(--muted); line-height:1.45; font-weight:600; }
-    @media(max-width: 900px){ .hero,.main-grid,.promo-grid{grid-template-columns:1fr;} .hero-art{display:none;} }
-    @media(max-width:680px){ .vote-box{flex-direction:column; align-items:stretch; padding:17px;} .vote-box button{width:100%;} .gallery-grid{grid-template-columns:1fr;} }
+
+    /* ==========================================================================
+       HERO ART - FULL VANILLA 3D CUBE, ORBIT & SPARKS (THEME LINKED)
+       ========================================================================== */
+    .hero-art { 
+      height: 480px; 
+      position: relative; 
+      display: grid; 
+      place-items: center;
+      perspective: 1200px; /* 3D 기하학 뎁스 정의 */
+    }
+
+    /* 배경에서 회전하는 로컬 흐름 궤도선 */
+    .orbit { 
+      position: absolute; 
+      width: 500px; 
+      height: 160px; 
+      border: 2px solid rgba(148, 163, 184, 0.12); 
+      border-radius: 50%; 
+      transform: rotate(-10deg); /* 원본 고유 기울기 축 */
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* 3D 큐브 플로팅 및 축 기울기 제어 레이어 */
+    .cube-wrap { 
+      position: relative; 
+      transform-style: preserve-3d;
+      transform: rotate(12deg); 
+      animation: float 5s ease-in-out infinite; 
+      z-index: 2;
+    }
+
+    /* 6면체 리얼 입체 디바이스 (정속 공간 회전 매핑) */
+    .cube {
+      width: 160px; 
+      height: 160px; 
+      position: relative;
+      transform-style: preserve-3d;
+      animation: cubeRotate3D 15s linear infinite; 
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      border-radius: 36px; /* 반투명 글래스모피즘 라운딩 */
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.3), 0 12px 30px rgba(15, 23, 42, 0.04);
+      transition: background-color 0.5s ease, border-color 0.5s ease;
+    }
+
+    /* 3D 공간 하드코딩 반경 계산 (Z축 오프셋 80px) */
+    .cube-face.front  { transform: rotateY(0deg) translateZ(80px); background-color: var(--primary); }
+    .cube-face.back   { transform: rotateY(180deg) translateZ(80px); background-color: var(--primary-dark); }
+    .cube-face.right  { transform: rotateY(90deg) translateZ(80px); background-color: var(--primary-dark); opacity: 0.88; }
+    .cube-face.left   { transform: rotateY(-90deg) translateZ(80px); background-color: var(--primary); opacity: 0.88; }
+    .cube-face.top    { transform: rotateX(90deg) translateZ(80px); background-color: #ffffff; border-color: var(--primary); }
+    .cube-face.bottom { transform: rotateX(-90deg) translateZ(80px); background-color: var(--primary-dark); filter: brightness(0.7); }
+
+    .cube-letter { 
+      color: #fff; 
+      font-size: 80px; 
+      line-height: 1; 
+      font-weight: 900; 
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      user-select: none;
+    }
+    
+    .cube-face.top .cube-letter {
+      color: var(--primary);
+      font-size: 68px;
+      transition: color 0.5s ease;
+    }
+
+    /* 리얼 물리 기반 도플러 그림자 */
+    .cube-shadow {
+      position: absolute;
+      bottom: -40px;
+      width: 145px;
+      height: 25px;
+      background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0) 70%);
+      border-radius: 50%;
+      animation: shadowPulse 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* 우주 입자 및 별 파티클 시스템 (SPARKS & DOTS) */
+    .dot, .spark {
+      position: absolute;
+      pointer-events: none;
+      user-select: none;
+      z-index: 3;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 4px 12px var(--primary-light);
+      transition: background-color 0.5s ease, box-shadow 0.5s ease;
+      animation: particleFloat 4s ease-in-out infinite alternate;
+    }
+
+    .dot.d1 { left: 60px; top: 110px; animation-delay: 0.2s; }
+    .dot.d2 { left: 110px; bottom: 85px; width: 10px; height: 10px; animation-delay: 0.8s; }
+    .dot.d3 { right: 120px; top: 45px; width: 8px; height: 8px; opacity: 0.75; animation-delay: 1.2s; }
+    .dot.d4 { right: 80px; bottom: 105px; width: 11px; height: 11px; opacity: 0.5; animation-delay: 0.5s; }
+    .dot.d5 { left: 240px; top: 50px; width: 7px; height: 7px; opacity: 0.6; animation-delay: 1.4s; }
+
+    .spark {
+      color: var(--primary);
+      font-size: 22px;
+      opacity: 0.5;
+      transition: color 0.5s ease;
+      animation: sparkBlink 3s ease-in-out infinite alternate;
+    }
+
+    .spark.s1 { left: 90px; top: 75px; animation-delay: 0.1s; }
+    .spark.s2 { left: 130px; bottom: 60px; font-size: 16px; animation-delay: 0.6s; }
+    .spark.s3 { right: 150px; bottom: 95px; font-size: 14px; animation-delay: 1.0s; }
+
+    /* CORE ANIMATION ENGINE */
+    @keyframes float { 
+      0%, 100% { transform: rotate(12deg) translateY(0); } 
+      50% { transform: rotate(12deg) translateY(-14px); } 
+    }
+
+    @keyframes cubeRotate3D {
+      0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(0deg); }
+    }
+
+    @keyframes shadowPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.85); opacity: 0.4; filter: blur(1px); }
+    }
+
+    @keyframes particleFloat {
+      0% { transform: translateY(0); opacity: 0.4; }
+      100% { transform: translateY(-10px); opacity: 0.8; }
+    }
+
+    @keyframes sparkBlink {
+      0% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
+      100% { opacity: 0.7; transform: scale(1.1) rotate(20deg); }
+    }
+
+    /* ==========================================================================
+       CONTENT SECTIONS
+       ========================================================================== */
+    /* 메인 컨텐츠 그리드 구성 */
+    .main-grid { display: grid; grid-template-columns: 1.58fr 0.97fr; gap: 24px; margin-top: 24px; }
+    .card { background: var(--card); border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: var(--soft-shadow); }
+    .event-card, .gallery-card { min-height: 378px; padding: 32px; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .card-title { margin: 0; font-size: 20px; letter-spacing: -0.03em; font-weight: 800; }
+    .more { color: var(--primary); font-weight: 700; font-size: 14px; transition: color 0.5s ease; }
+
+    /* 쿠폰 일정 UI 컴포넌트 */
+    .event-schedule-list { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; }
+    .schedule-row { height: 60px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; padding: 0 20px; border-bottom: 1px solid #e2e8f0; font-size: 15px; font-weight: 600; }
+    .schedule-row:last-child { border-bottom: 0; }
+    .schedule-date { background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-align: center; white-space: nowrap; transition: all 0.5s ease; }
+    .schedule-name { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .schedule-status { font-size: 13px; font-weight: 700; color: #ef4444; display: flex; align-items: center; gap: 4px; }
+    .schedule-status.waiting { color: var(--primary); }
+
+    /* 갤러리 섹션 */
+    .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .food-img { height: 121px; border-radius: 10px; overflow: hidden; background-size: cover; background-position: center; }
+    .food-1 { background-image: url("https://images.unsplash.com/photo-1604908177522-402a2edbfb8b?auto=format&fit=crop&w=700&q=80"); }
+    .food-2 { background-image: url("https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=700&q=80"); }
+    .food-3 { background-image: url("https://images.unsplash.com/photo-1645112411341-6c4fd023714a?auto=format&fit=crop&w=700&q=80"); }
+    .food-4 { background-image: url("https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80"); }
+    .hash { margin: 20px 0 0; color: var(--primary); font-size: 14px; font-weight: 700; transition: color 0.5s ease; }
+
+    /* 프로모션 배너 그리드 */
+    .promo-grid { margin: 24px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .promo { min-height: 184px; padding: 28px 24px; position: relative; overflow: hidden; }
+    .promo h3 { margin: 0 0 10px; font-size: 18px; font-weight: 800; letter-spacing: -0.03em; }
+    .promo p { width: 68%; margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.45; font-weight: 500; }
+    .outline-btn { height: 38px; padding: 0 16px; border: 1px solid #cbd5e1; border-radius: 8px; color: var(--text); background: #ffffff; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .outline-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .promo-art { position: absolute; right: 16px; top: 36px; }
+
+    .ticket { width: 80px; height: 80px; display: grid; place-items: center; color: var(--primary); font-size: 28px; font-weight: 900; transform: rotate(-15deg); border-radius: 12px; background: var(--primary-light); transition: all 0.5s ease; }
+    .new-store-badge { width: 82px; height: 82px; display: grid; place-items: center; font-size: 38px; border-radius: 20px; color: #059669; background: #ecfdf5; box-shadow: 0 10px 20px rgba(5, 150, 105, 0.1); }
+    .heart { width: 80px; height: 80px; display: grid; place-items: center; color: #e11d48; font-size: 48px; background: #ffe4e6; clip-path: path("M40 70 C22 56 4 43 4 23 C4 11 13 3 25 3 C32 3 37 7 40 12 C43 7 48 3 55 3 C67 3 76 11 76 23 C76 43 58 56 40 70 Z"); }
+
+    /* 공통 모달 기본 레이아웃 오버레이 */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    
+    /* 이용약관 & 개인정보 처리방침 & 브랜드 소개 모달 박스 공통 구조 */
+    .terms-modal, .privacy-modal, .about-modal { width: min(500px, calc(100% - 32px)); max-height: 85vh; background: #ffffff; border-radius: 20px; box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15); padding: 32px 24px; transform: translateY(20px); transition: transform 0.25s ease; position: relative; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .modal-overlay.show .terms-modal, .modal-overlay.show .privacy-modal, .modal-overlay.show .about-modal { transform: translateY(0); }
+    
+    .modal-close-btn { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; font-size: 24px; color: var(--muted); font-weight: 300; cursor: pointer; }
+    .modal-close-btn:hover { color: var(--text); }
+    
+    .modal-head-title { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+    .modal-head-title h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: var(--text); }
+    .modal-head-title p { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+    
+    .modal-scroll-body { overflow-y: auto; padding-right: 6px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: #334155; text-align: left; }
+    .modal-scroll-body::-webkit-scrollbar { width: 4px; }
+    .modal-scroll-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    
+    /* 모달 내부 타이포그래피 요소 */
+    .modal-scroll-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 18px 0 6px; }
+    .modal-scroll-body h4:first-child { margin-top: 0; }
+    .modal-scroll-body p { margin: 0 0 10px; font-weight: 500; color: #475569; }
+    .modal-scroll-body code { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-family: inherit; font-weight: 600; }
+    .modal-scroll-body .theme-text { color: var(--primary); font-weight: 600; }
+    .privacy-date { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: right; font-weight: 500; }
+
+    /* 모달 하단 메인 확인 버튼 */
+    .modal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); transition: all 0.15s ease; flex-shrink: 0; cursor: pointer; }
+    .modal-confirm-btn:hover { filter: brightness(1.04); }
+
+    .footer { border-top: 1px solid #e2e8f0; background: #ffffff; }
+    .footer-inner { width: min(1148px, calc(100% - 48px)); margin: 0 auto; min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-brand { color: var(--primary); font-size: 18px; font-weight: 800; margin-bottom: 4px; transition: color 0.5s ease; }
+    .copyright { color: var(--muted); font-size: 13px; font-weight: 500; }
+    .footer-links { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 13px; font-weight: 500; }
+    .footer-icons { display: flex; gap: 16px; margin-left: 20px; color: #94a3b8; }
+
+    .toast { position: fixed; left: 50%; bottom: 30px; z-index: 50; transform: translateX(-50%) translateY(30px); opacity: 0; pointer-events: none; padding: 14px 24px; border-radius: 999px; color: #fff; background: #0f172a; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15); font-weight: 700; font-size: 15px; transition: 0.25s ease; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 980px) {
+      .nav { gap: 20px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-bottom: 20px; }
+      .hero-art { height: 410px; }
+      .main-grid, .promo-grid { grid-template-columns: 1fr; }
+      .promo p { width: 70%; }
+    }
+
+    @media (max-width: 680px) {
+      .topbar { height: auto; }
+      .nav-inner { width: min(100% - 28px, 1148px); min-height: 72px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 16px; padding: 16px 0; }
+      .nav { width: 100%; overflow-x: auto; gap: 24px; padding-bottom: 4px; }
+      .nav a { height: 34px; flex: 0 0 auto; }
+      .nav a.active::after { bottom: -4px; }
+      .page, .footer-inner { width: min(100% - 28px, 1148px); }
+      .hero { padding-top: 36px; }
+      .hero-title { font-size: 44px; }
+      .vote-box { height: auto; flex-direction: column; align-items: stretch; padding: 17px; }
+      .vote-box input { height: 46px; }
+      .vote-box button { width: 100%; }
+      .event-card, .gallery-card { padding: 22px 18px; }
+      .schedule-row { padding: 0 12px; gap: 10px; font-size: 14px; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .food-img { height: 170px; }
+      .promo p { width: 100%; }
+      .promo-art { opacity: 0.2; }
+      .footer-inner { flex-direction: column; align-items: flex-start; padding: 20px 0; }
+      .footer-links { flex-wrap: wrap; }
+      /* 모바일에서는 레이아웃 확보를 위해 3D 아트를 숨깁니다 */
+      .hero-art { display: none; } 
+    }
+
+    .outline-btn { height: 38px; padding: 0 16px; border: 1px solid #cbd5e1; border-radius: 8px; color: var(--text); background: #ffffff; font-size: 13px; font-weight: 700; transition: all 0.2s; }
+    .outline-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+    .promo { position: relative; overflow: hidden; }
+    .promo p { width: 68%; }
+    .promo-art { position: absolute; right: 16px; top: 36px; }
+    .ticket { width: 80px; height: 80px; display: grid; place-items: center; color: var(--primary); font-size: 28px; font-weight: 900; transform: rotate(-15deg); border-radius: 12px; background: var(--primary-light); transition: all 0.5s ease; }
+    .new-store-badge { width: 82px; height: 82px; display: grid; place-items: center; font-size: 38px; border-radius: 20px; color: #059669; background: #ecfdf5; box-shadow: 0 10px 20px rgba(5, 150, 105, 0.1); }
+    .heart { width: 80px; height: 80px; display: grid; place-items: center; color: #e11d48; font-size: 48px; background: #ffe4e6; clip-path: path("M40 70 C22 56 4 43 4 23 C4 11 13 3 25 3 C32 3 37 7 40 12 C43 7 48 3 55 3 C67 3 76 11 76 23 C76 43 58 56 40 70 Z"); }
+
+    .footer-links { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 13px; font-weight: 500; }
+    .footer-icons { display: flex; gap: 16px; margin-left: 20px; color: #94a3b8; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .terms-modal, .privacy-modal, .about-modal {
+      width: min(500px, calc(100% - 32px)); max-height: 85vh; background: #ffffff; border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15); padding: 32px 24px; transform: translateY(20px);
+      transition: transform 0.25s ease; position: relative; border: 1px solid #e2e8f0; display: flex; flex-direction: column;
+    }
+    .modal-overlay.show .terms-modal, .modal-overlay.show .privacy-modal, .modal-overlay.show .about-modal { transform: translateY(0); }
+    .modal-close-btn { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; font-size: 24px; color: var(--muted); font-weight: 300; cursor: pointer; }
+    .modal-close-btn:hover { color: var(--text); }
+    .modal-head-title { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+    .modal-head-title h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: var(--text); }
+    .modal-head-title p { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+    .modal-scroll-body { overflow-y: auto; padding-right: 6px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: #334155; text-align: left; }
+    .modal-scroll-body::-webkit-scrollbar { width: 4px; }
+    .modal-scroll-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .modal-scroll-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 18px 0 6px; }
+    .modal-scroll-body h4:first-child { margin-top: 0; }
+    .modal-scroll-body p { margin: 0 0 10px; font-weight: 500; color: #475569; }
+    .modal-scroll-body code { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-family: inherit; font-weight: 600; }
+    .modal-scroll-body .theme-text { color: var(--primary); font-weight: 600; }
+    .privacy-date { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: right; font-weight: 500; }
+    .modal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); transition: all 0.15s ease; flex-shrink: 0; cursor: pointer; }
+    .modal-confirm-btn:hover { filter: brightness(1.04); }
+
+    @media(max-width: 900px) {
+      .promo p { width: 70%; }
+    }
+    @media(max-width:680px) {
+      .promo p { width: 100%; }
+      .promo-art { opacity: 0.2; }
+      .footer-links { flex-wrap: wrap; }
+    }
+
   </style>
 </head>
+
 <body>
   <header class="topbar">
     <div class="nav-inner">
-      <a href="./index.html" class="brand"><span class="brand-icon">L</span><span><span class="brand-name">LocalFlow</span><span class="brand-sub">충주 로컬플로우</span></span></a>
-      <nav class="nav">
-        <a class="active" href="./index.html">홈</a>
+      <a href="#home" class="brand" aria-label="LocalFlow 홈">
+        <span class="brand-icon">L</span>
+        <span>
+          <span class="brand-name">LocalFlow</span>
+          <span class="brand-sub">충주 로컬플로우</span>
+        </span>
+      </a>
+
+      <nav class="nav" aria-label="주요 메뉴">
+        <a class="active" href="index.html">홈</a>
         <a href="./gallery.html">갤러리</a>
         <a href="./coupon.html">쿠폰</a>
       </nav>
@@ -52,16 +486,32 @@
   </header>
 
   <main class="page">
-    <section class="hero">
-      <div>
-        <div class="badge" id="dayBadge">♣ 로컬의 선택이 지역의 흐름이 됩니다</div>
-        <h1 class="hero-title">오늘,<br><span>뭐 먹고 싶어?</span></h1>
-        <p class="hero-desc">LocalFlow는 오늘 먹고 싶은 한마디를 모아<br>충주의 다음 흐름을 만드는 시민 참여형 로컬 프로젝트입니다.</p>
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <div class="badge" id="dayBadge">♙ 로컬의 선택이 지역의 흐름이 됩니다</div>
+
+        <h1 class="hero-title">
+          오늘,<br />
+          <span>뭐 먹고 싶어?</span>
+        </h1>
+
+        <p class="hero-desc">
+          LocalFlow는 오늘 먹고 싶은 한마디를 모아<br />
+          충주의 다음 흐름을 만드는 시민 참여형 로컬 프로젝트입니다.
+        </p>
+
         <form class="vote-box" id="voteForm">
-          <input id="voteInput" placeholder="오늘 먹고 싶은 메뉴나 가게를 적어주세요!" required>
-          <button class="btn" type="submit">✈ 투표하기</button>
+          <input
+            id="voteInput"
+            type="text"
+            placeholder="오늘 먹고 싶은 메뉴나 가게를 적어주세요!"
+            autocomplete="off"
+            required
+          />
+          <button type="submit">✈ 투표하기</button>
         </form>
-        <div class="chips">
+
+        <div class="chips" aria-label="추천 키워드">
           <strong>추천 키워드</strong>
           <button class="chip" type="button">마라탕</button>
           <button class="chip" type="button">칼국수</button>
@@ -69,39 +519,268 @@
           <button class="chip" type="button">카페</button>
           <button class="chip" type="button">초밥</button>
           <button class="chip" type="button">삼겹살</button>
+          <button class="chip" type="button">샐러드</button>
         </div>
       </div>
+
       <div class="hero-art" aria-hidden="true">
         <div class="orbit"></div>
-        <div class="cube">L</div>
+        
+        <span class="spark s1">✦</span>
+        <span class="spark s2">✦</span>
+        <span class="spark s3">✦</span>
+        <span class="dot d1"></span>
+        <span class="dot d2"></span>
+        <span class="dot d3"></span>
+        <span class="dot d4"></span>
+        <span class="dot d5"></span>
+
+        <div class="cube-wrap">
+          <div class="cube">
+            <div class="cube-face front"><span class="cube-letter">플</span></div>
+            <div class="cube-face back"><span class="cube-letter">래</span></div>
+            <div class="cube-face right"><span class="cube-letter">닛</span></div>
+            <div class="cube-face left"><span class="cube-letter">충</span></div>
+            <div class="cube-face top"><span class="cube-letter">ㅋ?</span></div>
+            <div class="cube-face bottom"><span class="cube-letter">주</span></div>
+          </div>
+        </div>
+        <div class="cube-shadow"></div>
       </div>
     </section>
 
     <section class="main-grid">
-      <article class="card section-card">
-        <div class="card-head"><h2 class="card-title">📅 실시간 쿠폰 추첨 일정</h2><a class="more" href="./coupon.html">캘린더 보기 ›</a></div>
-        <div id="scheduleList"></div>
+      <article class="card event-card" id="schedule">
+        <div class="card-head">
+          <h2 class="card-title">📅 실시간 쿠폰 추첨 일정</h2>
+          <a href="./coupon.html" class="more">캘린더 보기 ›</a>
+        </div>
+        <div class="event-schedule-list" id="scheduleList"></div>
       </article>
-      <article class="card section-card">
-        <div class="card-head"><h2 class="card-title">▣ 오늘의 갤러리</h2><a class="more" href="./gallery.html">더보기 ›</a></div>
-        <div class="gallery-grid" id="homeGallery"></div>
-        <p style="color:var(--primary);font-weight:800;">#충주맛집 #오늘뭐먹지 #LocalFlow</p>
+
+      <article class="card gallery-card" id="gallery">
+        <div class="card-head">
+          <h2 class="card-title">▣ 오늘의 갤러리</h2>
+          <a href="./gallery.html" class="more">더보기 ›</a>
+        </div>
+
+        <div class="gallery-grid">
+          <div class="food-img food-1" role="img" aria-label="매콤한 전골 음식"></div>
+          <div class="food-img food-2" role="img" aria-label="디저트와 커피"></div>
+          <div class="food-img food-3" role="img" aria-label="크림 파스타"></div>
+          <div class="food-img food-4" role="img" aria-label="수제버거와 감자튀김"></div>
+        </div>
+
+        <p class="hash">#충주맛집&nbsp; #오늘뭐먹지&nbsp; #LocalFlow</p>
       </article>
     </section>
 
-    <section class="promo-grid">
-      <article class="card promo"><h3>🎁 Local 쿠폰 이벤트</h3><p>투표하고 쿠폰 받아가세요. 매장별 혜택을 관리페이지에서 바로 등록할 수 있습니다.</p><a href="./coupon.html"><button class="btn-soft" style="height:38px;padding:0 16px;">이벤트 참여하기 ›</button></a></article>
-      <article class="card promo"><h3>🌱 갤러리 등록</h3><p>로컬 매장, 메뉴, 풍경 사진을 JSON으로 관리하고 페이지에 바로 반영합니다.</p></article>
-      <article class="card promo"><h3>♡ LocalFlow란?</h3><p>작은 선택이 모여 충주의 흐름이 되는 시민 참여형 로컬 순환 프로젝트입니다.</p></article>
+    <section class="promo-grid" id="event">
+      <article class="card promo">
+        <h3>🎁 Local 쿠폰 이벤트</h3>
+        <p>투표하고 쿠폰 받아가세요!<br />매월 추첨을 통해 다양한 혜택을 드려요.</p>
+        <a href="./coupon.html"><button class="outline-btn" type="button">이벤트 참여하기 ›</button></a>
+        <div class="promo-art ticket">%</div>
+      </article>
+
+      <article class="card promo">
+        <h3>🌱 신규 지원 스마트 스토어</h3>
+        <p>Planet Chungju가 서포트하는<br />이번 달 충주 신규 로컬 숍 오픈!</p>
+        <button class="outline-btn" type="button" onclick="showToast('스토어 준비 중입니다. 곧 공개됩니다!')">오픈 기념 혜택 보기 ›</button>
+        <div class="promo-art new-store-badge">🏪</div>
+      </article>
+
+      <article class="card promo">
+        <h3>♡ LocalFlow란?</h3>
+        <p>우리의 작은 선택이 모여<br />더 나은 지역을 만듭니다.</p>
+        <button class="outline-btn" type="button" onclick="openAboutModal()">자세히 알아보기 ›</button>
+        <div class="promo-art heart"></div>
+      </article>
     </section>
   </main>
 
-  <footer class="footer"><div class="footer-inner"><div><div class="footer-brand">LocalFlow</div><div class="copyright">© 2026 STANCE. LocalFlow Project.</div></div></div></footer>
-  <div class="toast" id="toast"></div>
-  <script src="./assets/js/common.js"></script>
+  <footer class="footer" id="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">LocalFlow</div>
+        <div class="copyright">© 2026 STANCE. LocalFlow Project. All rights reserved.</div>
+      </div>
+
+      <div class="footer-links">
+        <a href="javascript:void(0);" onclick="openTermsModal()">이용약관</a>
+        <span>|</span>
+        <a href="javascript:void(0);" onclick="openPrivacyModal()">개인정보처리방침</a>
+        <span>|</span>
+        <a href="https://llsshh.com/cs.html" target="_blank" rel="noopener noreferrer">문의하기</a>
+        <span class="footer-icons"><span>◎</span><span>N</span><span>☁</span></span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
+    <div class="terms-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeTermsModal()">×</button>
+
+      <div class="modal-head-title">
+        <h3>이용약관</h3>
+        <p>LocalFlow 서비스 이용 안내</p>
+      </div>
+
+      <div class="modal-scroll-body">
+        <h4>1. 서비스 소개</h4>
+        <p>LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다. 사용자는 맛집 추천, 투표, 갤러리 열람, 쿠폰 이벤트 참여 등 다양한 기능을 이용할 수 있습니다.</p>
+
+        <h4>2. 서비스 이용 목적</h4>
+        <p>본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다. 이용자는 건전한 방식으로 서비스를 이용해야 하며, 허위 정보 등록이나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.</p>
+
+        <h4>3. 투표 및 참여 데이터 안내</h4>
+        <p>사용자가 입력한 메뉴, 가게명, 키워드 등은 LocalFlow의 로컬 트렌드 확인 및 서비스 개선 목적으로 활용될 수 있습니다. 단, 개인을 식별할 수 있는 정보는 별도 동의 없이 공개하지 않습니다.</p>
+
+        <h4>4. 이벤트 및 쿠폰 정책</h4>
+        <p>쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다. 추첨 이벤트는 내부 기준에 따라 공정하게 선정되며, 중복 참여 또는 비정상적인 이용이 확인될 경우 응모가 제한될 수 있습니다.</p>
+
+        <h4>5. 이용 제한</h4>
+        <p>다음과 같은 행위가 확인될 경우 서비스 이용이 제한될 수 있습니다.</p>
+        <p>• 타인의 개인정보 도용<br>
+        • 허위 정보 또는 부적절한 내용 입력<br>
+        • 비정상적인 반복 응모 및 자동화 이용<br>
+        • 서비스 운영 방해 행위<br>
+        • 법령 및 공공질서에 위반되는 행위</p>
+
+        <h4>6. 책임의 제한</h4>
+        <p>LocalFlow는 천재지변, 시스템 장애, 외부 서비스 문제 등 불가항력적인 사유로 발생한 서비스 중단에 대해 책임을 지지 않습니다.</p>
+
+        <h4>7. 약관 변경</h4>
+        <p>본 약관은 서비스 운영상 필요한 경우 변경될 수 있으며, 중요한 변경 사항은 서비스 내 공지사항 또는 모달을 통해 사전 안내됩니다.</p>
+
+        <h4>8. 문의</h4>
+        <p>서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br>
+        <strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
+
+        <div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
+      </div>
+
+      <button class="modal-confirm-btn" onclick="closeTermsModal()">확인했습니다</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
+    <div class="privacy-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closePrivacyModal()">×</button>
+      
+      <div class="modal-head-title">
+        <h3>개인정보 처리방침</h3>
+        <p>LocalFlow 서비스 이용을 위한 안내</p>
+      </div>
+
+      <div class="privacy-body modal-scroll-body">
+        <h4>1. 수집하는 개인정보 항목 및 방법</h4>
+        <p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br>
+        <strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
+
+        <h4>2. 개인정보의 수집 및 이용 목적</h4>
+        <p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br>
+        <strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
+
+        <h4>3. 개인정보의 보유 및 이용 기간</h4>
+        <p>이용자의 개인정보는 원칙적으로 <strong>개인정보 수집 및 이용 목적이 달성되면 지체 없이 파기</strong>합니다.<br>
+        <strong>보유 기간:</strong> 결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
+
+        <h4>4. 제3자 제공 및 위탁</h4>
+        <p>LocalFlow는 이용자의 사전 동의 없이는 원칙적으로 외부(제3자)에 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+
+        <h4>5. 이용자의 권리 및 문의처</h4>
+        <p>이용자는 언제든지 본인의 개인정보 처리에 대한 동의 철회 및 삭제를 요구할 수 있습니다. 관련 문의는 하단 이메일로 연락하시면 지체 없이 조치하겠습니다.<br>
+        <strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
+        
+        <div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
+      </div>
+      
+      <button class="modal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="aboutModalOverlay" onclick="closeAboutModal()">
+    <div class="about-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeAboutModal()">×</button>
+      
+      <div class="modal-head-title">
+        <h3>♡ LocalFlow란?</h3>
+        <p>시민의 선택이 지역의 흐름이 되는 곳</p>
+      </div>
+      
+      <div class="modal-scroll-body">
+      
+        <h4>작은 선택은 흐름이 되어 다시 돌아옵니다.</h4>
+        <p>
+          누군가의 "오늘 뭐 먹지?"라는 고민 하나,
+          하나의 투표와 방문, 하나의 기록은 금방 사라지지 않습니다.
+          LocalFlow는 <strong>충주 시민들의 실제 선택과 참여</strong>를 바탕으로
+          지역 안에서 새로운 흐름과 순환을 만들어가는 시민 참여형 로컬 프로젝트입니다.
+        </p>
+      
+        <h4>지역 안에서 흐르는 데이터</h4>
+        <p>
+          우리가 남긴 선택은 단순한 클릭으로 끝나지 않습니다.
+          어느 가게가 사랑받고 있는지,
+          지금 사람들이 어디로 움직이고 있는지,
+          충주에서 어떤 흐름이 만들어지고 있는지가 기록됩니다.
+        </p>
+      
+        <h4>소비가 끝나지 않는 구조</h4>
+        <p>
+          LocalFlow는 단순 광고 플랫폼이 아니라,
+          지역 안에서 관심과 소비, 참여가 다시 지역으로 돌아오는 구조를 지향합니다.
+        </p>
+      
+        <p>
+          시민들의 자발적인 투표와 기록,
+          그리고 투명한 쿠폰 이벤트를 통해
+          지역 상권과 사람들을 가장 직관적이고 가벼운 방식으로 연결합니다.
+        </p>
+      
+        <p>
+          지금 이 순간에도 당신이 남긴 작은 선택 하나가
+          충주의 다음 흐름을 만들고 있습니다.
+          함께 흐르고, 함께 순환해보세요. ✨
+        </p>
+      
+      </div>
+      
+      <button class="modal-confirm-btn" onclick="closeAboutModal()">OK</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">투표가 반영되었습니다.</div>
+
   <script>
+    const API_BASE = "https://localflow.ddns.net/lf";
+
+    function apiUrl(path) {
+      if (/^https?:\/\//i.test(path)) return path;
+      return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
+    }
+
+    async function localApiGet(path) {
+      const res = await fetch(apiUrl(path), { method: "GET", mode: "cors" });
+      return await res.json();
+    }
+
+    async function localApiSend(path, method, body) {
+      const res = await fetch(apiUrl(path), {
+        method,
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      return await res.json();
+    }
+
     const dayNames = ["일","월","화","수","목","금","토"];
-    document.getElementById("dayBadge").innerHTML = `♣ 오늘은 ${dayNames[new Date().getDay()]}요일! 상큼한 로컬의 흐름에 참여해보세요`;
+    const dayBadge = document.getElementById("dayBadge");
+    if (dayBadge) {
+      dayBadge.innerHTML = `♣ 오늘은 ${dayNames[new Date().getDay()]}요일! 상큼한 로컬의 흐름에 참여해보세요`;
+    }
 
     document.querySelectorAll(".chip").forEach(chip => chip.addEventListener("click", () => {
       document.getElementById("voteInput").value = chip.textContent.trim();
@@ -113,32 +792,96 @@
       const input = document.getElementById("voteInput");
       const text = input.value.trim();
       if (!text) return;
-      const data = await apiSend("https://localflow.ddns.net/lf/api/votes", "POST", {text, source: "home"});
-      if (data.ok) {
-        showToast(`🎉 "${text}" 의견이 로컬플로우에 기록되었습니다.`);
-        input.value = "";
-      } else {
-        showToast("❌ 저장 실패");
+
+      try {
+        const data = await localApiSend("/api/votes", "POST", { text, source: "home" });
+        if (data.ok) {
+          showToast(`🎉 "${text}" 의견이 로컬플로우에 기록되었습니다.`);
+          input.value = "";
+        } else {
+          showToast("❌ 저장 실패");
+        }
+      } catch (err) {
+        showToast("❌ 서버 연결 실패");
       }
     });
 
     async function renderHomeData() {
-      const coupons = (await apiGet("https://localflow.ddns.net/lf/api/coupons")).items || [];
-      const gallery = (await apiGet("https://localflow.ddns.net/lf/api/gallery")).items || [];
+      try {
+        const coupons = (await localApiGet("/api/coupons")).items || [];
+        const gallery = (await localApiGet("/api/gallery")).items || [];
 
-      const activeCoupons = coupons.filter(c => c.active !== false).slice(0, 4);
-      document.getElementById("scheduleList").innerHTML = activeCoupons.length ? activeCoupons.map(c => `
-        <div class="schedule-row">
-          <span class="schedule-date">${escapeHtml((c.expire || "").slice(5))}</span>
-          <span>${escapeHtml(c.store)} - ${escapeHtml(c.title)}</span>
-          <span style="color:var(--primary)">● 대기중</span>
-        </div>
-      `).join("") : `<p style="color:var(--muted)">등록된 쿠폰 일정이 없습니다. 관리자에서 쿠폰을 생성하세요.</p>`;
+        const activeCoupons = coupons.filter(c => c.active !== false).slice(0, 4);
+        document.getElementById("scheduleList").innerHTML = activeCoupons.length ? activeCoupons.map(c => `
+          <div class="schedule-row">
+            <span class="schedule-date">${escapeHtml((c.expire || "").slice(5))}</span>
+            <span class="schedule-name">${escapeHtml(c.store)} - ${escapeHtml(c.title)}</span>
+            <span class="schedule-status waiting">● 대기중</span>
+          </div>
+        `).join("") : `<p style="color:var(--muted)">등록된 쿠폰 일정이 없습니다. 관리자에서 쿠폰을 생성하세요.</p>`;
 
-      document.getElementById("homeGallery").innerHTML = gallery.slice(0, 4).map(g => `
-        <div class="gallery-thumb" title="${escapeHtml(g.title)}" style="background-image:url('${escapeHtml(g.url)}')"></div>
-      `).join("") || `<p style="color:var(--muted)">등록된 갤러리가 없습니다.</p>`;
+        document.getElementById("homeGallery").innerHTML = gallery.slice(0, 4).map(g => `
+          <div class="gallery-thumb food-img" title="${escapeHtml(g.title)}" style="background-image:url('${escapeHtml(g.url)}')"></div>
+        `).join("") || `<p style="color:var(--muted)">등록된 갤러리가 없습니다.</p>`;
+      } catch (err) {
+        document.getElementById("scheduleList").innerHTML = `<p style="color:var(--muted)">쿠폰 일정을 불러오지 못했습니다.</p>`;
+        document.getElementById("homeGallery").innerHTML = `<p style="color:var(--muted)">갤러리를 불러오지 못했습니다.</p>`;
+      }
     }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2500);
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[char]));
+    }
+
+    function unlockBodyIfNoModalOpen() {
+      const termsOpen = document.getElementById("termsModalOverlay").classList.contains("show");
+      const privacyOpen = document.getElementById("privacyModalOverlay").classList.contains("show");
+      const aboutOpen = document.getElementById("aboutModalOverlay").classList.contains("show");
+      if (!termsOpen && !privacyOpen && !aboutOpen) document.body.style.overflow = "auto";
+    }
+
+    window.openTermsModal = function() {
+      document.getElementById("termsModalOverlay").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+    window.closeTermsModal = function() {
+      document.getElementById("termsModalOverlay").classList.remove("show");
+      unlockBodyIfNoModalOpen();
+    };
+    window.openPrivacyModal = function() {
+      document.getElementById("privacyModalOverlay").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+    window.closePrivacyModal = function() {
+      document.getElementById("privacyModalOverlay").classList.remove("show");
+      unlockBodyIfNoModalOpen();
+    };
+    window.openAboutModal = function() {
+      document.getElementById("aboutModalOverlay").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+    window.closeAboutModal = function() {
+      document.getElementById("aboutModalOverlay").classList.remove("show");
+      unlockBodyIfNoModalOpen();
+    };
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeTermsModal();
+        closePrivacyModal();
+        closeAboutModal();
+      }
+    });
 
     renderHomeData();
   </script>
