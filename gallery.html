@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LocalFlow 갤러리</title>
-  <link rel="stylesheet" href="./asstes/js/common.css">
+  <link rel="stylesheet" href="./asstes/css/common.css">
   <style>
     .sub-hero { padding:54px 0 32px; text-align:center; }
     .sub-title { font-size:38px; font-weight:900; letter-spacing:-.05em; margin:0 0 12px; }
@@ -47,7 +47,7 @@ let rawGallery = [];
 let currentFilter = "전체";
 
 async function loadGallery() {
-  const data = await apiGet("/api/gallery");
+  const data = await apiGet("https://localflow.ddns.net/lf/api/gallery");
   rawGallery = data.items || [];
   renderFilters();
   renderGallery();
