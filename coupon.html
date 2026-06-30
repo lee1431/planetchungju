@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LocalFlow 쿠폰</title>
-  <link rel="stylesheet" href="./asstes/js/common.css">
+  <link rel="stylesheet" href="./asstes/css/common.css">
   <style>
     .sub-hero { padding:54px 0 32px; text-align:center; }
     .sub-title { font-size:38px; font-weight:900; letter-spacing:-.05em; margin:0 0 12px; }
@@ -71,7 +71,7 @@ let currentFilter = "전체";
 let activeCouponId = null;
 
 async function loadCoupons() {
-  const data = await apiGet("/api/coupons");
+  const data = await apiGet("https://localflow.ddns.net/lf/api/coupons");
   rawCoupons = (data.items || []).filter(c => c.active !== false);
   renderFilters();
   renderCoupons();
