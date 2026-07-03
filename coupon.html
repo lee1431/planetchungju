@@ -1,4 +1,6 @@
 
+
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -98,6 +100,52 @@
     /* 캘린더 위젯 스타일 */
     .calendar-wrap {
       max-width: 660px; margin: 0 auto 48px; background: #fff; border: 1px solid #e2e8f0; border-radius: var(--radius); box-shadow: var(--soft-shadow); padding: 28px;
+    }
+
+    .calendar-section {
+      max-width: 660px;
+      margin: 0 auto 40px;
+    }
+
+    .calendar-toggle {
+      width: 100%;
+      height: 54px;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 800;
+      box-shadow: var(--soft-shadow);
+      transition: 0.2s ease;
+    }
+
+    .calendar-toggle:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: transparent;
+      transform: translateY(-2px);
+    }
+
+    .calendar-panel {
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.25s ease;
+    }
+
+    .calendar-panel.collapsed {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+    }
+
+    .calendar-panel.open {
+      max-height: 900px;
+      opacity: 1;
+      margin-top: 18px;
+    }
+
+    .calendar-panel .calendar-wrap {
+      margin-bottom: 0;
     }
     .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .cal-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px; }
@@ -327,22 +375,30 @@
       <p class="sub-desc">달력에 표시된 추첨일을 확인하고 이벤트에 응모하세요.</p>
     </section>
 
-    <section class="calendar-wrap">
-      <div class="cal-header">
-        <button class="cal-nav-btn" id="prevMonth" aria-label="이전 달">‹</button>
-        <h2 class="cal-title" id="calTitle">2026년 <span>5월</span></h2>
-        <button class="cal-nav-btn" id="nextMonth" aria-label="다음 달">›</button>
+    <section class="calendar-section">
+      <button class="calendar-toggle" type="button" id="calendarToggle">
+        추첨 달력 보기 ▼
+      </button>
+
+      <div class="calendar-panel collapsed" id="calendarPanel">
+        <section class="calendar-wrap">
+          <div class="cal-header">
+            <button class="cal-nav-btn" id="prevMonth" aria-label="이전 달">‹</button>
+            <h2 class="cal-title" id="calTitle">2026년 <span>5월</span></h2>
+            <button class="cal-nav-btn" id="nextMonth" aria-label="다음 달">›</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-day-name sun">일</div>
+            <div class="cal-day-name">월</div>
+            <div class="cal-day-name">화</div>
+            <div class="cal-day-name">수</div>
+            <div class="cal-day-name">목</div>
+            <div class="cal-day-name">금</div>
+            <div class="cal-day-name sat">토</div>
+          </div>
+          <div class="cal-grid" id="calDays"></div>
+        </section>
       </div>
-      <div class="cal-grid">
-        <div class="cal-day-name sun">일</div>
-        <div class="cal-day-name">월</div>
-        <div class="cal-day-name">화</div>
-        <div class="cal-day-name">수</div>
-        <div class="cal-day-name">목</div>
-        <div class="cal-day-name">금</div>
-        <div class="cal-day-name sat">토</div>
-      </div>
-      <div class="cal-grid" id="calDays"></div>
     </section>
 
     <div class="filter-chips" id="filterContainer"></div>
@@ -592,6 +648,20 @@
     });
 
     renderCalendar(currYear, currMonth);
+
+    const calendarToggle = document.getElementById("calendarToggle");
+    const calendarPanel = document.getElementById("calendarPanel");
+
+    if (calendarToggle && calendarPanel) {
+      calendarToggle.addEventListener("click", () => {
+        const isOpen = calendarPanel.classList.contains("open");
+
+        calendarPanel.classList.toggle("open", !isOpen);
+        calendarPanel.classList.toggle("collapsed", isOpen);
+
+        calendarToggle.textContent = isOpen ? "추첨 달력 보기 ▼" : "추첨 달력 접기 ▲";
+      });
+    }
 
     const API_BASE = "https://localflow.ddns.net/lf";
 
