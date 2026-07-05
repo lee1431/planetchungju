@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="ko">
 <head>
@@ -953,8 +952,8 @@
 
     function normalizeCouponToStore(c) {
       const apply = Number(couponEntryCounts[c.id] ?? c.applyCount ?? c.applies ?? c.entries ?? 0);
-      const remain = Number(c.remainCount ?? c.remain ?? c.stock ?? 0);
-      const total = Number(c.totalCount ?? c.total ?? ((remain + apply) || 1));
+      const remain = Number(c.remainCount ?? c.remain ?? c.stock ?? 1);
+      const total = Number(c.totalCount ?? c.total ?? Math.max(1, remain + apply));
       const type = c.type || c.category || "coupon";
 
       return {
