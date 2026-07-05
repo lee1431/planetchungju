@@ -190,7 +190,9 @@
       font-weight: 800;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
     }
-    .locate-btn {
+    .locate-btn,
+    .show-all-btn,
+    .fullscreen-btn {
       border: 0;
       border-radius: 999px;
       padding: 12px 17px;
@@ -199,6 +201,40 @@
       font-size: 14px;
       font-weight: 800;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+      white-space: nowrap;
+    }
+
+    .map-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .map-card.fullscreen-map {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      border-radius: 0;
+      border: 0;
+      box-shadow: none;
+      background: #fff;
+    }
+
+    .map-card.fullscreen-map #map {
+      height: 100vh;
+      min-height: 100vh;
+      max-height: none;
+    }
+
+    .map-card.fullscreen-map .map-top-ui {
+      top: 18px;
+      left: 18px;
+      right: 18px;
+    }
+
+    .map-card.fullscreen-map .legend {
+      bottom: 18px;
+      left: 18px;
     }
 
     #map {
@@ -455,7 +491,7 @@
       .filter-chips { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
       .filter-chip { flex: 0 0 auto; padding: 9px 16px; font-size: 14px; }
       .map-top-ui { align-items: stretch; flex-direction: column; right: auto; }
-      .city-select, .locate-btn { width: fit-content; }
+      .city-select, .locate-btn, .show-all-btn, .fullscreen-btn { width: fit-content; }
       .legend { display: none; }
       .modal-cover { height: 170px; }
       .modal-title { font-size: 24px; }
@@ -478,10 +514,10 @@
       </a>
 
       <nav class="nav" aria-label="주요 메뉴">
-        <a href="./index.html">홈</a>
+        <a href="index.html">홈</a>
         <a href="./gallery.html">갤러리</a>
         <a href="./coupon.html">쿠폰</a>
-        <a class="active" href="./map.html">쿠폰맵</a>
+        <a class="active" href="./localmap.html">쿠폰맵</a>
       </nav>
     </div>
   </header>
@@ -506,12 +542,16 @@
       <div class="summary-card"><b>선택 지역</b><strong>충주</strong></div>
     </section>
 
-    <section class="map-card" aria-label="충주 쿠폰맵">
+    <section class="map-card" id="mapCard" aria-label="충주 쿠폰맵">
       <div class="map-top-ui">
         <select class="city-select" aria-label="지역 선택">
           <option>충주시</option>
         </select>
-        <button class="locate-btn" id="locateBtn" type="button">✥ 현재 위치로 이동</button>
+        <div class="map-actions">
+          <button class="show-all-btn" id="showAllStoresBtn" type="button">전체 업체</button>
+          <button class="locate-btn" id="locateBtn" type="button">✥ 현재 위치로 이동</button>
+          <button class="fullscreen-btn" id="fullscreenMapBtn" type="button">⛶ 전체화면</button>
+        </div>
       </div>
       <div id="map"></div>
       <div class="legend">
@@ -938,6 +978,36 @@
       });
     });
 
+    function activateAllFilter() {
+      document.querySelectorAll(".filter-chip").forEach(item => item.classList.remove("active"));
+      const allFilterBtn = document.querySelector('.filter-chip[data-filter="all"]');
+      if (allFilterBtn) allFilterBtn.classList.add("active");
+      renderMarkers("all");
+      showToast("전체 업체를 표시합니다.");
+    }
+
+    document.getElementById("showAllStoresBtn").addEventListener("click", activateAllFilter);
+
+    const mapCard = document.getElementById("mapCard");
+    const fullscreenMapBtn = document.getElementById("fullscreenMapBtn");
+
+    function syncMapFullscreenButton() {
+      const isFullscreen = mapCard.classList.contains("fullscreen-map");
+      fullscreenMapBtn.textContent = isFullscreen ? "× 전체화면 나가기" : "⛶ 전체화면";
+      fullscreenMapBtn.setAttribute("aria-pressed", String(isFullscreen));
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+      }, 120);
+    }
+
+    function toggleMapFullscreen() {
+      mapCard.classList.toggle("fullscreen-map");
+      document.body.style.overflow = mapCard.classList.contains("fullscreen-map") ? "hidden" : "auto";
+      syncMapFullscreenButton();
+    }
+
+    fullscreenMapBtn.addEventListener("click", toggleMapFullscreen);
+
     document.getElementById("locateBtn").addEventListener("click", () => {
       if (!navigator.geolocation) {
         showToast("현재 위치 기능을 사용할 수 없습니다.");
@@ -960,6 +1030,12 @@
 
     document.addEventListener("keydown", e => {
       if (e.key === "Escape") {
+        if (mapCard.classList.contains("fullscreen-map")) {
+          mapCard.classList.remove("fullscreen-map");
+          document.body.style.overflow = "auto";
+          syncMapFullscreenButton();
+          return;
+        }
         closeStoreModal();
         closeTermsModal();
         closePrivacyModal();
