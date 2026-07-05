@@ -814,612 +814,679 @@
 
   <div class="toast" id="toast">메시지</div>
 
-  <script>
-    const THEMES = [
-      { primary: "#0d9488", primaryLight: "#f0fdfa", primaryDark: "#115e59" },
-      { primary: "#2563eb", primaryLight: "#eff6ff", primaryDark: "#1d4ed8" },
-      { primary: "#059669", primaryLight: "#ecfdf5", primaryDark: "#047857" },
-      { primary: "#7c3aed", primaryLight: "#f5f3ff", primaryDark: "#6d28d9" },
-      { primary: "#ea580c", primaryLight: "#fff7ed", primaryDark: "#c2410c" },
-      { primary: "#e11d48", primaryLight: "#fff1f2", primaryDark: "#be123c" },
-      { primary: "#4f46e5", primaryLight: "#eef2ff", primaryDark: "#3730a3" }
-    ];
+<script>
+  const THEMES = [
+    { primary: "#0d9488", primaryLight: "#f0fdfa", primaryDark: "#115e59" },
+    { primary: "#2563eb", primaryLight: "#eff6ff", primaryDark: "#1d4ed8" },
+    { primary: "#059669", primaryLight: "#ecfdf5", primaryDark: "#047857" },
+    { primary: "#7c3aed", primaryLight: "#f5f3ff", primaryDark: "#6d28d9" },
+    { primary: "#ea580c", primaryLight: "#fff7ed", primaryDark: "#c2410c" },
+    { primary: "#e11d48", primaryLight: "#fff1f2", primaryDark: "#be123c" },
+    { primary: "#4f46e5", primaryLight: "#eef2ff", primaryDark: "#3730a3" }
+  ];
 
-    function applyDailyTheme() {
-      const theme = THEMES[new Date().getDay()];
-      const root = document.documentElement;
-      root.style.setProperty("--primary", theme.primary);
-      root.style.setProperty("--primary-light", theme.primaryLight);
-      root.style.setProperty("--primary-dark", theme.primaryDark);
+  function applyDailyTheme() {
+    const theme = THEMES[new Date().getDay()];
+    const root = document.documentElement;
+    root.style.setProperty("--primary", theme.primary);
+    root.style.setProperty("--primary-light", theme.primaryLight);
+    root.style.setProperty("--primary-dark", theme.primaryDark);
+  }
+
+  applyDailyTheme();
+
+  const API_BASE = "https://localflow.ddns.net/lf";
+  const COUPON_REFRESH_INTERVAL = 60 * 1000;
+
+  let couponRefreshTimer = null;
+  let isRefreshingCoupons = false;
+
+  function apiUrl(path) {
+    if (/^https?:\/\//i.test(path)) return path;
+    return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
+  }
+
+  async function apiGet(path) {
+    const res = await fetch(apiUrl(path), { method: "GET", mode: "cors" });
+    return await res.json();
+  }
+
+  async function apiSend(path, method, body) {
+    const res = await fetch(apiUrl(path), {
+      method,
+      mode: "cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (e) {
+      data = { ok: false, error: "INVALID_RESPONSE" };
     }
 
-    applyDailyTheme();
-
-    const API_BASE = "https://localflow.ddns.net/lf";
-
-    function apiUrl(path) {
-      if (/^https?:\/\//i.test(path)) return path;
-      return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
+    if (!res.ok && data.ok !== false) {
+      data.ok = false;
+      data.error = `HTTP_${res.status}`;
     }
 
-    async function apiGet(path) {
-      const res = await fetch(apiUrl(path), { method: "GET", mode: "cors" });
-      return await res.json();
+    return data;
+  }
+
+  const fallbackStores = [
+    {
+      id: "theine-blueberry",
+      name: "더이네블루베리",
+      region: "충주시 앙성면",
+      lat: 37.1078,
+      lng: 127.7578,
+      type: "coupon",
+      badge: "🎁 쿠폰 진행중",
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80",
+      summary: "충주 지역에서 직접 생산한 농산물을 기반으로 건강한 먹거리를 만드는 로컬 생산 업체입니다.",
+      couponTitle: "직접 생산한 쌀 20kg 50% 할인쿠폰",
+      drawDate: "2026-08-31 (월) 21:00",
+      applyCount: 128,
+      remainCount: 12,
+      totalCount: 140,
+      markerIcon: "🎁",
+      routeUrl: "https://map.naver.com/"
+    },
+    {
+      id: "custompose-golf",
+      name: "커스텀포즈 그립교환",
+      region: "충주시 중앙탑면",
+      lat: 36.9866,
+      lng: 127.8839,
+      type: "event",
+      badge: "🧡 이벤트 진행중",
+      image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=900&q=80",
+      summary: "골프 그립과 샤프트 교환을 지원하는 로컬 스포츠 서비스 업체입니다.",
+      couponTitle: "그립교환 20% 할인 이벤트",
+      drawDate: "2026-08-25 (화) 18:00",
+      applyCount: 65,
+      remainCount: 8,
+      totalCount: 73,
+      markerIcon: "🧡",
+      routeUrl: "https://map.naver.com/"
+    },
+    {
+      id: "mararang-cafe",
+      name: "마라랑 커피로스터스",
+      region: "충주시 성서동",
+      lat: 36.9712,
+      lng: 127.9336,
+      type: "support",
+      badge: "🌱 신규 지원 업체",
+      image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80",
+      summary: "신규 스마트 스토어 지원 대상으로 선정된 충주 로컬 카페입니다.",
+      couponTitle: "오픈 기념 커피 쿠폰",
+      drawDate: "2026-09-05 (토) 18:00",
+      applyCount: 32,
+      remainCount: 20,
+      totalCount: 52,
+      markerIcon: "🌱",
+      routeUrl: "https://map.naver.com/"
+    },
+    {
+      id: "dalhangari-studio",
+      name: "달항아리 공방",
+      region: "충주시 중앙탑면",
+      lat: 37.0092,
+      lng: 127.8649,
+      type: "invest",
+      badge: "⭐ 투자 업체",
+      image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=80",
+      summary: "공방 상품과 체험 클래스를 운영하는 LocalFlow 선정 강소상공인 후보입니다.",
+      couponTitle: "체험 클래스 20% 할인쿠폰",
+      drawDate: "2026-08-28 (금) 18:00",
+      applyCount: 48,
+      remainCount: 6,
+      totalCount: 54,
+      markerIcon: "⭐",
+      routeUrl: "https://map.naver.com/"
     }
+  ];
 
-    async function apiSend(path, method, body) {
-      const res = await fetch(apiUrl(path), {
-        method,
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
+  const typeClass = {
+    coupon: "marker-coupon",
+    event: "marker-event",
+    support: "marker-support",
+    invest: "marker-invest"
+  };
 
-      let data = {};
-      try {
-        data = await res.json();
-      } catch (e) {
-        data = { ok: false, error: "INVALID_RESPONSE" };
-      }
+  const markerIcons = {
+    coupon: "🎁",
+    event: "🧡",
+    support: "🌱",
+    invest: "⭐"
+  };
 
-      if (!res.ok && data.ok !== false) {
-        data.ok = false;
-        data.error = `HTTP_${res.status}`;
-      }
+  let stores = [...fallbackStores];
+  let couponEntryCounts = {};
+  let visibleStores = [...stores];
+  let markers = [];
+  let map;
+  let markerLayer;
 
-      return data;
-    }
+  function escapeHtml(text) {
+    return String(text ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    }[char]));
+  }
 
+  function normalizeCouponToStore(c) {
+    const apply = Number(couponEntryCounts[c.id] ?? c.applyCount ?? c.applies ?? c.entries ?? 0);
+    const remain = Number(c.remainCount ?? c.remain ?? c.stock ?? 1);
+    const total = Number(c.totalCount ?? c.total ?? Math.max(1, remain + apply));
+    const type = c.type || c.category || "coupon";
 
-    const fallbackStores = [
-      {
-        id: "theine-blueberry",
-        name: "더이네블루베리",
-        region: "충주시 앙성면",
-        lat: 37.1078,
-        lng: 127.7578,
-        type: "coupon",
-        badge: "🎁 쿠폰 진행중",
-        image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80",
-        summary: "충주 지역에서 직접 생산한 농산물을 기반으로 건강한 먹거리를 만드는 로컬 생산 업체입니다.",
-        couponTitle: "직접 생산한 쌀 20kg 50% 할인쿠폰",
-        drawDate: "2026-08-31 (월) 21:00",
-        applyCount: 128,
-        remainCount: 12,
-        totalCount: 140,
-        markerIcon: "🎁",
-        routeUrl: "https://map.naver.com/"
-      },
-      {
-        id: "custompose-golf",
-        name: "커스텀포즈 그립교환",
-        region: "충주시 중앙탑면",
-        lat: 36.9866,
-        lng: 127.8839,
-        type: "event",
-        badge: "🧡 이벤트 진행중",
-        image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=900&q=80",
-        summary: "골프 그립과 샤프트 교환을 지원하는 로컬 스포츠 서비스 업체입니다.",
-        couponTitle: "그립교환 20% 할인 이벤트",
-        drawDate: "2026-08-25 (화) 18:00",
-        applyCount: 65,
-        remainCount: 8,
-        totalCount: 73,
-        markerIcon: "🧡",
-        routeUrl: "https://map.naver.com/"
-      },
-      {
-        id: "mararang-cafe",
-        name: "마라랑 커피로스터스",
-        region: "충주시 성서동",
-        lat: 36.9712,
-        lng: 127.9336,
-        type: "support",
-        badge: "🌱 신규 지원 업체",
-        image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80",
-        summary: "신규 스마트 스토어 지원 대상으로 선정된 충주 로컬 카페입니다.",
-        couponTitle: "오픈 기념 커피 쿠폰",
-        drawDate: "2026-09-05 (토) 18:00",
-        applyCount: 32,
-        remainCount: 20,
-        totalCount: 52,
-        markerIcon: "🌱",
-        routeUrl: "https://map.naver.com/"
-      },
-      {
-        id: "dalhangari-studio",
-        name: "달항아리 공방",
-        region: "충주시 중앙탑면",
-        lat: 37.0092,
-        lng: 127.8649,
-        type: "invest",
-        badge: "⭐ 투자 업체",
-        image: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=80",
-        summary: "공방 상품과 체험 클래스를 운영하는 LocalFlow 선정 강소상공인 후보입니다.",
-        couponTitle: "체험 클래스 20% 할인쿠폰",
-        drawDate: "2026-08-28 (금) 18:00",
-        applyCount: 48,
-        remainCount: 6,
-        totalCount: 54,
-        markerIcon: "⭐",
-        routeUrl: "https://map.naver.com/"
-      }
-    ];
-
-    const typeClass = {
-      coupon: "marker-coupon",
-      event: "marker-event",
-      support: "marker-support",
-      invest: "marker-invest"
+    return {
+      id: c.id || c.slug || `${c.store || c.name || "store"}-${Math.random().toString(36).slice(2)}`,
+      name: c.store || c.name || "업체명 미등록",
+      region: c.region || c.address || "충주시",
+      lat: Number(c.lat ?? c.latitude),
+      lng: Number(c.lng ?? c.longitude),
+      type,
+      badge: c.badge || (type === "event" ? "🧡 이벤트 진행중" : type === "support" ? "🌱 신규 지원 업체" : type === "invest" ? "⭐ 투자 업체" : "🎁 쿠폰 진행중"),
+      image: c.imageUrl || c.image || c.thumbnail || c.cover || c.photo || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+      summary: c.summary || c.description || c.desc || "LocalFlow 쿠폰맵에 등록된 충주 로컬 업체입니다.",
+      couponTitle: c.title || c.couponTitle || "LocalFlow 쿠폰 이벤트",
+      drawDate: c.drawDate || c.expire || c.date || "일정 미정",
+      expireDate: c.expire || c.date || "",
+      createdAt: c.created_at || c.createdAt || c.startDate || "",
+      applyCount: apply,
+      remainCount: remain,
+      totalCount: total,
+      markerIcon: c.markerIcon || markerIcons[type] || "🎁",
+      routeUrl: c.routeUrl || c.mapUrl || "https://map.naver.com/",
+      applyUrl: c.applyUrl || c.url || "coupon.html"
     };
+  }
 
-    const markerIcons = {
-      coupon: "🎁",
-      event: "🧡",
-      support: "🌱",
-      invest: "⭐"
-    };
+  function makeIcon(store) {
+    return L.divIcon({
+      className: "",
+      html: `<div class="pulse-marker ${typeClass[store.type] || "marker-coupon"}"><span>${store.markerIcon || "🎁"}</span></div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+      popupAnchor: [0, -20]
+    });
+  }
 
-    let stores = [...fallbackStores];
-    let couponEntryCounts = {};
-    let visibleStores = [...stores];
-    let markers = [];
-    let map;
-    let markerLayer;
+  function initMap() {
+    map = L.map("map", { zoomControl: false, scrollWheelZoom: true }).setView([36.991, 127.925], 12);
 
-    function escapeHtml(text) {
-      return String(text ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-      }[char]));
-    }
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
 
-    function normalizeCouponToStore(c) {
-      const apply = Number(couponEntryCounts[c.id] ?? c.applyCount ?? c.applies ?? c.entries ?? 0);
-      const remain = Number(c.remainCount ?? c.remain ?? c.stock ?? 1);
-      const total = Number(c.totalCount ?? c.total ?? Math.max(1, remain + apply));
-      const type = c.type || c.category || "coupon";
+    L.control.zoom({ position: "bottomright" }).addTo(map);
+    markerLayer = L.layerGroup().addTo(map);
+  }
 
-      return {
-        id: c.id || c.slug || `${c.store || c.name || "store"}-${Math.random().toString(36).slice(2)}`,
-        name: c.store || c.name || "업체명 미등록",
-        region: c.region || c.address || "충주시",
-        lat: Number(c.lat ?? c.latitude),
-        lng: Number(c.lng ?? c.longitude),
-        type,
-        badge: c.badge || (type === "event" ? "🧡 이벤트 진행중" : type === "support" ? "🌱 신규 지원 업체" : type === "invest" ? "⭐ 투자 업체" : "🎁 쿠폰 진행중"),
-        image: c.imageUrl || c.image || c.thumbnail || c.cover || c.photo || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-        summary: c.summary || c.description || c.desc || "LocalFlow 쿠폰맵에 등록된 충주 로컬 업체입니다.",
-        couponTitle: c.title || c.couponTitle || "LocalFlow 쿠폰 이벤트",
-        drawDate: c.drawDate || c.expire || c.date || "일정 미정",
-        expireDate: c.expire || c.date || "",
-        createdAt: c.created_at || c.createdAt || c.startDate || "",
-        applyCount: apply,
-        remainCount: remain,
-        totalCount: total,
-        markerIcon: c.markerIcon || markerIcons[type] || "🎁",
-        routeUrl: c.routeUrl || c.mapUrl || "https://map.naver.com/",
-        applyUrl: c.applyUrl || c.url || "coupon.html"
-      };
-    }
+  function renderMarkers(filter = "all", fitMap = true) {
+    markerLayer.clearLayers();
+    markers = [];
 
-    function makeIcon(store) {
-      return L.divIcon({
-        className: "",
-        html: `<div class="pulse-marker ${typeClass[store.type] || "marker-coupon"}"><span>${store.markerIcon || "🎁"}</span></div>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -20]
-      });
-    }
+    visibleStores = filter === "all"
+      ? [...stores]
+      : stores.filter(store => store.type === filter);
 
-    function initMap() {
-      map = L.map("map", { zoomControl: false, scrollWheelZoom: true }).setView([36.991, 127.925], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap"
-      }).addTo(map);
-      L.control.zoom({ position: "bottomright" }).addTo(map);
-      markerLayer = L.layerGroup().addTo(map);
-    }
+    visibleStores.forEach(store => {
+      const marker = L.marker([store.lat, store.lng], { icon: makeIcon(store) })
+        .bindPopup(`<strong>${escapeHtml(store.name)}</strong><br>${escapeHtml(store.couponTitle)}`)
+        .on("click", () => openStoreModal(store.id));
 
-    function renderMarkers(filter = "all") {
-      markerLayer.clearLayers();
-      markers = [];
-      visibleStores = filter === "all" ? [...stores] : stores.filter(store => store.type === filter);
+      marker.addTo(markerLayer);
+      markers.push(marker);
+    });
 
-      visibleStores.forEach(store => {
-        const marker = L.marker([store.lat, store.lng], { icon: makeIcon(store) })
-          .bindPopup(`<strong>${escapeHtml(store.name)}</strong><br>${escapeHtml(store.couponTitle)}`)
-          .on("click", () => openStoreModal(store.id));
-        marker.addTo(markerLayer);
-        markers.push(marker);
-      });
+    updateSummary();
 
-      updateSummary();
+    if (fitMap) {
       fitVisibleStores();
     }
+  }
 
-    function fitVisibleStores() {
-      setTimeout(() => map.invalidateSize(), 80);
-      if (!visibleStores.length) return;
-      if (visibleStores.length === 1) {
-        map.setView([visibleStores[0].lat, visibleStores[0].lng], 15, { animate: true });
-        return;
-      }
-      const bounds = L.latLngBounds(visibleStores.map(store => [store.lat, store.lng]));
-      map.fitBounds(bounds, { padding: [80, 80], maxZoom: 14, animate: true });
+  function fitVisibleStores() {
+    setTimeout(() => map.invalidateSize(), 80);
+
+    if (!visibleStores.length) return;
+
+    if (visibleStores.length === 1) {
+      map.setView([visibleStores[0].lat, visibleStores[0].lng], 15, { animate: true });
+      return;
     }
 
-    function updateSummary() {
-      document.getElementById("summaryCoupon").textContent = `${stores.length}개`;
-      document.getElementById("summaryStores").textContent = `${stores.length}곳`;
+    const bounds = L.latLngBounds(visibleStores.map(store => [store.lat, store.lng]));
+    map.fitBounds(bounds, { padding: [80, 80], maxZoom: 14, animate: true });
+  }
+
+  function updateSummary() {
+    document.getElementById("summaryCoupon").textContent = `${stores.length}개`;
+    document.getElementById("summaryStores").textContent = `${stores.length}곳`;
+  }
+
+  function parseKstDate(value, endOfDay = false) {
+    if (!value) return null;
+
+    const text = String(value).trim();
+
+    const dateTime = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
+    if (dateTime) {
+      return new Date(
+        Number(dateTime[1]),
+        Number(dateTime[2]) - 1,
+        Number(dateTime[3]),
+        Number(dateTime[4]),
+        Number(dateTime[5]),
+        Number(dateTime[6] || 0),
+        0
+      );
     }
 
-    function parseKstDate(value, endOfDay = false) {
-      if (!value) return null;
-      const text = String(value).trim();
+    const fullDate = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (fullDate) {
+      const year = Number(fullDate[1]);
+      const month = Number(fullDate[2]) - 1;
+      const day = Number(fullDate[3]);
 
-      const dateTime = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
-      if (dateTime) {
-        return new Date(
-          Number(dateTime[1]),
-          Number(dateTime[2]) - 1,
-          Number(dateTime[3]),
-          Number(dateTime[4]),
-          Number(dateTime[5]),
-          Number(dateTime[6] || 0),
-          0
-        );
-      }
-
-      const fullDate = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-      if (fullDate) {
-        const year = Number(fullDate[1]);
-        const month = Number(fullDate[2]) - 1;
-        const day = Number(fullDate[3]);
-        return endOfDay
-          ? new Date(year, month, day, 23, 59, 59, 999)
-          : new Date(year, month, day, 0, 0, 0, 0);
-      }
-
-      const shortDate = text.match(/(\d{1,2})\s*[\/.월-]\s*(\d{1,2})/);
-      if (shortDate) {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = Number(shortDate[1]) - 1;
-        const day = Number(shortDate[2]);
-        return endOfDay
-          ? new Date(year, month, day, 23, 59, 59, 999)
-          : new Date(year, month, day, 0, 0, 0, 0);
-      }
-
-      const parsed = new Date(text.replace(/-/g, "/"));
-      return Number.isNaN(parsed.getTime()) ? null : parsed;
+      return endOfDay
+        ? new Date(year, month, day, 23, 59, 59, 999)
+        : new Date(year, month, day, 0, 0, 0, 0);
     }
 
-    function formatRemainText(remainMs) {
-      if (remainMs <= 0) return "추첨일 도달";
-
-      const totalMinutes = Math.ceil(remainMs / 60000);
-      const days = Math.floor(totalMinutes / 1440);
-      const hours = Math.floor((totalMinutes % 1440) / 60);
-      const minutes = totalMinutes % 60;
-
-      if (days > 0) return `${days}일 ${hours}시간 남음`;
-      if (hours > 0) return `${hours}시간 ${minutes}분 남음`;
-      return `${minutes}분 남음`;
-    }
-
-    function getTimeProgressInfo(store) {
-      const target = parseKstDate(store.expireDate || store.drawDate, true);
-      if (!target) return { percent: 100, text: "추첨일 미정" };
-
+    const shortDate = text.match(/(\d{1,2})\s*[\/.월-]\s*(\d{1,2})/);
+    if (shortDate) {
       const now = new Date();
-      const remainMs = Math.max(0, target.getTime() - now.getTime());
+      const year = now.getFullYear();
+      const month = Number(shortDate[1]) - 1;
+      const day = Number(shortDate[2]);
 
-      let start = parseKstDate(store.createdAt, false);
-      if (!start || start >= target) {
-        start = new Date(target.getTime() - 30 * 24 * 60 * 60 * 1000);
-      }
-
-      const totalMs = Math.max(1, target.getTime() - start.getTime());
-      const percent = remainMs <= 0
-        ? 0
-        : Math.min(100, Math.max(4, Math.round((remainMs / totalMs) * 100)));
-
-      return {
-        percent,
-        text: formatRemainText(remainMs)
-      };
+      return endOfDay
+        ? new Date(year, month, day, 23, 59, 59, 999)
+        : new Date(year, month, day, 0, 0, 0, 0);
     }
 
-    function updateModalTimeProgress(store) {
-      const info = getTimeProgressInfo(store);
-      document.getElementById("modalProgress").style.width = `${info.percent}%`;
-      document.getElementById("modalProgressText").textContent = info.text;
+    const parsed = new Date(text.replace(/-/g, "/"));
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  function formatRemainText(remainMs) {
+    if (remainMs <= 0) return "추첨일 도달";
+
+    const totalMinutes = Math.ceil(remainMs / 60000);
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+
+    if (days > 0) return `${days}일 ${hours}시간 남음`;
+    if (hours > 0) return `${hours}시간 ${minutes}분 남음`;
+    return `${minutes}분 남음`;
+  }
+
+  function getTimeProgressInfo(store) {
+    const target = parseKstDate(store.expireDate || store.drawDate, true);
+    if (!target) return { percent: 100, text: "추첨일 미정" };
+
+    const now = new Date();
+    const remainMs = Math.max(0, target.getTime() - now.getTime());
+
+    let start = parseKstDate(store.createdAt, false);
+    if (!start || start >= target) {
+      start = new Date(target.getTime() - 30 * 24 * 60 * 60 * 1000);
     }
 
-    function openStoreModal(id) {
-      const store = stores.find(item => item.id === id);
-      if (!store) return;
+    const totalMs = Math.max(1, target.getTime() - start.getTime());
+    const percent = remainMs <= 0
+      ? 0
+      : Math.min(100, Math.max(4, Math.round((remainMs / totalMs) * 100)));
 
-      document.getElementById("modalImage").src = store.image;
-      document.getElementById("modalImage").onerror = function() {
-        this.src = "https://localflow.info/assets/lf.png";
-      };
-      document.getElementById("modalImage").alt = `${store.name} 대표 이미지`;
-      document.getElementById("modalBadge").textContent = store.badge;
-      document.getElementById("modalStoreName").textContent = store.name;
-      document.getElementById("modalRegion").textContent = store.region;
-      document.getElementById("modalSummary").textContent = store.summary;
-      document.getElementById("modalCouponTitle").textContent = store.couponTitle;
-      document.getElementById("modalDrawDate").textContent = store.drawDate;
-      document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
-      document.getElementById("modalRemainCount").textContent = `${store.remainCount}개`;
+    return {
+      percent,
+      text: formatRemainText(remainMs)
+    };
+  }
 
-      updateModalTimeProgress(store);
+  function updateModalTimeProgress(store) {
+    const info = getTimeProgressInfo(store);
+    document.getElementById("modalProgress").style.width = `${info.percent}%`;
+    document.getElementById("modalProgressText").textContent = info.text;
+  }
 
-      document.getElementById("modalApplyBtn").onclick = () => {
-        openEntryModal(store.id, store.couponTitle);
-      };
-      document.getElementById("modalRouteBtn").onclick = () => window.open(store.routeUrl, "_blank", "noopener,noreferrer");
-      document.getElementById("modalShareBtn").onclick = async () => {
-        const shareText = `${store.name} - ${store.couponTitle}`;
-        if (navigator.share) {
-          try {
-            await navigator.share({ title: store.name, text: shareText, url: location.href });
-          } catch (e) {}
-        } else if (navigator.clipboard) {
-          await navigator.clipboard.writeText(location.href);
-          showToast("링크를 복사했습니다.");
-        }
-      };
+  function openStoreModal(id) {
+    const store = stores.find(item => item.id === id);
+    if (!store) return;
 
-      document.getElementById("storeModalOverlay").classList.add("show");
-      document.body.style.overflow = "hidden";
-      map.setView([store.lat, store.lng], 15, { animate: true });
-    }
-
-    function unlockBodyIfNoModalOpen() {
-      const storeOpen = document.getElementById("storeModalOverlay").classList.contains("show");
-      const termsOpen = document.getElementById("termsModalOverlay").classList.contains("show");
-      const privacyOpen = document.getElementById("privacyModalOverlay").classList.contains("show");
-      const entryOpen = document.getElementById("entryModalOverlay").classList.contains("show");
-      if (!storeOpen && !termsOpen && !privacyOpen && !entryOpen) document.body.style.overflow = "auto";
-    }
-
-    window.closeStoreModal = function() {
-      document.getElementById("storeModalOverlay").classList.remove("show");
-      unlockBodyIfNoModalOpen();
+    document.getElementById("modalImage").src = store.image;
+    document.getElementById("modalImage").onerror = function() {
+      this.src = "https://localflow.info/assets/lf.png";
     };
 
-    const entryModalOverlay = document.getElementById("entryModalOverlay");
-    const entryModalTargetTitle = document.getElementById("entryModalTargetTitle");
-    const entryModalEmailInput = document.getElementById("entryModalEmailInput");
-    const entryModalForm = document.getElementById("entryModalForm");
-    const entrySubmitBtn = document.getElementById("entrySubmitBtn");
+    document.getElementById("modalImage").alt = `${store.name} 대표 이미지`;
+    document.getElementById("modalBadge").textContent = store.badge;
+    document.getElementById("modalStoreName").textContent = store.name;
+    document.getElementById("modalRegion").textContent = store.region;
+    document.getElementById("modalSummary").textContent = store.summary;
+    document.getElementById("modalCouponTitle").textContent = store.couponTitle;
+    document.getElementById("modalDrawDate").textContent = store.drawDate;
+    document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
+    document.getElementById("modalRemainCount").textContent = `${store.remainCount}개`;
 
-    let activeCouponId = null;
+    updateModalTimeProgress(store);
 
-    window.openEntryModal = function(couponId, couponTitle) {
-      activeCouponId = couponId;
-      entryModalTargetTitle.textContent = `[${couponTitle || "LocalFlow 쿠폰 이벤트"}]`;
-      entryModalEmailInput.value = "";
+    document.getElementById("modalApplyBtn").onclick = () => {
+      openEntryModal(store.id, store.couponTitle);
+    };
+
+    document.getElementById("modalRouteBtn").onclick = () => {
+      window.open(store.routeUrl, "_blank", "noopener,noreferrer");
+    };
+
+    document.getElementById("modalShareBtn").onclick = async () => {
+      const shareText = `${store.name} - ${store.couponTitle}`;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: store.name, text: shareText, url: location.href });
+        } catch (e) {}
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(location.href);
+        showToast("링크를 복사했습니다.");
+      }
+    };
+
+    document.getElementById("storeModalOverlay").classList.add("show");
+    document.body.style.overflow = "hidden";
+    map.setView([store.lat, store.lng], 15, { animate: true });
+  }
+
+  function unlockBodyIfNoModalOpen() {
+    const storeOpen = document.getElementById("storeModalOverlay").classList.contains("show");
+    const termsOpen = document.getElementById("termsModalOverlay").classList.contains("show");
+    const privacyOpen = document.getElementById("privacyModalOverlay").classList.contains("show");
+    const entryOpen = document.getElementById("entryModalOverlay").classList.contains("show");
+
+    if (!storeOpen && !termsOpen && !privacyOpen && !entryOpen) {
+      document.body.style.overflow = "auto";
+    }
+  }
+
+  window.closeStoreModal = function() {
+    document.getElementById("storeModalOverlay").classList.remove("show");
+    unlockBodyIfNoModalOpen();
+  };
+
+  const entryModalOverlay = document.getElementById("entryModalOverlay");
+  const entryModalTargetTitle = document.getElementById("entryModalTargetTitle");
+  const entryModalEmailInput = document.getElementById("entryModalEmailInput");
+  const entryModalForm = document.getElementById("entryModalForm");
+  const entrySubmitBtn = document.getElementById("entrySubmitBtn");
+
+  let activeCouponId = null;
+
+  window.openEntryModal = function(couponId, couponTitle) {
+    activeCouponId = couponId;
+    entryModalTargetTitle.textContent = `[${couponTitle || "LocalFlow 쿠폰 이벤트"}]`;
+    entryModalEmailInput.value = "";
+    entrySubmitBtn.disabled = false;
+    entrySubmitBtn.textContent = "응모 완료하기";
+    entryModalOverlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => entryModalEmailInput.focus(), 100);
+  };
+
+  window.closeEntryModal = function() {
+    entryModalOverlay.classList.remove("show");
+    activeCouponId = null;
+    unlockBodyIfNoModalOpen();
+  };
+
+  function refreshModalApplyCount(couponId) {
+    const store = stores.find(item => item.id === couponId);
+    if (!store) return;
+
+    store.applyCount = couponEntryCounts[couponId] || 0;
+
+    const openedStoreName = document.getElementById("modalStoreName").textContent;
+    if (document.getElementById("storeModalOverlay").classList.contains("show") && openedStoreName === store.name) {
+      document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
+      updateModalTimeProgress(store);
+    }
+  }
+
+  entryModalForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const couponId = activeCouponId;
+    const email = entryModalEmailInput.value.trim().toLowerCase();
+    const naverRegex = /^[a-z0-9_.-]+@naver\.com$/i;
+
+    if (!couponId) {
+      showToast("❌ 응모할 쿠폰 정보를 찾지 못했습니다.");
+      return;
+    }
+
+    if (!email) {
+      showToast("❌ 이메일을 입력하셔야 응모가 가능합니다.");
+      return;
+    }
+
+    if (!naverRegex.test(email)) {
+      showToast("❌ 네이버 이메일(@naver.com)만 입력 가능합니다.");
+      return;
+    }
+
+    entrySubmitBtn.disabled = true;
+    entrySubmitBtn.textContent = "응모 처리중...";
+
+    try {
+      const data = await apiSend("/api/coupon_entries", "POST", {
+        coupon_id: couponId,
+        email
+      });
+
+      if (!data.ok) {
+        if (data.error === "DUPLICATE_ENTRY") {
+          showToast("이미 응모한 이메일입니다.");
+        } else {
+          showToast("❌ 응모 처리에 실패했습니다.");
+        }
+        return;
+      }
+
+      couponEntryCounts[couponId] = (couponEntryCounts[couponId] || 0) + 1;
+      refreshModalApplyCount(couponId);
+      closeEntryModal();
+      showToast(`🎉 응모 완료! 추첨 결과는 ${email}로 발송됩니다.`);
+    } catch (err) {
+      showToast("❌ 서버 연결에 실패했습니다.");
+    } finally {
       entrySubmitBtn.disabled = false;
       entrySubmitBtn.textContent = "응모 완료하기";
-      entryModalOverlay.classList.add("show");
-      document.body.style.overflow = "hidden";
-      setTimeout(() => entryModalEmailInput.focus(), 100);
-    };
-
-    window.closeEntryModal = function() {
-      entryModalOverlay.classList.remove("show");
-      activeCouponId = null;
-      unlockBodyIfNoModalOpen();
-    };
-
-    function refreshModalApplyCount(couponId) {
-      const store = stores.find(item => item.id === couponId);
-      if (!store) return;
-
-      store.applyCount = couponEntryCounts[couponId] || 0;
-
-      const openedStoreName = document.getElementById("modalStoreName").textContent;
-      if (document.getElementById("storeModalOverlay").classList.contains("show") && openedStoreName === store.name) {
-        document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
-
-        updateModalTimeProgress(store);
-      }
     }
+  });
 
-    entryModalForm.addEventListener("submit", async e => {
-      e.preventDefault();
+  window.openTermsModal = function() {
+    document.getElementById("termsModalOverlay").classList.add("show");
+    document.body.style.overflow = "hidden";
+  };
 
-      const couponId = activeCouponId;
-      const email = entryModalEmailInput.value.trim().toLowerCase();
-      const naverRegex = /^[a-z0-9_.-]+@naver\.com$/i;
+  window.closeTermsModal = function() {
+    document.getElementById("termsModalOverlay").classList.remove("show");
+    unlockBodyIfNoModalOpen();
+  };
 
-      if (!couponId) {
-        showToast("❌ 응모할 쿠폰 정보를 찾지 못했습니다.");
-        return;
-      }
+  window.openPrivacyModal = function() {
+    document.getElementById("privacyModalOverlay").classList.add("show");
+    document.body.style.overflow = "hidden";
+  };
 
-      if (!email) {
-        showToast("❌ 이메일을 입력하셔야 응모가 가능합니다.");
-        return;
-      }
+  window.closePrivacyModal = function() {
+    document.getElementById("privacyModalOverlay").classList.remove("show");
+    unlockBodyIfNoModalOpen();
+  };
 
-      if (!naverRegex.test(email)) {
-        showToast("❌ 네이버 이메일(@naver.com)만 입력 가능합니다.");
-        return;
-      }
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove("show"), 2500);
+  }
 
-      entrySubmitBtn.disabled = true;
-      entrySubmitBtn.textContent = "응모 처리중...";
+  async function loadStoresFromApi(options = {}) {
+    const {
+      silent = false,
+      keepFilter = false,
+      fitMap = true
+    } = options;
 
-      try {
-        const data = await apiSend("/api/coupon_entries", "POST", {
-          coupon_id: couponId,
-          email
-        });
+    if (isRefreshingCoupons) return;
+    isRefreshingCoupons = true;
 
-        if (!data.ok) {
-          if (data.error === "DUPLICATE_ENTRY") {
-            showToast("이미 응모한 이메일입니다.");
-          } else {
-            showToast("❌ 응모 처리에 실패했습니다.");
-          }
-          return;
-        }
+    try {
+      const [couponData, entryData] = await Promise.all([
+        apiGet("/api/coupons"),
+        apiGet("/api/coupon_entries")
+      ]);
 
+      couponEntryCounts = {};
+      (entryData.items || []).forEach(entry => {
+        const couponId = entry.coupon_id;
+        if (!couponId) return;
         couponEntryCounts[couponId] = (couponEntryCounts[couponId] || 0) + 1;
-        refreshModalApplyCount(couponId);
-        closeEntryModal();
-        showToast(`🎉 응모 완료! 추첨 결과는 ${email}로 발송됩니다.`);
-      } catch (err) {
-        showToast("❌ 서버 연결에 실패했습니다.");
-      } finally {
-        entrySubmitBtn.disabled = false;
-        entrySubmitBtn.textContent = "응모 완료하기";
+      });
+
+      const items = (couponData.items || [])
+        .filter(c => c.active !== false)
+        .map(normalizeCouponToStore)
+        .filter(item => Number.isFinite(item.lat) && Number.isFinite(item.lng));
+
+      if (items.length) {
+        stores = items;
       }
-    });
 
+      const activeFilter = keepFilter
+        ? document.querySelector(".filter-chip.active")?.dataset.filter || "all"
+        : "all";
 
-    window.openTermsModal = function() {
-      document.getElementById("termsModalOverlay").classList.add("show");
-      document.body.style.overflow = "hidden";
-    };
-
-    window.closeTermsModal = function() {
-      document.getElementById("termsModalOverlay").classList.remove("show");
-      unlockBodyIfNoModalOpen();
-    };
-
-    window.openPrivacyModal = function() {
-      document.getElementById("privacyModalOverlay").classList.add("show");
-      document.body.style.overflow = "hidden";
-    };
-
-    window.closePrivacyModal = function() {
-      document.getElementById("privacyModalOverlay").classList.remove("show");
-      unlockBodyIfNoModalOpen();
-    };
-
-    function showToast(message) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      clearTimeout(showToast.timer);
-      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2500);
-    }
-
-    async function loadStoresFromApi() {
-      try {
-        const [couponData, entryData] = await Promise.all([
-          apiGet("/api/coupons"),
-          apiGet("/api/coupon_entries")
-        ]);
-
-        couponEntryCounts = {};
-        (entryData.items || []).forEach(entry => {
-          const couponId = entry.coupon_id;
-          if (!couponId) return;
-          couponEntryCounts[couponId] = (couponEntryCounts[couponId] || 0) + 1;
-        });
-
-        const items = (couponData.items || [])
-          .filter(c => c.active !== false)
-          .map(normalizeCouponToStore)
-          .filter(item => Number.isFinite(item.lat) && Number.isFinite(item.lng));
-
-        if (items.length) {
-          stores = items;
-        }
-      } catch (err) {
+      renderMarkers(activeFilter, fitMap);
+    } catch (err) {
+      if (!silent) {
         showToast("쿠폰 API 연결 실패, 샘플 데이터를 표시합니다.");
       }
-      renderMarkers("all");
+
+      renderMarkers("all", fitMap);
+    } finally {
+      isRefreshingCoupons = false;
+    }
+  }
+
+  function startCouponAutoRefresh() {
+    if (couponRefreshTimer) {
+      clearInterval(couponRefreshTimer);
     }
 
-    document.querySelectorAll(".filter-chip").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".filter-chip").forEach(item => item.classList.remove("active"));
-        btn.classList.add("active");
-        renderMarkers(btn.dataset.filter);
+    couponRefreshTimer = setInterval(() => {
+      loadStoresFromApi({
+        silent: true,
+        keepFilter: true,
+        fitMap: false
       });
-    });
+    }, COUPON_REFRESH_INTERVAL);
+  }
 
-    function activateAllFilter() {
+  document.querySelectorAll(".filter-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
       document.querySelectorAll(".filter-chip").forEach(item => item.classList.remove("active"));
-      const allFilterBtn = document.querySelector('.filter-chip[data-filter="all"]');
-      if (allFilterBtn) allFilterBtn.classList.add("active");
-      renderMarkers("all");
-      showToast("전체 업체를 표시합니다.");
+      btn.classList.add("active");
+      renderMarkers(btn.dataset.filter);
+    });
+  });
+
+  function activateAllFilter() {
+    document.querySelectorAll(".filter-chip").forEach(item => item.classList.remove("active"));
+
+    const allFilterBtn = document.querySelector('.filter-chip[data-filter="all"]');
+    if (allFilterBtn) allFilterBtn.classList.add("active");
+
+    renderMarkers("all");
+    showToast("전체 업체를 표시합니다.");
+  }
+
+  document.getElementById("showAllStoresBtn").addEventListener("click", activateAllFilter);
+
+  const mapCard = document.getElementById("mapCard");
+  const fullscreenMapBtn = document.getElementById("fullscreenMapBtn");
+
+  function syncMapFullscreenButton() {
+    const isFullscreen = mapCard.classList.contains("fullscreen-map");
+    fullscreenMapBtn.textContent = isFullscreen ? "× 전체화면 나가기" : "⛶ 전체화면";
+    fullscreenMapBtn.setAttribute("aria-pressed", String(isFullscreen));
+
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+    }, 120);
+  }
+
+  function toggleMapFullscreen() {
+    mapCard.classList.toggle("fullscreen-map");
+    document.body.style.overflow = mapCard.classList.contains("fullscreen-map") ? "hidden" : "auto";
+    syncMapFullscreenButton();
+  }
+
+  fullscreenMapBtn.addEventListener("click", toggleMapFullscreen);
+
+  document.getElementById("locateBtn").addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      showToast("현재 위치 기능을 사용할 수 없습니다.");
+      return;
     }
 
-    document.getElementById("showAllStoresBtn").addEventListener("click", activateAllFilter);
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const { latitude, longitude } = pos.coords;
 
-    const mapCard = document.getElementById("mapCard");
-    const fullscreenMapBtn = document.getElementById("fullscreenMapBtn");
+        L.circleMarker([latitude, longitude], {
+          radius: 8,
+          color: "#0f172a",
+          fillColor: "#0f172a",
+          fillOpacity: 0.85
+        }).addTo(map).bindPopup("현재 위치").openPopup();
 
-    function syncMapFullscreenButton() {
-      const isFullscreen = mapCard.classList.contains("fullscreen-map");
-      fullscreenMapBtn.textContent = isFullscreen ? "× 전체화면 나가기" : "⛶ 전체화면";
-      fullscreenMapBtn.setAttribute("aria-pressed", String(isFullscreen));
-      setTimeout(() => {
-        if (map) map.invalidateSize();
-      }, 120);
-    }
+        map.setView([latitude, longitude], 15, { animate: true });
+      },
+      () => showToast("현재 위치 권한이 필요합니다.")
+    );
+  });
 
-    function toggleMapFullscreen() {
-      mapCard.classList.toggle("fullscreen-map");
-      document.body.style.overflow = mapCard.classList.contains("fullscreen-map") ? "hidden" : "auto";
-      syncMapFullscreenButton();
-    }
-
-    fullscreenMapBtn.addEventListener("click", toggleMapFullscreen);
-
-    document.getElementById("locateBtn").addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        showToast("현재 위치 기능을 사용할 수 없습니다.");
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (mapCard.classList.contains("fullscreen-map")) {
+        mapCard.classList.remove("fullscreen-map");
+        document.body.style.overflow = "auto";
+        syncMapFullscreenButton();
         return;
       }
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const { latitude, longitude } = pos.coords;
-          L.circleMarker([latitude, longitude], {
-            radius: 8,
-            color: "#0f172a",
-            fillColor: "#0f172a",
-            fillOpacity: 0.85
-          }).addTo(map).bindPopup("현재 위치").openPopup();
-          map.setView([latitude, longitude], 15, { animate: true });
-        },
-        () => showToast("현재 위치 권한이 필요합니다.")
-      );
-    });
 
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") {
-        if (mapCard.classList.contains("fullscreen-map")) {
-          mapCard.classList.remove("fullscreen-map");
-          document.body.style.overflow = "auto";
-          syncMapFullscreenButton();
-          return;
-        }
-        closeEntryModal();
-        closeStoreModal();
-        closeTermsModal();
-        closePrivacyModal();
-      }
-    });
+      closeEntryModal();
+      closeStoreModal();
+      closeTermsModal();
+      closePrivacyModal();
+    }
+  });
 
-    initMap();
-    loadStoresFromApi();
-  </script>
+  initMap();
+  loadStoresFromApi();
+  startCouponAutoRefresh();
+</script>
 </body>
 </html>
