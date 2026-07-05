@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -402,6 +403,115 @@
     }
     .sub-btn:hover { background: #f8fafc; }
 
+
+    /* 쿠폰 응모 이메일 모달 */
+    .entry-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.62);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .entry-modal-overlay.show { opacity: 1; pointer-events: all; }
+    .entry-modal {
+      width: min(440px, calc(100% - 32px));
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.18);
+      padding: 32px 28px;
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+      position: relative;
+      border: 1px solid #e2e8f0;
+    }
+    .entry-modal-overlay.show .entry-modal { transform: translateY(0); }
+    .entry-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: 0;
+      font-size: 24px;
+      color: var(--muted);
+      font-weight: 300;
+      cursor: pointer;
+    }
+    .entry-head { text-align: center; margin-bottom: 24px; }
+    .entry-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: inline-block;
+      animation: wingwing 2.5s infinite linear;
+    }
+    .entry-head h3 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+    .entry-head p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .entry-target-info {
+      color: var(--primary);
+      font-weight: 900;
+      display: block;
+      margin-top: 6px;
+      transition: color 0.5s ease;
+    }
+    .entry-form { display: flex; flex-direction: column; gap: 14px; }
+    .entry-input {
+      width: 100%;
+      height: 54px;
+      padding: 0 20px;
+      border-radius: 10px;
+      border: 2px solid #e2e8f0;
+      outline: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .entry-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+    .entry-input::placeholder { color: #94a3b8; }
+    .entry-submit-btn {
+      height: 54px;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      box-shadow: 0 8px 20px var(--primary-light);
+      transition: all 0.15s ease;
+    }
+    .entry-submit-btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+    .entry-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+    @keyframes wingwing {
+      0%, 100% { transform: rotate(0deg); }
+      10%, 20% { transform: rotate(-8deg); }
+      15%, 25% { transform: rotate(8deg); }
+      30% { transform: rotate(0deg); }
+    }
+
     .legal-modal-overlay {
       position: fixed;
       top: 0;
@@ -607,6 +717,31 @@
     </article>
   </div>
 
+
+  <div class="entry-modal-overlay" id="entryModalOverlay" onclick="closeEntryModal()">
+    <div class="entry-modal" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="entryModalTitle">
+      <button class="entry-modal-close" type="button" onclick="closeEntryModal()" aria-label="닫기">×</button>
+
+      <div class="entry-head">
+        <span class="entry-icon">✈</span>
+        <h3 id="entryModalTitle">이벤트 응모하기</h3>
+        <p>추첨 결과를 전달받을<br><strong>네이버 이메일</strong>을 입력해주세요.</p>
+        <span class="entry-target-info" id="entryModalTargetTitle">쿠폰명 정보</span>
+      </div>
+
+      <form class="entry-form" id="entryModalForm">
+        <input
+          type="text"
+          id="entryModalEmailInput"
+          class="entry-input"
+          placeholder="localflow@naver.com"
+          autocomplete="off"
+        />
+        <button type="submit" class="entry-submit-btn" id="entrySubmitBtn">응모 완료하기</button>
+      </form>
+    </div>
+  </div>
+
   <div class="legal-modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
     <div class="legal-modal" onclick="event.stopPropagation()">
       <button class="legal-modal-close" onclick="closeTermsModal()">×</button>
@@ -685,6 +820,30 @@
       const res = await fetch(apiUrl(path), { method: "GET", mode: "cors" });
       return await res.json();
     }
+
+    async function apiSend(path, method, body) {
+      const res = await fetch(apiUrl(path), {
+        method,
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = { ok: false, error: "INVALID_RESPONSE" };
+      }
+
+      if (!res.ok && data.ok !== false) {
+        data.ok = false;
+        data.error = `HTTP_${res.status}`;
+      }
+
+      return data;
+    }
+
 
     const fallbackStores = [
       {
@@ -776,6 +935,7 @@
     };
 
     let stores = [...fallbackStores];
+    let couponEntryCounts = {};
     let visibleStores = [...stores];
     let markers = [];
     let map;
@@ -792,7 +952,7 @@
     }
 
     function normalizeCouponToStore(c) {
-      const apply = Number(c.applyCount ?? c.applies ?? c.entries ?? 0);
+      const apply = Number(couponEntryCounts[c.id] ?? c.applyCount ?? c.applies ?? c.entries ?? 0);
       const remain = Number(c.remainCount ?? c.remain ?? c.stock ?? 0);
       const total = Number(c.totalCount ?? c.total ?? ((remain + apply) || 1));
       const type = c.type || c.category || "coupon";
@@ -890,11 +1050,7 @@
       document.getElementById("modalProgress").style.width = `${ratio}%`;
 
       document.getElementById("modalApplyBtn").onclick = () => {
-        if (store.applyUrl && store.applyUrl !== "#") {
-          location.href = store.applyUrl;
-        } else {
-          showToast(`${store.name} 이벤트 참가 페이지를 준비 중입니다.`);
-        }
+        openEntryModal(store.id, store.couponTitle);
       };
       document.getElementById("modalRouteBtn").onclick = () => window.open(store.routeUrl, "_blank", "noopener,noreferrer");
       document.getElementById("modalShareBtn").onclick = async () => {
@@ -918,13 +1074,107 @@
       const storeOpen = document.getElementById("storeModalOverlay").classList.contains("show");
       const termsOpen = document.getElementById("termsModalOverlay").classList.contains("show");
       const privacyOpen = document.getElementById("privacyModalOverlay").classList.contains("show");
-      if (!storeOpen && !termsOpen && !privacyOpen) document.body.style.overflow = "auto";
+      const entryOpen = document.getElementById("entryModalOverlay").classList.contains("show");
+      if (!storeOpen && !termsOpen && !privacyOpen && !entryOpen) document.body.style.overflow = "auto";
     }
 
     window.closeStoreModal = function() {
       document.getElementById("storeModalOverlay").classList.remove("show");
       unlockBodyIfNoModalOpen();
     };
+
+    const entryModalOverlay = document.getElementById("entryModalOverlay");
+    const entryModalTargetTitle = document.getElementById("entryModalTargetTitle");
+    const entryModalEmailInput = document.getElementById("entryModalEmailInput");
+    const entryModalForm = document.getElementById("entryModalForm");
+    const entrySubmitBtn = document.getElementById("entrySubmitBtn");
+
+    let activeCouponId = null;
+
+    window.openEntryModal = function(couponId, couponTitle) {
+      activeCouponId = couponId;
+      entryModalTargetTitle.textContent = `[${couponTitle || "LocalFlow 쿠폰 이벤트"}]`;
+      entryModalEmailInput.value = "";
+      entrySubmitBtn.disabled = false;
+      entrySubmitBtn.textContent = "응모 완료하기";
+      entryModalOverlay.classList.add("show");
+      document.body.style.overflow = "hidden";
+      setTimeout(() => entryModalEmailInput.focus(), 100);
+    };
+
+    window.closeEntryModal = function() {
+      entryModalOverlay.classList.remove("show");
+      activeCouponId = null;
+      unlockBodyIfNoModalOpen();
+    };
+
+    function refreshModalApplyCount(couponId) {
+      const store = stores.find(item => item.id === couponId);
+      if (!store) return;
+
+      store.applyCount = couponEntryCounts[couponId] || 0;
+
+      const openedStoreName = document.getElementById("modalStoreName").textContent;
+      if (document.getElementById("storeModalOverlay").classList.contains("show") && openedStoreName === store.name) {
+        document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
+
+        const ratio = Math.min(100, Math.max(4, Math.round((store.applyCount / Math.max(1, store.totalCount)) * 100)));
+        document.getElementById("modalProgress").style.width = `${ratio}%`;
+      }
+    }
+
+    entryModalForm.addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const couponId = activeCouponId;
+      const email = entryModalEmailInput.value.trim().toLowerCase();
+      const naverRegex = /^[a-z0-9_.-]+@naver\.com$/i;
+
+      if (!couponId) {
+        showToast("❌ 응모할 쿠폰 정보를 찾지 못했습니다.");
+        return;
+      }
+
+      if (!email) {
+        showToast("❌ 이메일을 입력하셔야 응모가 가능합니다.");
+        return;
+      }
+
+      if (!naverRegex.test(email)) {
+        showToast("❌ 네이버 이메일(@naver.com)만 입력 가능합니다.");
+        return;
+      }
+
+      entrySubmitBtn.disabled = true;
+      entrySubmitBtn.textContent = "응모 처리중...";
+
+      try {
+        const data = await apiSend("/api/coupon_entries", "POST", {
+          coupon_id: couponId,
+          email
+        });
+
+        if (!data.ok) {
+          if (data.error === "DUPLICATE_ENTRY") {
+            showToast("이미 응모한 이메일입니다.");
+          } else {
+            showToast("❌ 응모 처리에 실패했습니다.");
+          }
+          return;
+        }
+
+        couponEntryCounts[couponId] = (couponEntryCounts[couponId] || 0) + 1;
+        refreshModalApplyCount(couponId);
+        closeEntryModal();
+        showToast(`🎉 응모 완료! 추첨 결과는 ${email}로 발송됩니다.`);
+      } catch (err) {
+        showToast("❌ 서버 연결에 실패했습니다.");
+      } finally {
+        entrySubmitBtn.disabled = false;
+        entrySubmitBtn.textContent = "응모 완료하기";
+      }
+    });
+
 
     window.openTermsModal = function() {
       document.getElementById("termsModalOverlay").classList.add("show");
@@ -956,8 +1206,20 @@
 
     async function loadStoresFromApi() {
       try {
-        const data = await apiGet("/api/coupons");
-        const items = (data.items || [])
+        const [couponData, entryData] = await Promise.all([
+          apiGet("/api/coupons"),
+          apiGet("/api/coupon_entries")
+        ]);
+
+        couponEntryCounts = {};
+        (entryData.items || []).forEach(entry => {
+          const couponId = entry.coupon_id;
+          if (!couponId) return;
+          couponEntryCounts[couponId] = (couponEntryCounts[couponId] || 0) + 1;
+        });
+
+        const items = (couponData.items || [])
+          .filter(c => c.active !== false)
           .map(normalizeCouponToStore)
           .filter(item => Number.isFinite(item.lat) && Number.isFinite(item.lng));
 
@@ -1036,6 +1298,7 @@
           syncMapFullscreenButton();
           return;
         }
+        closeEntryModal();
         closeStoreModal();
         closeTermsModal();
         closePrivacyModal();
