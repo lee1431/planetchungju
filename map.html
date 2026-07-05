@@ -968,6 +968,8 @@
         summary: c.summary || c.description || c.desc || "LocalFlow 쿠폰맵에 등록된 충주 로컬 업체입니다.",
         couponTitle: c.title || c.couponTitle || "LocalFlow 쿠폰 이벤트",
         drawDate: c.drawDate || c.expire || c.date || "일정 미정",
+        expireDate: c.expire || c.date || "",
+        createdAt: c.created_at || c.createdAt || c.startDate || "",
         applyCount: apply,
         remainCount: remain,
         totalCount: total,
@@ -1030,6 +1032,56 @@
       document.getElementById("summaryStores").textContent = `${stores.length}곳`;
     }
 
+    function parseKstDate(value, endOfDay = false) {
+      if (!value) return null;
+      const text = String(value).trim();
+
+      const fullDate = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (fullDate) {
+        const year = Number(fullDate[1]);
+        const month = Number(fullDate[2]) - 1;
+        const day = Number(fullDate[3]);
+        return endOfDay
+          ? new Date(year, month, day, 23, 59, 59, 999)
+          : new Date(year, month, day, 0, 0, 0, 0);
+      }
+
+      const shortDate = text.match(/(\d{1,2})\s*[\/.월-]\s*(\d{1,2})/);
+      if (shortDate) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = Number(shortDate[1]) - 1;
+        const day = Number(shortDate[2]);
+        return endOfDay
+          ? new Date(year, month, day, 23, 59, 59, 999)
+          : new Date(year, month, day, 0, 0, 0, 0);
+      }
+
+      const parsed = new Date(text.replace(/-/g, "/"));
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function getTimeRemainPercent(store) {
+      const target = parseKstDate(store.expireDate || store.drawDate, true);
+      if (!target) return 100;
+
+      const now = new Date();
+      if (now >= target) return 0;
+
+      let start = parseKstDate(store.createdAt, false);
+      if (!start || start >= target) {
+        start = new Date(target.getTime() - 30 * 24 * 60 * 60 * 1000);
+      }
+
+      const totalMs = Math.max(1, target.getTime() - start.getTime());
+      const remainMs = Math.max(0, target.getTime() - now.getTime());
+      return Math.min(100, Math.max(4, Math.round((remainMs / totalMs) * 100)));
+    }
+
+    function updateModalTimeProgress(store) {
+      document.getElementById("modalProgress").style.width = `${getTimeRemainPercent(store)}%`;
+    }
+
     function openStoreModal(id) {
       const store = stores.find(item => item.id === id);
       if (!store) return;
@@ -1045,8 +1097,7 @@
       document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
       document.getElementById("modalRemainCount").textContent = `${store.remainCount}개`;
 
-      const ratio = Math.min(100, Math.max(4, Math.round((store.applyCount / Math.max(1, store.totalCount)) * 100)));
-      document.getElementById("modalProgress").style.width = `${ratio}%`;
+      updateModalTimeProgress(store);
 
       document.getElementById("modalApplyBtn").onclick = () => {
         openEntryModal(store.id, store.couponTitle);
@@ -1117,8 +1168,7 @@
       if (document.getElementById("storeModalOverlay").classList.contains("show") && openedStoreName === store.name) {
         document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
 
-        const ratio = Math.min(100, Math.max(4, Math.round((store.applyCount / Math.max(1, store.totalCount)) * 100)));
-        document.getElementById("modalProgress").style.width = `${ratio}%`;
+        updateModalTimeProgress(store);
       }
     }
 
