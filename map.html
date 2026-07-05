@@ -991,7 +991,7 @@
         lng: Number(c.lng ?? c.longitude),
         type,
         badge: c.badge || (type === "event" ? "🧡 이벤트 진행중" : type === "support" ? "🌱 신규 지원 업체" : type === "invest" ? "⭐ 투자 업체" : "🎁 쿠폰 진행중"),
-        image: c.image || c.imageUrl || c.thumbnail || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
+        image: c.imageUrl || c.image || c.thumbnail || c.cover || c.photo || "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
         summary: c.summary || c.description || c.desc || "LocalFlow 쿠폰맵에 등록된 충주 로컬 업체입니다.",
         couponTitle: c.title || c.couponTitle || "LocalFlow 쿠폰 이벤트",
         drawDate: c.drawDate || c.expire || c.date || "일정 미정",
@@ -1148,6 +1148,9 @@
       if (!store) return;
 
       document.getElementById("modalImage").src = store.image;
+      document.getElementById("modalImage").onerror = function() {
+        this.src = "https://localflow.info/assets/lf.png";
+      };
       document.getElementById("modalImage").alt = `${store.name} 대표 이미지`;
       document.getElementById("modalBadge").textContent = store.badge;
       document.getElementById("modalStoreName").textContent = store.name;
