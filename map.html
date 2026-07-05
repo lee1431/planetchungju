@@ -377,8 +377,35 @@
     .event-title { font-size: 20px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.25; margin-bottom: 14px; }
     .event-row { display: flex; justify-content: space-between; gap: 14px; font-size: 14px; font-weight: 800; padding: 8px 0; color: #334155; }
     .event-row span:first-child { color: var(--muted); }
-    .progress { height: 7px; border-radius: 999px; overflow: hidden; background: #e2e8f0; margin: 8px 0 4px; }
-    .progress > i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); border-radius: inherit; transition: width 0.25s ease; }
+    .progress {
+      position: relative;
+      height: 24px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e2e8f0;
+      margin: 8px 0 4px;
+    }
+    .progress > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+      border-radius: inherit;
+      transition: width 0.25s ease;
+    }
+    .progress > span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+      pointer-events: none;
+    }
     .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .apply-btn {
       grid-column: 1 / -1;
@@ -703,7 +730,7 @@
           <div class="event-title" id="modalCouponTitle">쿠폰명</div>
           <div class="event-row"><span>추첨일</span><strong id="modalDrawDate">-</strong></div>
           <div class="event-row"><span>응모 현황</span><strong id="modalApplyCount">-</strong></div>
-          <div class="progress"><i id="modalProgress"></i></div>
+          <div class="progress"><i id="modalProgress"></i><span id="modalProgressText">-</span></div>
           <div class="event-row"><span>남은 쿠폰</span><strong id="modalRemainCount">-</strong></div>
         </div>
 
@@ -1036,6 +1063,19 @@
       if (!value) return null;
       const text = String(value).trim();
 
+      const dateTime = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
+      if (dateTime) {
+        return new Date(
+          Number(dateTime[1]),
+          Number(dateTime[2]) - 1,
+          Number(dateTime[3]),
+          Number(dateTime[4]),
+          Number(dateTime[5]),
+          Number(dateTime[6] || 0),
+          0
+        );
+      }
+
       const fullDate = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
       if (fullDate) {
         const year = Number(fullDate[1]);
@@ -1061,12 +1101,25 @@
       return Number.isNaN(parsed.getTime()) ? null : parsed;
     }
 
-    function getTimeRemainPercent(store) {
+    function formatRemainText(remainMs) {
+      if (remainMs <= 0) return "추첨일 도달";
+
+      const totalMinutes = Math.ceil(remainMs / 60000);
+      const days = Math.floor(totalMinutes / 1440);
+      const hours = Math.floor((totalMinutes % 1440) / 60);
+      const minutes = totalMinutes % 60;
+
+      if (days > 0) return `${days}일 ${hours}시간 남음`;
+      if (hours > 0) return `${hours}시간 ${minutes}분 남음`;
+      return `${minutes}분 남음`;
+    }
+
+    function getTimeProgressInfo(store) {
       const target = parseKstDate(store.expireDate || store.drawDate, true);
-      if (!target) return 100;
+      if (!target) return { percent: 100, text: "추첨일 미정" };
 
       const now = new Date();
-      if (now >= target) return 0;
+      const remainMs = Math.max(0, target.getTime() - now.getTime());
 
       let start = parseKstDate(store.createdAt, false);
       if (!start || start >= target) {
@@ -1074,12 +1127,20 @@
       }
 
       const totalMs = Math.max(1, target.getTime() - start.getTime());
-      const remainMs = Math.max(0, target.getTime() - now.getTime());
-      return Math.min(100, Math.max(4, Math.round((remainMs / totalMs) * 100)));
+      const percent = remainMs <= 0
+        ? 0
+        : Math.min(100, Math.max(4, Math.round((remainMs / totalMs) * 100)));
+
+      return {
+        percent,
+        text: formatRemainText(remainMs)
+      };
     }
 
     function updateModalTimeProgress(store) {
-      document.getElementById("modalProgress").style.width = `${getTimeRemainPercent(store)}%`;
+      const info = getTimeProgressInfo(store);
+      document.getElementById("modalProgress").style.width = `${info.percent}%`;
+      document.getElementById("modalProgressText").textContent = info.text;
     }
 
     function openStoreModal(id) {
