@@ -653,6 +653,30 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid #fecaca;
+      border-radius: 999px;
+      background: var(--danger-light);
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 800;
+      margin-left: 20px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+      animation: livePulse 1.4s infinite;
+    }
+
+    
     @media (max-width: 900px) {
       .summary-row { grid-template-columns: 1fr; }
       #map { height: 68vh; min-height: 520px; }
@@ -699,7 +723,7 @@
         <a href="./gallery.html">갤러리</a>
         <a href="./coupon.html">쿠폰</a>
         <a class="active" href="./map.html">쿠폰맵</a>
-        <a href="./draw.html">라이브추첨</a>
+        <a class="active" href="./draw.html">라이브추첨<div class="live-pill"><span class="live-dot"></span>LIVE</div></a>
       </nav>
     </div>
   </header>
