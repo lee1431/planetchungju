@@ -665,7 +665,7 @@
     </section>
     <section class="summary-row" aria-label="쿠폰맵 요약">
       <div class="summary-card"><b>진행중 쿠폰</b><strong id="summaryCoupon">0개</strong></div>
-      <div class="summary-card"><b>이벤트 업체</b><strong id="summaryStores">0곳</strong></div>
+      <div class="summary-card"><b>현재 참여자 수</b><strong id="summaryParticipants">0명</strong></div>
       <div class="summary-card"><b>선택 지역</b><strong>충주</strong></div>
     </section>
 
@@ -1055,7 +1055,13 @@
 
   function updateSummary() {
     document.getElementById("summaryCoupon").textContent = `${stores.length}개`;
-    document.getElementById("summaryStores").textContent = `${stores.length}곳`;
+
+    const totalParticipants = stores.reduce((sum, store) => {
+      return sum + Number(store.applyCount || 0);
+    }, 0);
+  
+    document.getElementById("summaryParticipants").textContent =
+      `${totalParticipants.toLocaleString()}명`;
   }
 
   function parseKstDate(value, endOfDay = false) {
