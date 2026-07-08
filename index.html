@@ -454,6 +454,9 @@
     .modal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); transition: all 0.15s ease; flex-shrink: 0; cursor: pointer; }
     .modal-confirm-btn:hover { filter: brightness(1.04); }
 
+    .flow-coin { transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform; }
+    .hero-art { transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+
     @media(max-width: 900px) {
       .promo p { width: 70%; }
     }
@@ -874,6 +877,40 @@
       const aboutOpen = document.getElementById("aboutModalOverlay").classList.contains("show");
       if (!termsOpen && !privacyOpen && !aboutOpen) document.body.style.overflow = "auto";
     }
+
+
+    function restartHeroCoin() {
+      const heroArt = document.querySelector(".hero-art");
+      const coin = document.querySelector(".flow-coin");
+    
+      if (!heroArt || !coin) return;
+    
+      heroArt.style.display = "none";
+    
+      requestAnimationFrame(() => {
+        heroArt.offsetHeight;
+        heroArt.style.display = "";
+        coin.style.animation = "none";
+    
+        requestAnimationFrame(() => {
+          coin.offsetHeight;
+          coin.style.animation = "";
+        });
+      });
+    }
+    
+    window.addEventListener("pageshow", restartHeroCoin);
+    
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        restartHeroCoin();
+      }
+    });
+    
+    window.addEventListener("focus", restartHeroCoin);
+
+
+    
 
     window.openTermsModal = function() {
       document.getElementById("termsModalOverlay").classList.add("show");
