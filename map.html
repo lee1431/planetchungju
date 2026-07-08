@@ -1459,6 +1459,70 @@
     );
   });
 
+
+  function isAnyBlockingModalOpen() {
+    const storeOpen = document.getElementById("storeModalOverlay").classList.contains("show");
+    const termsOpen = document.getElementById("termsModalOverlay").classList.contains("show");
+    const privacyOpen = document.getElementById("privacyModalOverlay").classList.contains("show");
+    const entryOpen = document.getElementById("entryModalOverlay").classList.contains("show");
+
+    return storeOpen || termsOpen || privacyOpen || entryOpen;
+  }
+
+  function refreshMapView(options = {}) {
+    const {
+      fit = true,
+      force = false
+    } = options;
+
+    if (!map) return;
+    if (!force && isAnyBlockingModalOpen()) return;
+
+    map.invalidateSize();
+
+    if (fit && visibleStores.length) {
+      setTimeout(() => {
+        fitVisibleStores();
+      }, 140);
+    }
+  }
+
+  function startMapAutoRefresh() {
+    setTimeout(() => {
+      refreshMapView({ fit: true, force: true });
+    }, 700);
+
+    setInterval(() => {
+      refreshMapView({ fit: true, force: false });
+    }, 60 * 1000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        setTimeout(() => {
+          refreshMapView({ fit: true, force: true });
+        }, 300);
+      }
+    });
+
+    window.addEventListener("pageshow", () => {
+      setTimeout(() => {
+        refreshMapView({ fit: true, force: true });
+      }, 300);
+    });
+
+    window.addEventListener("focus", () => {
+      setTimeout(() => {
+        refreshMapView({ fit: true, force: true });
+      }, 300);
+    });
+
+    window.addEventListener("resize", () => {
+      setTimeout(() => {
+        refreshMapView({ fit: true, force: false });
+      }, 300);
+    });
+  }
+
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
       if (mapCard.classList.contains("fullscreen-map")) {
@@ -1478,6 +1542,7 @@
   initMap();
   loadStoresFromApi();
   startCouponAutoRefresh();
+  startMapAutoRefresh();
 </script>
 </body>
 </html>
