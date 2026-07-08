@@ -1,10 +1,8 @@
-
 <!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>LocalFlow - 로컬플로우</title>
   <meta name="description" content="충주에서 현재 LocalFlow 쿠폰과 이벤트가 진행 중인 업체를 지도에서 확인하고 이벤트에 참여하세요." />
   <meta name="keywords" content="로컬플로우, LocalFlow, 충주 쿠폰맵, 충주 이벤트, 충주 로컬, 할인쿠폰" />
@@ -18,8 +16,8 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-
   <link rel="icon" type="image/png" href="./assets/img/fav.png">
+
   <style>
     :root {
       --bg: #ffffff;
@@ -208,8 +206,7 @@
 
     .map-actions {
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: center;      gap: 8px;
     }
 
     .map-card.fullscreen-map {
@@ -249,8 +246,7 @@
 
     .legend {
       position: absolute;
-      left: 16px;
-      bottom: 16px;
+      left: 16px;      bottom: 16px;
       z-index: 500;
       background: rgba(255,255,255,0.94);
       border: 1px solid var(--line);
@@ -307,6 +303,7 @@
     .leaflet-popup-content { margin: 12px 14px; font-family: inherit; font-weight: 700; }
     .leaflet-control-attribution { font-size: 10px; }
 
+    /* 업체 상세 모달 */
     .store-modal-overlay {
       position: fixed;
       inset: 0;
@@ -471,7 +468,6 @@
     }
     .sub-btn:hover { background: #f8fafc; }
 
-
     /* 쿠폰 응모 이메일 모달 */
     .entry-modal-overlay {
       position: fixed;
@@ -535,8 +531,7 @@
     }
     .entry-target-info {
       color: var(--primary);
-      font-weight: 900;
-      display: block;
+      font-weight: 900;      display: block;
       margin-top: 6px;
       transition: color 0.5s ease;
     }
@@ -580,6 +575,7 @@
       30% { transform: rotate(0deg); }
     }
 
+    /* 약관/개인정보 모달용 공통 클래스 */
     .legal-modal-overlay {
       position: fixed;
       top: 0;
@@ -614,17 +610,57 @@
     }
     .legal-modal-overlay.show .legal-modal { transform: translateY(0); }
     .legal-modal-close { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; font-size: 24px; color: var(--muted); font-weight: 300; cursor: pointer; }
-    .legal-modal-head { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
-    .legal-modal-head h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: var(--text); }
-    .legal-modal-head p { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
-    .legal-modal-body { overflow-y: auto; padding-right: 6px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: #334155; text-align: left; }
-    .legal-modal-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 18px 0 6px; }
-    .legal-modal-body h4:first-child { margin-top: 0; }
-    .legal-modal-body p { margin: 0 0 10px; font-weight: 500; color: #475569; }
-    .legal-modal-body code { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-family: inherit; font-weight: 600; }
-    .legal-modal-body .theme-text { color: var(--primary); font-weight: 600; }
-    .legal-date { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: right; font-weight: 500; }
-    .legal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); flex-shrink: 0; cursor: pointer; }
+    
+    /* 기존 코드의 .privacy-modal 등을 덮어쓸 용도로 유지 */
+    .privacy-modal {
+      width: min(500px, calc(100% - 32px));
+      max-height: 85vh;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+      padding: 32px 24px;
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+      position: relative;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 2100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal-overlay.show .privacy-modal { transform: translateY(0); }
+    .modal-close-btn { position: absolute; top: 20px; right: 20px; background: transparent; border: 0; font-size: 24px; color: var(--muted); font-weight: 300; cursor: pointer; transition: color 0.2s; }
+    .modal-close-btn:hover { color: var(--text); }
+    .modal-head-title { text-align: center; margin-bottom: 20px; flex-shrink: 0; }
+    .modal-head-title h3 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: var(--text); }
+    .modal-head-title p { margin: 0; font-size: 14px; font-weight: 500; color: var(--muted); }
+    .modal-scroll-body { overflow-y: auto; padding-right: 6px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: #334155; text-align: left; }
+    .modal-scroll-body::-webkit-scrollbar { width: 4px; }
+    .modal-scroll-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .modal-scroll-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 18px 0 6px; }
+    .modal-scroll-body h4:first-child { margin-top: 0; }
+    .modal-scroll-body p { margin: 0 0 10px; font-weight: 500; color: #475569; }
+    .modal-scroll-body code { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-family: inherit; font-weight: 600; }
+    .modal-scroll-body .theme-text { color: var(--primary); font-weight: 600; }
+    .privacy-date { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: right; font-weight: 500; }
+    .modal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); flex-shrink: 0; cursor: pointer; transition: all 0.15s ease; }
+    .modal-confirm-btn:hover { filter: brightness(1.04); }
 
     .footer { border-top: 1px solid #e2e8f0; background: #ffffff; }
     .footer-inner { width: min(1148px, calc(100% - 48px)); margin: 0 auto; min-height: 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
@@ -676,7 +712,6 @@
       animation: livePulse 1.4s infinite;
     }
 
-    
     @media (max-width: 900px) {
       .summary-row { grid-template-columns: 1fr; }
       #map { height: 68vh; min-height: 520px; }
@@ -723,7 +758,7 @@
         <a href="./gallery.html">갤러리</a>
         <a href="./coupon.html">쿠폰</a>
         <a class="active" href="./map.html">쿠폰맵</a>
-        <a class="active" href="./draw.html">라이브추첨<div class="live-pill"><span class="live-dot"></span>LIVE</div></a>
+        <a href="./draw.html">라이브추첨<div class="live-pill"><span class="live-dot"></span>LIVE</div></a>
       </nav>
     </div>
   </header>
@@ -733,6 +768,7 @@
       <h1 class="sub-title">충주 혜택을 찾는 <span>쿠폰맵</span></h1>
       <p class="sub-desc">지도 위 반짝이는 핀을 누르면 업체 소개와 쿠폰 이벤트 정보를 바로 확인할 수 있습니다.</p>
     </section>
+    
     <section class="summary-row" aria-label="쿠폰맵 요약">
       <div class="summary-card"><b>진행중 쿠폰</b><strong id="summaryCoupon">0개</strong></div>
       <div class="summary-card"><b>현재 참여자 수</b><strong id="summaryParticipants">0명</strong></div>
@@ -754,13 +790,80 @@
     </section>
   </main>
 
+  <div class="store-modal-overlay" id="storeModalOverlay" onclick="closeStoreModal()">
+    <article class="store-modal" onclick="event.stopPropagation()">
+      <button class="store-modal-close" onclick="closeStoreModal()">×</button>
+      <div class="modal-cover"><img id="modalImage" src="" alt=""></div>
+      <div class="modal-body">
+        <div class="modal-badge" id="modalBadge"></div>
+        <h2 class="modal-title" id="modalStoreName"></h2>
+        <p class="modal-region" id="modalRegion"></p>
+        <p class="modal-summary" id="modalSummary"></p>
+
+        <div class="event-box">
+          <div class="event-label">쿠폰 상세</div>
+          <div class="event-title" id="modalCouponTitle"></div>
+          <div class="coupon-price-box">
+            <div class="price-card">
+              <span>정가</span><strong id="modalOriginalPrice"></strong>
+            </div>
+            <div class="price-card">
+              <span>쿠폰가</span><strong id="modalCouponPrice"></strong>
+            </div>
+            <div class="price-card discount-card">
+              <span>할인율</span><strong id="modalDiscountRate"></strong>
+            </div>
+            <div class="price-card">
+              <span>제공 단위</span><strong id="modalUnit"></strong>
+            </div>
+          </div>
+          <p class="coupon-detail-desc" id="modalDescription"></p>
+        </div>
+
+        <div class="event-row">
+          <span>추첨/마감일</span><strong id="modalDrawDate"></strong>
+        </div>
+        <div class="event-row">
+          <span>참여 현황 (<span id="modalRemainCount"></span> 남음)</span>
+          <strong id="modalApplyCount"></strong>
+        </div>
+
+        <div class="progress">
+          <i id="modalProgress"></i>
+          <span id="modalProgressText"></span>
+        </div>
+
+        <div class="modal-actions" style="margin-top: 24px;">
+          <button class="apply-btn" id="modalApplyBtn">이벤트 응모하기</button>
+          <button class="sub-btn" id="modalRouteBtn">길찾기</button>
+          <button class="sub-btn" id="modalShareBtn">공유하기</button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="entry-modal-overlay" id="entryModalOverlay" onclick="closeEntryModal()">
+    <div class="entry-modal" onclick="event.stopPropagation()">
+      <button class="entry-modal-close" onclick="closeEntryModal()">×</button>
+      <div class="entry-head">
+        <span class="entry-icon">✈</span>
+        <h3>이벤트 응모하기</h3>
+        <p>추첨 결과를 전달받을 <br><strong>네이버 이메일</strong>을 입력해주세요.</p>
+        <span class="entry-target-info" id="entryModalTargetTitle"></span>
+      </div>
+      <form class="entry-form" id="entryModalForm">
+        <input type="text" id="entryModalEmailInput" class="entry-input" placeholder="localflow@naver.com" autocomplete="off" />
+        <button type="submit" class="entry-submit-btn" id="entrySubmitBtn">응모 완료하기</button>
+      </form>
+    </div>
+  </div>
+
   <footer class="footer" id="footer">
     <div class="footer-inner">
       <div>
         <div class="footer-brand">LocalFlow</div>
         <div class="copyright">© 2026 STANCE. LocalFlow Project. All rights reserved.</div>
       </div>
-
       <div class="footer-links">
         <a href="javascript:void(0);" onclick="openTermsModal()">이용약관</a>
         <span>|</span>
@@ -771,111 +874,111 @@
       </div>
     </div>
   </footer>
-  
-	<div class="modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
-	  <div class="privacy-modal" onclick="event.stopPropagation()">
-		<button class="modal-close-btn" onclick="closeTermsModal()">×</button>
-		
-		<div class="modal-head-title">
-		  <h3>이용약관</h3>
-		  <p>LocalFlow 서비스 이용 안내</p>
-		</div>
 
-		<div class="modal-scroll-body">
-		  <h4>1. 서비스 소개</h4>
-		  <p>
-			LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다.
-			사용자는 맛집 추천, 투표, 쿠폰 이벤트 참여 등 다양한 기능을 자유롭게 이용할 수 있습니다.
-		  </p>
+  <div class="modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
+    <div class="privacy-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closeTermsModal()">×</button>
+      
+      <div class="modal-head-title">
+        <h3>이용약관</h3>
+        <p>LocalFlow 서비스 이용 안내</p>
+      </div>
 
-		  <h4>2. 서비스 이용 목적</h4>
-		  <p>
-			본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다.
-			이용자는 건전한 방식으로 서비스를 이용해야 하며, 허위 정보 등록이나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.
-		  </p>
+      <div class="modal-scroll-body">
+        <h4>1. 서비스 소개</h4>
+        <p>
+          LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다.
+          사용자는 맛집 추천, 투표, 쿠폰 이벤트 참여 등 다양한 기능을 자유롭게 이용할 수 있습니다.
+        </p>
 
-		  <h4>3. 이벤트 및 쿠폰 정책</h4>
-		  <p>
-			쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다.
-			추첨 이벤트의 당첨 여부는 내부 기준에 따라 공정하게 선정되며,
-			동일 이용자의 중복 참여 또는 비정상적인 이용이 확인될 경우 응모가 제한될 수 있습니다.
-		  </p>
+        <h4>2. 서비스 이용 목적</h4>
+        <p>
+          본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다.
+          이용자는 건전한 방식으로 서비스를 이용해야 하며, 허위 정보 등록이나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.
+        </p>
 
-		  <h4>4. 이용 제한</h4>
-		  <p>
-			다음과 같은 행위가 확인될 경우 서비스 이용이 제한될 수 있습니다.
-		  </p>
+        <h4>3. 이벤트 및 쿠폰 정책</h4>
+        <p>
+          쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다.
+          추첨 이벤트의 당첨 여부는 내부 기준에 따라 공정하게 선정되며,
+          동일 이용자의 중복 참여 또는 비정상적인 이용이 확인될 경우 응모가 제한될 수 있습니다.
+        </p>
 
-		  <p>
-			• 타인의 개인정보 도용<br>
-			• 비정상적인 반복 응모 및 자동화 이용<br>
-			• 서비스 운영 방해 행위<br>
-			• 법령 및 공공질서에 위반되는 행위
-		  </p>
+        <h4>4. 이용 제한</h4>
+        <p>
+          다음과 같은 행위가 확인될 경우 서비스 이용이 제한될 수 있습니다.
+        </p>
+        <p>
+          • 타인의 개인정보 도용<br>
+          • 비정상적인 반복 응모 및 자동화 이용<br>
+          • 서비스 운영 방해 행위<br>
+          • 법령 및 공공질서에 위반되는 행위
+        </p>
 
-		  <h4>5. 책임의 제한</h4>
-		  <p>
-			LocalFlow는 천재지변, 시스템 장애, 외부 서비스 문제 등 불가항력적인 사유로 발생한 서비스 중단에 대해 책임을 지지 않습니다.
-		  </p>
+        <h4>5. 책임의 제한</h4>
+        <p>
+          LocalFlow는 천재지변, 시스템 장애, 외부 서비스 문제 등 불가항력적인 사유로 발생한 서비스 중단에 대해 책임을 지지 않습니다.
+        </p>
 
-		  <h4>6. 약관 변경</h4>
-		  <p>
-			본 약관은 서비스 운영상 필요한 경우 변경될 수 있으며,
-			중요한 변경 사항은 서비스 내 공지사항 또는 모달을 통해 사전 안내됩니다.
-		  </p>
+        <h4>6. 약관 변경</h4>
+        <p>
+          본 약관은 서비스 운영상 필요한 경우 변경될 수 있으며,
+          중요한 변경 사항은 서비스 내 공지사항 또는 모달을 통해 사전 안내됩니다.
+        </p>
 
-		  <h4>7. 문의</h4>
-		  <p>
-			서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br>
-			<strong>문의 이메일:</strong>
-			<span class="theme-text">llsshh1431@naver.com</span>
-		  </p>
+        <h4>7. 문의</h4>
+        <p>
+          서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br>
+          <strong>문의 이메일:</strong>
+          <span class="theme-text">llsshh1431@naver.com</span>
+        </p>
 
-		  <div class="privacy-date">
-			공고 및 시행일자: 2026년 5월 27일
-		  </div>
-		</div>
+        <div class="privacy-date">
+          공고 및 시행일자: 2026년 5월 27일
+        </div>
+      </div>
 
-		<button class="modal-confirm-btn" onclick="closeTermsModal()">
-		  확인했습니다
-		</button>
-	  </div>
-	</div>
-	<div class="modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
-		<div class="privacy-modal" onclick="event.stopPropagation()">
-		  <button class="modal-close-btn" onclick="closePrivacyModal()">×</button>
-		  
-		  <div class="modal-head-title">
-			<h3>개인정보 처리방침</h3>
-			<p>LocalFlow 서비스 이용을 위한 안내</p>
-		  </div>
+      <button class="modal-confirm-btn" onclick="closeTermsModal()">
+        확인했습니다
+      </button>
+    </div>
+  </div>
 
-		  <div class="privacy-body modal-scroll-body">
-			<h4>1. 수집하는 개인정보 항목 및 방법</h4>
-			<p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br>
-			<strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
+  <div class="modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
+    <div class="privacy-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-btn" onclick="closePrivacyModal()">×</button>
+      
+      <div class="modal-head-title">
+        <h3>개인정보 처리방침</h3>
+        <p>LocalFlow 서비스 이용을 위한 안내</p>
+      </div>
 
-			<h4>2. 개인정보의 수집 및 이용 목적</h4>
-			<p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br>
-			<strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
+      <div class="privacy-body modal-scroll-body">
+        <h4>1. 수집하는 개인정보 항목 및 방법</h4>
+        <p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br>
+        <strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
 
-			<h4>3. 개인정보의 보유 및 이용 기간</h4>
-			<p>이용자의 개인정보는 원칙적으로 <strong>개인정보 수집 및 이용 목적이 달성되면 지체 없이 파기</strong>합니다.<br>
-			<strong>보유 기간:</strong> 결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
+        <h4>2. 개인정보의 수집 및 이용 목적</h4>
+        <p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br>
+        <strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
 
-			<h4>4. 제3자 제공 및 위탁</h4>
-			<p>LocalFlow는 이용자의 사전 동의 없이는 원칙적으로 외부(제3자)에 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+        <h4>3. 개인정보의 보유 및 이용 기간</h4>
+        <p>이용자의 개인정보는 원칙적으로 <strong>개인정보 수집 및 이용 목적이 달성되면 지체 없이 파기</strong>합니다.<br>
+        <strong>보유 기간:</strong> 결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
 
-			<h4>5. 이용자의 권리 및 문의처</h4>
-			<p>이용자는 언제든지 본인의 개인정보 처리에 대한 동의 철회 및 삭제를 요구할 수 있습니다. 관련 문의는 하단 이메일로 연락하시면 지체 없이 조치하겠습니다.<br>
-			<strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
-			
-			<div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
-		  </div>
-		  
-		  <button class="modal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
-		</div>
-	</div>
+        <h4>4. 제3자 제공 및 위탁</h4>
+        <p>LocalFlow는 이용자의 사전 동의 없이는 원칙적으로 외부(제3자)에 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+
+        <h4>5. 이용자의 권리 및 문의처</h4>
+        <p>이용자는 언제든지 본인의 개인정보 처리에 대한 동의 철회 및 삭제를 요구할 수 있습니다. 관련 문의는 하단 이메일로 연락하시면 지체 없이 조치하겠습니다.<br>
+        <strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
+        
+        <div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
+      </div>
+      
+      <button class="modal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
+    </div>
+  </div>
 
   <div class="toast" id="toast">메시지</div>
 
@@ -1067,10 +1170,8 @@
 
   function formatWon(value) {
     if (value === "" || value === null || value === undefined) return "-";
-  
     const num = Number(value);
     if (!Number.isFinite(num) || num < 0) return "-";
-  
     return `${num.toLocaleString()}원`;
   }
 
@@ -1180,7 +1281,7 @@
     const totalParticipants = stores.reduce((sum, store) => {
       return sum + Number(store.applyCount || 0);
     }, 0);
-  
+    
     document.getElementById("summaryParticipants").textContent =
       `${totalParticipants.toLocaleString()}명`;
   }
@@ -1310,7 +1411,7 @@
       const url = store.routeUrl && store.routeUrl !== "https://map.naver.com/"
         ? store.routeUrl
         : makeNaverRouteUrl(store);
-    
+      
       window.open(url, "_blank", "noopener,noreferrer");
     };
 
@@ -1507,7 +1608,6 @@
       if (!silent) {
         showToast("쿠폰 API 연결 실패, 샘플 데이터를 표시합니다.");
       }
-
       renderMarkers("all", fitMap);
     } finally {
       isRefreshingCoupons = false;
@@ -1538,7 +1638,6 @@
 
   function activateAllFilter() {
     document.querySelectorAll(".filter-chip").forEach(item => item.classList.remove("active"));
-
     const allFilterBtn = document.querySelector('.filter-chip[data-filter="all"]');
     if (allFilterBtn) allFilterBtn.classList.add("active");
 
@@ -1591,7 +1690,6 @@
       () => showToast("현재 위치 권한이 필요합니다.")
     );
   });
-
 
   function isAnyBlockingModalOpen() {
     const storeOpen = document.getElementById("storeModalOverlay").classList.contains("show");
