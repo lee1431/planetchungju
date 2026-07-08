@@ -151,8 +151,9 @@
     .chip:hover { background: var(--primary-light); color: var(--primary); border-color: transparent; }
 
     /* ==========================================================================
-       HERO ART - LIGHTWEIGHT FLOW COIN
+       HERO ART - LIGHTWEIGHT DOUBLE-SIDED FLOW COIN
        - 기존 6면 CSS 3D 큐브 제거
+       - 앞면: 로컬플로우 / 뒷면: 이벤트
        - DOM 수와 필터 효과를 줄여 태블릿/웹뷰 렌더링 안정화
        ========================================================================== */
     .hero-art {
@@ -162,6 +163,9 @@
       place-items: center;
       contain: layout paint style;
       isolation: isolate;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
     .flow-orbit {
@@ -187,57 +191,6 @@
       inset: 82px;
       border-style: solid;
       opacity: 0.65;
-    }
-
-    .flow-coin-wrap {
-      position: relative;
-      z-index: 3;
-      animation: coinFloat 5.5s ease-in-out infinite;
-      will-change: transform;
-    }
-
-    .flow-coin {
-      width: 164px;
-      height: 164px;
-      border-radius: 50%;
-      position: relative;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      box-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
-      animation: coinSpin 12s linear infinite;
-      will-change: transform;
-      transform-style: preserve-3d;
-    }
-
-    .flow-coin::before {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.42);
-      pointer-events: none;
-    }
-
-    .flow-coin::after {
-      content: "";
-      position: absolute;
-      inset: 23px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 32% 25%, rgba(255,255,255,0.22), transparent 42%);
-      pointer-events: none;
-    }
-
-    .flow-coin span {
-      position: relative;
-      z-index: 2;
-      color: #fff;
-      font-size: 88px;
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: -0.08em;
-      user-select: none;
-      transform: translateZ(1px);
     }
 
     .flow-line {
@@ -266,6 +219,76 @@
     .flow-dot.d2 { right: 92px; top: 98px; width: 8px; height: 8px; opacity: 0.42; }
     .flow-dot.d3 { left: 132px; bottom: 94px; width: 7px; height: 7px; opacity: 0.38; }
 
+    .flow-coin-wrap {
+      position: relative;
+      z-index: 3;
+      animation: coinFloat 5.5s ease-in-out infinite;
+      will-change: transform;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .flow-coin {
+      width: 174px;
+      height: 174px;
+      border-radius: 50%;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: coinFlipSpin 8.5s linear infinite;
+      will-change: transform;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      text-align: center;
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      line-height: 1.08;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      box-shadow: 0 22px 48px rgba(15, 23, 42, 0.12);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+    }
+
+    .coin-face::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.42);
+      pointer-events: none;
+    }
+
+    .coin-face::after {
+      content: "";
+      position: absolute;
+      inset: 23px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 25%, rgba(255,255,255,0.22), transparent 42%);
+      pointer-events: none;
+    }
+
+    .coin-front {
+      font-size: 30px;
+    }
+
+    .coin-back {
+      font-size: 38px;
+      transform: rotateY(180deg);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    }
+
     .flow-shadow {
       position: absolute;
       bottom: 104px;
@@ -278,14 +301,14 @@
       z-index: 1;
     }
 
-    @keyframes coinSpin {
+    @keyframes coinFlipSpin {
       0% { transform: rotateY(0deg); }
       100% { transform: rotateY(360deg); }
     }
 
     @keyframes coinFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-13px); }
+      0%, 100% { transform: translateY(0) translateZ(0); }
+      50% { transform: translateY(-13px) translateZ(0); }
     }
 
     @keyframes coinShadow {
@@ -454,9 +477,6 @@
     .modal-confirm-btn { height: 50px; width: 100%; border: 0; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); box-shadow: 0 4px 14px var(--primary-light); transition: all 0.15s ease; flex-shrink: 0; cursor: pointer; }
     .modal-confirm-btn:hover { filter: brightness(1.04); }
 
-    .flow-coin { transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform; }
-    .hero-art { transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-
     @media(max-width: 900px) {
       .promo p { width: 70%; }
     }
@@ -536,7 +556,8 @@
 
         <div class="flow-coin-wrap">
           <div class="flow-coin">
-            <span>L</span>
+            <div class="coin-face coin-front">로컬플로우</div>
+            <div class="coin-face coin-back">이벤트</div>
           </div>
         </div>
 
@@ -881,20 +902,29 @@
 
     function restartHeroCoin() {
       const heroArt = document.querySelector(".hero-art");
+      const coinWrap = document.querySelector(".flow-coin-wrap");
       const coin = document.querySelector(".flow-coin");
-    
+      const shadow = document.querySelector(".flow-shadow");
+
       if (!heroArt || !coin) return;
-    
+
+      const previousDisplay = heroArt.style.display;
       heroArt.style.display = "none";
-    
+      void heroArt.offsetHeight;
+
       requestAnimationFrame(() => {
-        heroArt.offsetHeight;
-        heroArt.style.display = "";
-        coin.style.animation = "none";
-    
+        heroArt.style.display = previousDisplay;
+
+        [coinWrap, coin, shadow].forEach(el => {
+          if (el) el.style.animation = "none";
+        });
+
+        void coin.offsetHeight;
+
         requestAnimationFrame(() => {
-          coin.offsetHeight;
-          coin.style.animation = "";
+          [coinWrap, coin, shadow].forEach(el => {
+            if (el) el.style.animation = "";
+          });
         });
       });
     }
