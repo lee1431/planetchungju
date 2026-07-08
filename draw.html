@@ -584,7 +584,7 @@
   <div class="toast" id="toast">메시지</div>
 
   <script>
-    const API_BASE = "";
+    const API_BASE = "https://localflow.ddns.net/lf";
     const DRAW_DELAY_MS = 10000;
 
     const systemEl = document.getElementById("system");
@@ -609,7 +609,8 @@
     let drawRequestLock = false;
 
     function apiUrl(path) {
-      return `${API_BASE}${path}`;
+      if (/^https?:\/\//i.test(path)) return path;
+      return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
     }
 
     async function apiGet(path) {
