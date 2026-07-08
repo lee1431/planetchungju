@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -376,6 +377,46 @@
     }
     .event-label { color: var(--primary); font-size: 13px; font-weight: 900; margin-bottom: 8px; }
     .event-title { font-size: 20px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.25; margin-bottom: 14px; }
+
+    .coupon-price-box {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .price-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.82);
+      padding: 13px;
+      min-width: 0;
+    }
+    .price-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    .price-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      word-break: keep-all;
+    }
+    .discount-card strong { color: #e11d48; }
+    .coupon-detail-desc {
+      margin: 12px 0 2px;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 700;
+      white-space: pre-line;
+    }
+    .coupon-detail-desc:empty { display: none; }
+
     .event-row { display: flex; justify-content: space-between; gap: 14px; font-size: 14px; font-weight: 800; padding: 8px 0; color: #334155; }
     .event-row span:first-child { color: var(--muted); }
     .progress {
@@ -634,6 +675,9 @@
       .modal-title { font-size: 24px; }
       .modal-actions { grid-template-columns: 1fr; }
       .apply-btn { grid-column: auto; }
+      .coupon-price-box { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .price-card { padding: 11px; }
+      .price-card strong { font-size: 16px; }
       .footer-inner { flex-direction: column; align-items: flex-start; padding: 20px 0; }
       .footer-links { flex-wrap: wrap; }
     }
@@ -713,6 +757,28 @@
         <div class="event-box">
           <div class="event-label" id="modalEventLabel">진행중인 이벤트</div>
           <div class="event-title" id="modalCouponTitle">쿠폰명</div>
+
+          <div class="coupon-price-box" aria-label="쿠폰 가격 정보">
+            <div class="price-card">
+              <span>정가</span>
+              <strong id="modalOriginalPrice">-</strong>
+            </div>
+            <div class="price-card">
+              <span>쿠폰가</span>
+              <strong id="modalCouponPrice">-</strong>
+            </div>
+            <div class="price-card discount-card">
+              <span>할인율</span>
+              <strong id="modalDiscountRate">-</strong>
+            </div>
+            <div class="price-card">
+              <span>제공 단위</span>
+              <strong id="modalUnit">-</strong>
+            </div>
+          </div>
+
+          <p class="coupon-detail-desc" id="modalDescription"></p>
+
           <div class="event-row"><span>추첨일</span><strong id="modalDrawDate">-</strong></div>
           <div class="event-row"><span>응모 현황</span><strong id="modalApplyCount">-</strong></div>
           <div class="progress"><i id="modalProgress"></i><span id="modalProgressText">-</span></div>
@@ -875,6 +941,11 @@
       applyCount: 128,
       remainCount: 12,
       totalCount: 140,
+      description: "직접 생산한 쌀 20kg을 LocalFlow 쿠폰으로 50% 할인받을 수 있는 이벤트입니다.",
+      originalPrice: 50000,
+      couponPrice: 25000,
+      discountRate: 50,
+      unit: "20kg 1포",
       markerIcon: "🎁",
       routeUrl: "https://map.naver.com/"
     },
@@ -893,6 +964,11 @@
       applyCount: 65,
       remainCount: 8,
       totalCount: 73,
+      description: "골프 그립 교환 서비스를 할인된 가격으로 이용할 수 있는 로컬 이벤트입니다.",
+      originalPrice: 30000,
+      couponPrice: 24000,
+      discountRate: 20,
+      unit: "서비스 1회",
       markerIcon: "🧡",
       routeUrl: "https://map.naver.com/"
     },
@@ -911,6 +987,11 @@
       applyCount: 32,
       remainCount: 20,
       totalCount: 52,
+      description: "오픈 기념으로 제공되는 LocalFlow 커피 쿠폰 이벤트입니다.",
+      originalPrice: 5000,
+      couponPrice: 0,
+      discountRate: 100,
+      unit: "커피 1잔",
       markerIcon: "🌱",
       routeUrl: "https://map.naver.com/"
     },
@@ -929,6 +1010,11 @@
       applyCount: 48,
       remainCount: 6,
       totalCount: 54,
+      description: "공방 체험 클래스를 할인된 가격으로 경험할 수 있는 쿠폰입니다.",
+      originalPrice: 40000,
+      couponPrice: 32000,
+      discountRate: 20,
+      unit: "클래스 1회",
       markerIcon: "⭐",
       routeUrl: "https://map.naver.com/"
     }
@@ -965,6 +1051,18 @@
     }[char]));
   }
 
+  function formatWon(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return "-";
+    return `${num.toLocaleString()}원`;
+  }
+
+  function formatPercent(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num) || num <= 0) return "-";
+    return `${num}%`;
+  }
+
   function normalizeCouponToStore(c) {
     const apply = Number(couponEntryCounts[c.id] ?? c.applyCount ?? c.applies ?? c.entries ?? 0);
     const remain = Number(c.remainCount ?? c.remain ?? c.stock ?? 1);
@@ -988,6 +1086,11 @@
       applyCount: apply,
       remainCount: remain,
       totalCount: total,
+      description: c.description || c.detail || c.content || "",
+      originalPrice: c.originalPrice ?? c.original_price ?? c.price ?? "",
+      couponPrice: c.couponPrice ?? c.coupon_price ?? c.salePrice ?? c.sale_price ?? "",
+      discountRate: c.discountRate ?? c.discount_rate ?? c.rate ?? "",
+      unit: c.unit || c.provideUnit || c.provide_unit || c.quantityUnit || c.quantity_unit || "",
       markerIcon: c.markerIcon || markerIcons[type] || "🎁",
       routeUrl: c.routeUrl || c.mapUrl || "https://map.naver.com/",
       applyUrl: c.applyUrl || c.url || "coupon.html"
@@ -1167,6 +1270,11 @@
     document.getElementById("modalRegion").textContent = store.region;
     document.getElementById("modalSummary").textContent = store.summary;
     document.getElementById("modalCouponTitle").textContent = store.couponTitle;
+    document.getElementById("modalDescription").textContent = store.description || "";
+    document.getElementById("modalOriginalPrice").textContent = formatWon(store.originalPrice);
+    document.getElementById("modalCouponPrice").textContent = formatWon(store.couponPrice);
+    document.getElementById("modalDiscountRate").textContent = formatPercent(store.discountRate);
+    document.getElementById("modalUnit").textContent = store.unit || "-";
     document.getElementById("modalDrawDate").textContent = store.drawDate;
     document.getElementById("modalApplyCount").textContent = `${store.applyCount}명 참여중`;
     document.getElementById("modalRemainCount").textContent = `${store.remainCount}개`;
