@@ -7,33 +7,31 @@
   <meta name="description" content="LocalFlow는 충주 시민들의 선택과 참여로 지역의 흐름을 만들고 다시 지역으로 순환시키는 시민 참여형 로컬 플랫폼입니다. 오늘 사람들의 선택이 내일 충주의 흐름이 됩니다." />
   <meta name="keywords" content="로컬플로우, LocalFlow, 충주, 로컬플랫폼, 지역순환, 충주여행, 지역경제, 로컬커뮤니티" />
   <meta name="author" content="STANCE" />
-  
   <meta property="og:type" content="website" />
   <meta property="og:title" content="LocalFlow | 충주의 흐름을 순환시키는 로컬 플랫폼" />
   <meta property="og:description" content="사람들의 선택은 흐름이 되고, 흐름은 다시 지역으로 돌아옵니다. 충주 시민들과 함께 만드는 로컬 순환 프로젝트 LocalFlow." />
   <meta property="og:image" content="https://localflow.info/oi.png" />
   <meta property="og:url" content="https://localflow.info/draw.html" />
   <link rel="icon" type="image/png" href="./assets/img/fav.png">
-  
+
   <style>
     /* 기본 컬러스케임 (기존 로컬플로우 테마) */
     :root {
       --bg: #ffffff;
-      --nav: #ffffff;          
-      --nav-text: #0f172a;     
-      --text: #0f172a;         
+      --nav: #ffffff;
+      --nav-text: #0f172a;
+      --text: #0f172a;
       --muted: #64748b;
-      --line: #e2e8f0;         
+      --line: #e2e8f0;
       --card: #ffffff;
       --shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
       --soft-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
       --radius: 16px;
 
       /* 기본값: 월요일 블루 (JS에서 변경됨) */
-      --primary: #2563eb;      
+      --primary: #2563eb;
       --primary-light: #eff6ff;
       --primary-dark: #1d4ed8;
-      
       --danger: #ef4444;
       --danger-light: #fef2f2;
     }
@@ -70,11 +68,12 @@
     }
 
     .nav-inner { width: min(1148px, calc(100% - 48px)); height: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -0.03em; }    
-    .brand-icon { 
-       width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 19px; 
-       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); 
-       box-shadow: 0 4px 12px var(--primary-light); transition: background 0.5s ease;
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: -0.03em; }
+    
+    .brand-icon {
+        width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-weight: 900; font-size: 19px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        box-shadow: 0 4px 12px var(--primary-light); transition: background 0.5s ease;
     }
     .brand-name { font-size: 20px; line-height: 1; }
     .brand-sub { margin-left: 2px; color: var(--muted); font-size: 12px; font-weight: 600; }
@@ -635,9 +634,28 @@
       </div>
       <div class="modal-scroll-body">
         <h4>1. 서비스 소개</h4>
-        <p>LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다.</p>
+        <p>LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다. 사용자는 맛집 추천, 투표, 쿠폰 이벤트 참여 등 다양한 기능을 자유롭게 이용할 수 있습니다.</p>
+        
         <h4>2. 서비스 이용 목적</h4>
-        <p>본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다.</p>
+        <p>본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다. 이용자는 건전한 방식으로 서비스를 이용해야 하며, 허위 정보 등록이나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.</p>
+        
+        <h4>3. 이벤트 및 쿠폰 정책</h4>
+        <p>쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다. 추첨 이벤트의 당첨 여부는 내부 기준에 따라 공정하게 선정되며, 동일 이용자의 중복 참여 또는 비정상적인 이용이 확인될 경우 응모가 제한될 수 있습니다.</p>
+        
+        <h4>4. 이용 제한</h4>
+        <p>다음과 같은 행위가 확인될 경우 서비스 이용이 제한될 수 있습니다.</p>
+        <p>• 타인의 개인정보 도용<br>• 비정상적인 반복 응모 및 자동화 이용<br>• 서비스 운영 방해 행위<br>• 법령 및 공공질서에 위반되는 행위</p>
+        
+        <h4>5. 책임의 제한</h4>
+        <p>LocalFlow는 천재지변, 시스템 장애, 외부 서비스 문제 등 불가항력적인 사유로 발생한 서비스 중단에 대해 책임을 지지 않습니다.</p>
+        
+        <h4>6. 약관 변경</h4>
+        <p>본 약관은 서비스 운영상 필요한 경우 변경될 수 있으며, 중요한 변경 사항은 서비스 내 공지사항 또는 모달을 통해 사전 안내됩니다.</p>
+        
+        <h4>7. 문의</h4>
+        <p>서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br>
+        <strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
+        
         <div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
       </div>
       <button class="modal-confirm-btn" onclick="closeTermsModal()">확인했습니다</button>
@@ -653,146 +671,46 @@
       </div>
       <div class="privacy-body modal-scroll-body">
         <h4>1. 수집하는 개인정보 항목 및 방법</h4>
-        <p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)</p>
+        <p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br>
+        <strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
+        
+        <h4>2. 개인정보의 수집 및 이용 목적</h4>
+        <p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br>
+        <strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
+        
+        <h4>3. 개인정보의 보유 및 이용 기간</h4>
+        <p>이용자의 개인정보는 원칙적으로 <strong>개인정보 수집 및 이용 목적이 달성되면 지체 없이 파기</strong>합니다.<br>
+        <strong>보유 기간:</strong> 결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
+        
+        <h4>4. 제3자 제공 및 위탁</h4>
+        <p>LocalFlow는 이용자의 사전 동의 없이는 원칙적으로 외부(제3자)에 개인정보를 제공하거나 처리를 위탁하지 않습니다.</p>
+        
+        <h4>5. 이용자의 권리 및 문의처</h4>
+        <p>이용자는 언제든지 본인의 개인정보 처리에 대한 동의 철회 및 삭제를 요구할 수 있습니다. 관련 문의는 하단 이메일로 연락하시면 지체 없이 조치하겠습니다.<br>
+        <strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
+        
         <div class="privacy-date">공고 및 시행일자: 2026년 5월 27일</div>
       </div>
       <button class="modal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
     </div>
   </div>
 
-<footer class="footer">
+  <footer class="footer" id="footer">
     <div class="footer-inner">
       <div>
         <div class="footer-brand">LocalFlow</div>
         <div class="copyright">© 2026 STANCE. LocalFlow Project. All rights reserved.</div>
       </div>
       <div class="footer-links">
-        <a href="javascript:void(0);" onclick="openTermsModal()">이용약관</a><span>|</span>
-        <a href="javascript:void(0);" onclick="openPrivacyModal()">개인정보처리방침</a><span>|</span>
+        <a href="javascript:void(0);" onclick="openTermsModal()">이용약관</a>
+        <span>|</span>
+        <a href="javascript:void(0);" onclick="openPrivacyModal()">개인정보처리방침</a>
+        <span>|</span>
         <a href="https://llsshh.com/cs.html" target="_blank" rel="noopener noreferrer">문의하기</a>
         <span class="footer-icons"><span>◎</span><span>N</span><span>☁</span></span>
       </div>
     </div>
   </footer>
-
-  <div class="store-modal-overlay" id="storeModalOverlay" onclick="closeStoreModal()">
-    <article class="store-modal" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modalStoreName">
-      <button class="store-modal-close" type="button" onclick="closeStoreModal()" aria-label="닫기">×</button>
-      <div class="modal-cover"><img id="modalImage" src="" alt="업체 대표 이미지" /></div>
-      <div class="modal-body">
-        <div class="modal-badge" id="modalBadge">🎁 쿠폰 진행중</div>
-        <h2 class="modal-title" id="modalStoreName">업체명</h2>
-        <p class="modal-region" id="modalRegion">충주시</p>
-        <p class="modal-summary" id="modalSummary">업체 소개</p>
-
-        <div class="event-box">
-          <div class="event-label" id="modalEventLabel">진행중인 이벤트</div>
-          <div class="event-title" id="modalCouponTitle">쿠폰명</div>
-
-          <div class="coupon-price-box" aria-label="쿠폰 가격 정보">
-            <div class="price-card">
-              <span>정가</span>
-              <strong id="modalOriginalPrice">-</strong>
-            </div>
-            <div class="price-card">
-              <span>쿠폰가</span>
-              <strong id="modalCouponPrice">-</strong>
-            </div>
-            <div class="price-card discount-card">
-              <span>할인율</span>
-              <strong id="modalDiscountRate">-</strong>
-            </div>
-            <div class="price-card">
-              <span>제공 단위</span>
-              <strong id="modalUnit">-</strong>
-            </div>
-          </div>
-
-          <p class="coupon-detail-desc" id="modalDescription"></p>
-
-          <div class="event-row"><span>추첨일</span><strong id="modalDrawDate">-</strong></div>
-          <div class="event-row"><span>응모 현황</span><strong id="modalApplyCount">-</strong></div>
-          <div class="progress"><i id="modalProgress"></i><span id="modalProgressText">-</span></div>
-          <div class="event-row"><span>남은 쿠폰</span><strong id="modalRemainCount">-</strong></div>
-        </div>
-
-        <div class="modal-actions">
-          <button class="apply-btn" type="button" id="modalApplyBtn">이벤트 참가하기</button>
-          <button class="sub-btn" type="button" id="modalRouteBtn">길찾기</button>
-          <button class="sub-btn" type="button" id="modalShareBtn">공유하기</button>
-        </div>
-      </div>
-    </article>
-  </div>
-
-
-  <div class="entry-modal-overlay" id="entryModalOverlay" onclick="closeEntryModal()">
-    <div class="entry-modal" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="entryModalTitle">
-      <button class="entry-modal-close" type="button" onclick="closeEntryModal()" aria-label="닫기">×</button>
-
-      <div class="entry-head">
-        <span class="entry-icon">✈</span>
-        <h3 id="entryModalTitle">이벤트 응모하기</h3>
-        <p>추첨 결과를 전달받을<br><strong>네이버 이메일</strong>을 입력해주세요.</p>
-        <span class="entry-target-info" id="entryModalTargetTitle">쿠폰명 정보</span>
-      </div>
-
-      <form class="entry-form" id="entryModalForm">
-        <input
-          type="text"
-          id="entryModalEmailInput"
-          class="entry-input"
-          placeholder="localflow@naver.com"
-          autocomplete="off"
-        />
-        <button type="submit" class="entry-submit-btn" id="entrySubmitBtn">응모 완료하기</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="legal-modal-overlay" id="termsModalOverlay" onclick="closeTermsModal()">
-    <div class="legal-modal" onclick="event.stopPropagation()">
-      <button class="legal-modal-close" onclick="closeTermsModal()">×</button>
-      <div class="legal-modal-head">
-        <h3>이용약관</h3>
-        <p>LocalFlow 서비스 이용 안내</p>
-      </div>
-      <div class="legal-modal-body">
-        <h4>1. 서비스 소개</h4>
-        <p>LocalFlow는 충주 시민들의 참여를 기반으로 운영되는 로컬 정보 및 이벤트 플랫폼입니다. 사용자는 맛집 추천, 투표, 갤러리 열람, 쿠폰 이벤트 참여 등 다양한 기능을 이용할 수 있습니다.</p>
-        <h4>2. 서비스 이용 목적</h4>
-        <p>본 서비스는 지역 상권 활성화와 시민 참여형 로컬 커뮤니티 형성을 목적으로 운영됩니다.</p>
-        <h4>3. 이벤트 및 쿠폰 정책</h4>
-        <p>쿠폰 및 이벤트는 운영 정책에 따라 사전 고지 없이 변경 또는 종료될 수 있습니다.</p>
-        <h4>4. 문의</h4>
-        <p>서비스 관련 문의는 아래 이메일을 통해 접수하실 수 있습니다.<br><strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
-        <div class="legal-date">공고 및 시행일자: 2026년 5월 27일</div>
-      </div>
-      <button class="legal-confirm-btn" onclick="closeTermsModal()">확인했습니다</button>
-    </div>
-  </div>
-
-  <div class="legal-modal-overlay" id="privacyModalOverlay" onclick="closePrivacyModal()">
-    <div class="legal-modal" onclick="event.stopPropagation()">
-      <button class="legal-modal-close" onclick="closePrivacyModal()">×</button>
-      <div class="legal-modal-head">
-        <h3>개인정보 처리방침</h3>
-        <p>LocalFlow 서비스 이용을 위한 안내</p>
-      </div>
-      <div class="legal-modal-body">
-        <h4>1. 수집하는 개인정보 항목 및 방법</h4>
-        <p><strong>수집 항목:</strong> 네이버 이메일 주소 (<code>@naver.com</code>)<br><strong>수집 방법:</strong> 이벤트 응모 시 이용자의 직접 입력 및 제출</p>
-        <h4>2. 개인정보의 수집 및 이용 목적</h4>
-        <p><strong>이벤트 운영:</strong> LocalFlow 로컬 쿠폰 이벤트 추첨 진행 및 결과 안내 발송<br><strong>리워드 제공:</strong> 당첨자에 한한 모바일 쿠폰 또는 혜택 발송</p>
-        <h4>3. 개인정보의 보유 및 이용 기간</h4>
-        <p>결과 발송 후 오발송 처리 및 민원 응대를 위해 최대 <strong>30일</strong>간 보관 후 영구 삭제합니다.</p>
-        <h4>4. 문의</h4>
-        <p><strong>문의 이메일:</strong> <span class="theme-text">llsshh1431@naver.com</span></p>
-        <div class="legal-date">공고 및 시행일자: 2026년 5월 27일</div>
-      </div>
-      <button class="legal-confirm-btn" onclick="closePrivacyModal()">확인했습니다</button>
-    </div>
-  </div>
 
   <div class="toast" id="toast">메시지</div>
 
