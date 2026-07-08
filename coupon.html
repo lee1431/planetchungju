@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ko">
 <head>
@@ -222,6 +223,116 @@
     .use-btn:hover { background: var(--primary); color: #fff; }
     .use-btn.used { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
 
+    .coupon-brief {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .coupon-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .detail-toggle-btn {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 900;
+      transition: 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .detail-toggle-btn:hover {
+      background: var(--primary-light);
+      border-color: transparent;
+      color: var(--primary);
+    }
+
+    .coupon-detail-panel {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 0;
+      border: 0 solid transparent;
+      transition: max-height 0.32s ease, opacity 0.24s ease, margin-bottom 0.24s ease, border-color 0.24s ease;
+    }
+
+    .coupon-detail-panel.open {
+      max-height: 420px;
+      opacity: 1;
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .coupon-detail-inner {
+      padding: 14px;
+    }
+
+    .coupon-price-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .coupon-price-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      padding: 11px 12px;
+    }
+
+    .coupon-price-item span {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .coupon-price-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .coupon-price-item.discount strong {
+      color: #e11d48;
+    }
+
+    .coupon-detail-desc {
+      margin: 0;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 650;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    .coupon-card.expired-card .coupon-detail-panel.open {
+      background: #f1f5f9;
+    }
+
+
     /* 커스텀 응모 모달창 스타일 */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
@@ -320,6 +431,9 @@
       .page, .footer-inner { width: min(100% - 28px, 1148px); }
       .sub-title { font-size: 32px; }
       .coupon-grid { grid-template-columns: 1fr; }
+      .coupon-price-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .coupon-price-item { padding: 10px; }
+      .coupon-price-item strong { font-size: 15px; }
       
       .calendar-wrap { padding: 18px 12px 20px; margin-bottom: 32px; }
       .cal-header { margin-bottom: 16px; }
@@ -739,17 +853,59 @@
           badgeHtml = coupon.drawDate ? `<span class="draw-badge">${escapeHtml(coupon.drawDate)}</span>` : "";
         }
 
+        const safeId = escapeAttr(coupon.id);
+        const detailDesc = plainText(coupon.description || coupon.summary, "상세 설명이 등록되지 않았습니다.");
+        const badgeText = plainText(coupon.badge, coupon.type || "쿠폰");
+        const titleForClick = escapeAttr(coupon.title);
+
         return `
           <article class="${cardClass}">
             <div class="coupon-head ${coupon.style}">
               ${badgeHtml}
-              <div class="coupon-type">${coupon.type}</div>
+              <div class="coupon-type">${escapeHtml(coupon.type)}</div>
               <h3 class="coupon-title">${escapeHtml(coupon.title)}</h3>
             </div>
             <div class="coupon-body">
+              <div class="coupon-brief">
+                <span class="coupon-badge">${escapeHtml(badgeText)}</span>
+                <button
+                  class="detail-toggle-btn"
+                  id="couponDetailBtn-${safeId}"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="couponDetail-${safeId}"
+                  onclick="toggleCouponDetail('${safeId}')"
+                >상세 보기 ▼</button>
+              </div>
+
               <h4 class="store-name">${escapeHtml(coupon.store)}</h4>
-              <div class="expire-date">추첨/마감일: ${coupon.expire}</div>
-              <button class="${btnClass}" ${disabled} onclick="openEntryModal('${coupon.id}', '${escapeHtml(coupon.title)}')">
+              <div class="expire-date">추첨/마감일: ${escapeHtml(coupon.expire || "-")}</div>
+
+              <div class="coupon-detail-panel" id="couponDetail-${safeId}">
+                <div class="coupon-detail-inner">
+                  <div class="coupon-price-grid">
+                    <div class="coupon-price-item">
+                      <span>정가</span>
+                      <strong>${formatWon(coupon.originalPrice)}</strong>
+                    </div>
+                    <div class="coupon-price-item">
+                      <span>쿠폰가</span>
+                      <strong>${formatWon(coupon.couponPrice)}</strong>
+                    </div>
+                    <div class="coupon-price-item discount">
+                      <span>할인율</span>
+                      <strong>${formatPercent(coupon.discountRate)}</strong>
+                    </div>
+                    <div class="coupon-price-item">
+                      <span>제공 단위</span>
+                      <strong>${escapeHtml(plainText(coupon.unit))}</strong>
+                    </div>
+                  </div>
+                  <p class="coupon-detail-desc">${escapeHtml(detailDesc)}</p>
+                </div>
+              </div>
+
+              <button class="${btnClass}" ${disabled} onclick="openEntryModal('${safeId}', '${titleForClick}')">
                 ${btnText}
               </button>
             </div>
@@ -844,8 +1000,49 @@
     }
 
     function escapeHtml(text) {
-      return text.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+      return String(text ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
     }
+
+    function escapeAttr(text) {
+      return escapeHtml(text).replace(/`/g, "&#096;");
+    }
+
+    function formatWon(value) {
+      if (value === "" || value === null || value === undefined) return "-";
+      const num = Number(value);
+      if (!Number.isFinite(num) || num < 0) return "-";
+      return `${num.toLocaleString()}원`;
+    }
+
+    function formatPercent(value) {
+      if (value === "" || value === null || value === undefined) return "-";
+      const num = Number(value);
+      if (!Number.isFinite(num) || num < 0) return "-";
+      return `${num}%`;
+    }
+
+    function plainText(value, fallback = "-") {
+      const text = String(value ?? "").trim();
+      return text ? text : fallback;
+    }
+
+    function toggleCouponDetail(id) {
+      const panel = document.getElementById(`couponDetail-${id}`);
+      const btn = document.getElementById(`couponDetailBtn-${id}`);
+      if (!panel || !btn) return;
+
+      const isOpen = panel.classList.toggle("open");
+      btn.textContent = isOpen ? "상세 접기 ▲" : "상세 보기 ▼";
+      btn.setAttribute("aria-expanded", String(isOpen));
+    }
+
+    window.toggleCouponDetail = toggleCouponDetail;
 
 
     const navLinks = document.querySelectorAll('.nav a');
@@ -889,6 +1086,7 @@
       if (e.key === "Escape") {
         closeEntryModal();
         closePrivacyModal();
+        closeTermsModal();
       }
     });
 
@@ -914,7 +1112,15 @@
           style: c.style || "bg-purple",
           used: false,
           active: c.active !== false,
-          drawDate: c.drawDate || c.expire || ""
+          drawDate: c.drawDate || c.expire || "",
+
+          // Flask/admin에서 추가한 쿠폰 상세 필드
+          description: c.description || c.detail || c.content || c.desc || "",
+          originalPrice: c.originalPrice ?? c.original_price ?? c.price ?? "",
+          couponPrice: c.couponPrice ?? c.coupon_price ?? c.salePrice ?? c.sale_price ?? "",
+          discountRate: c.discountRate ?? c.discount_rate ?? "",
+          unit: c.unit || c.provideUnit || c.provide_unit || "",
+          badge: c.badge || ""
         })).filter(c => c.active !== false);
 
         buildDrawEventsFromCoupons();
