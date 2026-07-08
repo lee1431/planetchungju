@@ -1,0 +1,1010 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>LocalFlow LIVE DRAW - 로컬플로우 실시간 추첨</title>
+  <meta name="description" content="LocalFlow 로컬 쿠폰 이벤트의 실시간 추첨 현황과 당첨 결과를 확인하세요." />
+  <meta name="author" content="STANCE" />
+  <link rel="icon" type="image/png" href="./assets/img/fav.png">
+
+  <style>
+    :root {
+      --bg: #061211;
+      --bg-deep: #020706;
+      --text: #edf5f1;
+      --muted: rgba(237,245,241,.58);
+      --line: rgba(255,255,255,.09);
+      --line-strong: rgba(255,255,255,.16);
+      --card: rgba(13,24,23,.76);
+      --card-strong: rgba(16,30,28,.92);
+      --primary: #0d9488;
+      --primary-light: rgba(13,148,136,.16);
+      --primary-dark: #115e59;
+      --success: #79d7b8;
+      --danger: #ff7b7b;
+      --warning: #e8d98b;
+      --shadow: 0 28px 80px rgba(0,0,0,.42);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        radial-gradient(circle at 50% 20%, var(--primary-light), transparent 34%),
+        radial-gradient(circle at 20% 80%, rgba(13,148,136,.08), transparent 34%),
+        linear-gradient(180deg, var(--bg), var(--bg-deep));
+      background-size: 34px 34px, 34px 34px, auto, auto, auto;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+
+    .topbar {
+      height: 72px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(3, 10, 9, .72);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      width: min(1180px, calc(100% - 48px));
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      box-shadow: 0 0 22px var(--primary-light);
+    }
+
+    .brand-name { font-size: 20px; letter-spacing: -0.04em; }
+    .brand-sub { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .nav a.active,
+    .nav a:hover { color: var(--text); }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 123, 123, .24);
+      border-radius: 12px;
+      background: rgba(255, 123, 123, .08);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff7b7b;
+      box-shadow: 0 0 14px rgba(255,123,123,.8);
+      animation: livePulse 1.4s infinite;
+    }
+
+    @keyframes livePulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,123,123,.42), 0 0 14px rgba(255,123,123,.8); }
+      80% { box-shadow: 0 0 0 12px rgba(255,123,123,0), 0 0 14px rgba(255,123,123,.2); }
+      100% { box-shadow: 0 0 0 0 rgba(255,123,123,0), 0 0 14px rgba(255,123,123,.8); }
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 38px 0 70px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr minmax(340px, 520px) 1fr;
+      gap: 34px;
+      align-items: center;
+      min-height: 520px;
+    }
+
+    .hero-copy h1 {
+      margin: 0;
+      font-size: clamp(46px, 5vw, 76px);
+      line-height: .94;
+      letter-spacing: -0.07em;
+    }
+
+    .hero-copy h1 span {
+      display: block;
+      color: var(--primary);
+      text-shadow: 0 0 26px var(--primary-light);
+    }
+
+    .hero-copy p {
+      margin: 22px 0 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-weight: 650;
+    }
+
+    .countdown-box {
+      margin-top: 28px;
+      width: min(100%, 320px);
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(9,18,17,.72);
+      box-shadow: var(--shadow);
+    }
+
+    .box-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .main-count {
+      font-size: 38px;
+      font-weight: 950;
+      letter-spacing: -0.06em;
+      color: #b8fff4;
+      text-shadow: 0 0 20px var(--primary-light);
+    }
+
+    .system {
+      position: relative;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+    }
+
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+    }
+
+    .ring-1 { width: 100%; height: 100%; animation: spin 22s linear infinite; }
+    .ring-2 { width: 86%; height: 86%; border-style: dashed; animation: spinReverse 16s linear infinite; }
+    .ring-3 { width: 70%; height: 70%; opacity: .55; animation: breathe 4s ease-in-out infinite; }
+    .ring-4 { width: 56%; height: 56%; opacity: .32; }
+
+    .system.drawing .ring-1 { animation-duration: 4s; }
+    .system.drawing .ring-2 { animation-duration: 3s; }
+
+    @keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+    @keyframes spinReverse { from { transform: rotate(360deg); } to { transform: rotate(0); } }
+    @keyframes breathe {
+      0%,100% { transform: scale(1); opacity: .42; }
+      50% { transform: scale(1.025); opacity: .76; }
+    }
+
+    .orbit-dot {
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #69ffe4;
+      box-shadow: 0 0 0 8px rgba(105,255,228,.08), 0 0 24px rgba(105,255,228,.42);
+    }
+
+    .dot-a { top: 9%; left: 60%; animation: spin 14s linear infinite; transform-origin: -60px 210px; }
+    .dot-b { bottom: 14%; left: 24%; animation: spinReverse 18s linear infinite; transform-origin: 140px -150px; }
+    .dot-c { top: 26%; right: 10%; animation: spin 20s linear infinite; transform-origin: -200px 110px; }
+
+    .core {
+      width: min(68%, 340px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 34px;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,.12), transparent 18%),
+        radial-gradient(circle at center, rgba(13,148,136,.18), transparent 64%),
+        linear-gradient(180deg, rgba(20,36,34,.96), rgba(6,15,14,.98));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 34px 100px rgba(0,0,0,.45),
+        0 0 70px var(--primary-light);
+      position: relative;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .core::after {
+      content: "";
+      position: absolute;
+      left: -30%;
+      top: 48%;
+      width: 160%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(105,255,228,.9), transparent);
+      opacity: 0;
+      transform: rotate(-14deg);
+    }
+
+    .system.drawing .core::after {
+      animation: scanBeam 1.2s linear infinite;
+    }
+
+    @keyframes scanBeam {
+      0% { opacity: 0; transform: translateY(-80px) rotate(-14deg); }
+      20% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(90px) rotate(-14deg); }
+    }
+
+    .core-inner { position: relative; z-index: 2; width: 100%; }
+    .core-kicker {
+      display: inline-flex;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: #aafff2;
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .04em;
+      margin-bottom: 18px;
+    }
+
+    .core-title {
+      margin: 0;
+      font-size: clamp(22px, 2.6vw, 34px);
+      font-weight: 950;
+      letter-spacing: -0.06em;
+      line-height: 1.18;
+    }
+
+    .core-store {
+      margin-top: 10px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .core-meta {
+      margin-top: 18px;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: #aafff2;
+      font-weight: 900;
+    }
+
+    .status-panel {
+      border: 1px solid var(--line);
+      background: rgba(9,18,17,.72);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .status-step {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 14px 0;
+      color: var(--muted);
+      font-weight: 850;
+    }
+
+    .status-step:not(:last-child) {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .step-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.22);
+      margin-top: 2px;
+    }
+
+    .status-step.active { color: var(--text); }
+    .status-step.active .step-dot {
+      border-color: var(--primary);
+      background: var(--primary);
+      box-shadow: 0 0 22px var(--primary-light);
+    }
+
+    .status-step small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .04em;
+    }
+
+    .section-head {
+      margin: 24px 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+    }
+
+    .section-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: #aafff2;
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .coupon-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .coupon-card {
+      min-height: 240px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 20% 0%, var(--primary-light), transparent 42%),
+        linear-gradient(180deg, rgba(22,36,34,.86), rgba(9,18,17,.88));
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .coupon-card.next {
+      border-color: rgba(105,255,228,.7);
+      box-shadow: 0 0 0 1px rgba(105,255,228,.18), 0 24px 70px rgba(0,0,0,.34);
+    }
+
+    .coupon-card.done {
+      opacity: .58;
+      filter: grayscale(.35);
+      background: linear-gradient(180deg, rgba(31,42,41,.72), rgba(16,22,22,.82));
+    }
+
+    .coupon-badge {
+      align-self: flex-start;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+      color: #ccfff6;
+      font-size: 12px;
+      font-weight: 950;
+      margin-bottom: 18px;
+    }
+
+    .coupon-card.next .coupon-badge {
+      background: #69ffe4;
+      color: #05211d;
+    }
+
+    .coupon-title {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      line-height: 1.25;
+    }
+
+    .coupon-store {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .coupon-meta {
+      margin-top: 18px;
+      color: #aafff2;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .card-bottom {
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .remain-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .remain-time {
+      font-size: 28px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+    }
+
+    .winner-box {
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.055);
+      border: 1px solid var(--line);
+    }
+
+    .winner-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    .winner-email {
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 950;
+      word-break: break-all;
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      padding: 30px;
+      border: 1px dashed var(--line);
+      border-radius: 20px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .footer-note {
+      margin-top: 28px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 100;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      padding: 14px 22px;
+      border-radius: 999px;
+      background: rgba(2,7,6,.92);
+      border: 1px solid var(--line);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      font-weight: 850;
+      transition: .25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 1000px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; }
+      .hero-copy { text-align: center; }
+      .countdown-box { margin-left: auto; margin-right: auto; }
+      .system { width: min(560px, 100%); margin: 0 auto; }
+      .status-panel { max-width: 520px; margin: 0 auto; }
+      .coupon-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 680px) {
+      .topbar { height: auto; }
+      .nav-inner {
+        width: min(100% - 28px, 1180px);
+        min-height: 72px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px 0;
+      }
+      .nav { width: 100%; overflow-x: auto; gap: 24px; padding-bottom: 4px; }
+      .page { width: min(100% - 28px, 1180px); padding-top: 28px; }
+      .coupon-row { grid-template-columns: 1fr; }
+      .hero-copy h1 { font-size: 48px; }
+      .main-count { font-size: 32px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="nav-inner">
+      <a href="./index.html" class="brand">
+        <span class="brand-icon">L</span>
+        <span>
+          <span class="brand-name">LocalFlow</span>
+          <span class="brand-sub">LIVE DRAW</span>
+        </span>
+      </a>
+
+      <nav class="nav">
+        <a href="./index.html">홈</a>
+        <a href="./gallery.html">갤러리</a>
+        <a href="./coupon.html">쿠폰</a>
+        <a href="./map.html">쿠폰맵</a>
+        <a class="active" href="./live-draw.html">라이브추첨</a>
+      </nav>
+
+      <div class="live-pill">
+        <span class="live-dot"></span>
+        LIVE
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>
+          LocalFlow
+          <span>LIVE DRAW</span>
+        </h1>
+        <p>
+          로컬플로우 쿠폰 추첨이 실시간으로 진행됩니다.<br />
+          마감 시간이 되면 10초간 추첨 애니메이션 후 당첨자가 자동 공개됩니다.
+        </p>
+
+        <div class="countdown-box">
+          <div class="box-label">다음 추첨까지</div>
+          <div class="main-count" id="mainCountdown">--:--:--</div>
+        </div>
+      </div>
+
+      <div class="system" id="system">
+        <div class="ring ring-1"></div>
+        <div class="ring ring-2"></div>
+        <div class="ring ring-3"></div>
+        <div class="ring ring-4"></div>
+        <span class="orbit-dot dot-a"></span>
+        <span class="orbit-dot dot-b"></span>
+        <span class="orbit-dot dot-c"></span>
+
+        <div class="core">
+          <div class="core-inner">
+            <div class="core-kicker" id="coreStatus">NEXT DRAW</div>
+            <h2 class="core-title" id="coreTitle">추첨 대기중</h2>
+            <div class="core-store" id="coreStore">쿠폰 데이터를 불러오는 중입니다</div>
+            <div class="core-meta" id="coreMeta">참여자 0명</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="status-panel">
+        <div class="status-step active" id="stepWaiting">
+          <span class="step-dot"></span>
+          <div>대기 중 <small>WAITING</small></div>
+        </div>
+        <div class="status-step" id="stepDrawing">
+          <span class="step-dot"></span>
+          <div>추첨 진행 <small>DRAWING</small></div>
+        </div>
+        <div class="status-step" id="stepWinner">
+          <span class="step-dot"></span>
+          <div>결과 발표 <small>WINNER</small></div>
+        </div>
+      </aside>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2 class="section-title">진행 예정 쿠폰 <span class="section-count" id="waitingCount">0</span></h2>
+      </div>
+      <div class="coupon-row" id="waitingList"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2 class="section-title">추첨 완료 쿠폰 <span class="section-count" id="doneCount">0</span></h2>
+      </div>
+      <div class="coupon-row" id="doneList"></div>
+      <p class="footer-note">당첨자는 개인정보 보호를 위해 이메일 일부만 표시됩니다.</p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">메시지</div>
+
+  <script>
+    const THEMES = [
+      { primary: "#0d9488", primaryLight: "rgba(13,148,136,.16)", primaryDark: "#115e59" },
+      { primary: "#2563eb", primaryLight: "rgba(37,99,235,.16)", primaryDark: "#1d4ed8" },
+      { primary: "#059669", primaryLight: "rgba(5,150,105,.16)", primaryDark: "#047857" },
+      { primary: "#7c3aed", primaryLight: "rgba(124,58,237,.16)", primaryDark: "#6d28d9" },
+      { primary: "#ea580c", primaryLight: "rgba(234,88,12,.16)", primaryDark: "#c2410c" },
+      { primary: "#e11d48", primaryLight: "rgba(225,29,72,.16)", primaryDark: "#be123c" },
+      { primary: "#4f46e5", primaryLight: "rgba(79,70,229,.16)", primaryDark: "#3730a3" }
+    ];
+
+    function applyDailyTheme() {
+      const theme = THEMES[new Date().getDay()];
+      const root = document.documentElement;
+      root.style.setProperty("--primary", theme.primary);
+      root.style.setProperty("--primary-light", theme.primaryLight);
+      root.style.setProperty("--primary-dark", theme.primaryDark);
+    }
+
+    applyDailyTheme();
+
+    const API_BASE = "https://localflow.ddns.net/lf";
+
+    const DRAW_DELAY_MS = 10000;
+    const POLL_MS = 2000;
+
+    const systemEl = document.getElementById("system");
+    const mainCountdownEl = document.getElementById("mainCountdown");
+    const coreStatusEl = document.getElementById("coreStatus");
+    const coreTitleEl = document.getElementById("coreTitle");
+    const coreStoreEl = document.getElementById("coreStore");
+    const coreMetaEl = document.getElementById("coreMeta");
+    const waitingListEl = document.getElementById("waitingList");
+    const doneListEl = document.getElementById("doneList");
+    const waitingCountEl = document.getElementById("waitingCount");
+    const doneCountEl = document.getElementById("doneCount");
+    const toastEl = document.getElementById("toast");
+
+    const stepWaiting = document.getElementById("stepWaiting");
+    const stepDrawing = document.getElementById("stepDrawing");
+    const stepWinner = document.getElementById("stepWinner");
+
+    let coupons = [];
+    let activeDrawingId = null;
+    let drawingTimer = null;
+    let drawRequestLock = false;
+
+    function apiUrl(path) {
+      return `${API_BASE}${path.startsWith("/") ? path : "/" + path}`;
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(apiUrl(path), { method: "GET", mode: "cors", cache: "no-store" });
+      return await res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(apiUrl(path), {
+        method: "POST",
+        mode: "cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body || {})
+      });
+      return await res.json();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function maskEmail(email) {
+      const raw = String(email || "").trim();
+      if (!raw || !raw.includes("@")) return "-";
+      const [id, domain] = raw.split("@");
+      const head = id.slice(0, Math.min(2, id.length));
+      const stars = "*".repeat(Math.max(3, id.length - head.length));
+      return `${head}${stars}@${domain}`;
+    }
+
+    function parseDrawDate(coupon) {
+      const raw = coupon.drawAt || coupon.draw_at || coupon.drawDate || coupon.expire;
+      if (!raw) return null;
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+        return new Date(`${raw}T21:00:00`);
+      }
+
+      return new Date(String(raw).replace(" ", "T"));
+    }
+
+    function formatRemain(ms) {
+      if (!Number.isFinite(ms)) return "--:--:--";
+      const safe = Math.max(0, ms);
+      const total = Math.floor(safe / 1000);
+      const h = String(Math.floor(total / 3600)).padStart(2, "0");
+      const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+      const s = String(total % 60).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    function normalizeCoupon(c) {
+      const drawDate = parseDrawDate(c);
+      const winnerMasked =
+        c.winner_email_masked ||
+        c.winnerMaskedEmail ||
+        c.maskedEmail ||
+        (c.winner_email ? maskEmail(c.winner_email) : "");
+
+      return {
+        id: c.id,
+        store: c.store || "LocalFlow",
+        title: c.title || "쿠폰 이벤트",
+        type: c.type || "쿠폰",
+        badge: c.badge || c.type || "쿠폰",
+        active: c.active !== false,
+        drawAt: drawDate,
+        entryCount: Number(c.entry_count ?? c.entryCount ?? c.entries ?? 0),
+        status: c.status || c.drawStatus || (winnerMasked ? "done" : "waiting"),
+        winnerEmailMasked: winnerMasked,
+        raw: c
+      };
+    }
+
+    function getSortedCoupons() {
+      return coupons
+        .filter(c => c.active !== false && c.drawAt instanceof Date && !Number.isNaN(c.drawAt.getTime()))
+        .sort((a, b) => a.drawAt - b.drawAt);
+    }
+
+    function splitCoupons() {
+      const sorted = getSortedCoupons();
+
+      const waiting = sorted.filter(c => c.status !== "done" && c.status !== "completed");
+      const done = sorted
+        .filter(c => c.status === "done" || c.status === "completed")
+        .sort((a, b) => b.drawAt - a.drawAt);
+
+      return { waiting, done };
+    }
+
+    function getNextCoupon() {
+      return splitCoupons().waiting[0] || null;
+    }
+
+    function setStatus(mode) {
+      systemEl.classList.toggle("drawing", mode === "drawing");
+
+      stepWaiting.classList.toggle("active", mode === "waiting");
+      stepDrawing.classList.toggle("active", mode === "drawing");
+      stepWinner.classList.toggle("active", mode === "winner");
+    }
+
+    function renderHero() {
+      const next = getNextCoupon();
+
+      if (!next) {
+        mainCountdownEl.textContent = "--:--:--";
+        coreStatusEl.textContent = "NO DRAW";
+        coreTitleEl.textContent = "예정된 추첨 없음";
+        coreStoreEl.textContent = "새로운 쿠폰이 등록되면 표시됩니다";
+        coreMetaEl.textContent = "참여자 0명";
+        setStatus("waiting");
+        return;
+      }
+
+      const now = Date.now();
+      const remain = next.drawAt.getTime() - now;
+
+      mainCountdownEl.textContent = formatRemain(remain);
+      coreTitleEl.textContent = next.title;
+      coreStoreEl.textContent = next.store;
+      coreMetaEl.textContent = `참여자 ${next.entryCount.toLocaleString("ko-KR")}명`;
+
+      if (next.status === "drawing" || activeDrawingId === next.id) {
+        coreStatusEl.textContent = "DRAWING";
+        mainCountdownEl.textContent = "00:00:00";
+        setStatus("drawing");
+        return;
+      }
+
+      if (remain <= 0) {
+        startAutoDraw(next);
+        return;
+      }
+
+      coreStatusEl.textContent = "NEXT DRAW";
+      setStatus("waiting");
+    }
+
+    function couponCard(coupon, index, isDone = false) {
+      const remain = coupon.drawAt.getTime() - Date.now();
+      const isNext = !isDone && index === 0;
+
+      return `
+        <article class="coupon-card ${isNext ? "next" : ""} ${isDone ? "done" : ""}">
+          <span class="coupon-badge">${isNext ? "NEXT" : escapeHtml(coupon.badge)}</span>
+          <h3 class="coupon-title">${escapeHtml(coupon.title)}</h3>
+          <p class="coupon-store">${escapeHtml(coupon.store)}</p>
+          <div class="coupon-meta">참여자 ${coupon.entryCount.toLocaleString("ko-KR")}명</div>
+
+          <div class="card-bottom">
+            ${
+              isDone
+                ? `
+                  <div class="remain-label">추첨 완료</div>
+                  <div class="winner-box">
+                    <div class="winner-label">당첨자</div>
+                    <div class="winner-email">${escapeHtml(coupon.winnerEmailMasked || "-")}</div>
+                  </div>
+                `
+                : `
+                  <div class="remain-label">추첨까지</div>
+                  <div class="remain-time">${formatRemain(remain)}</div>
+                `
+            }
+          </div>
+        </article>
+      `;
+    }
+
+    function renderLists() {
+      const { waiting, done } = splitCoupons();
+
+      waitingCountEl.textContent = waiting.length;
+      doneCountEl.textContent = done.length;
+
+      waitingListEl.innerHTML = waiting.length
+        ? waiting.map((c, i) => couponCard(c, i, false)).join("")
+        : `<div class="empty">진행 예정 쿠폰이 없습니다.</div>`;
+
+      doneListEl.innerHTML = done.length
+        ? done.map((c, i) => couponCard(c, i, true)).join("")
+        : `<div class="empty">아직 추첨 완료된 쿠폰이 없습니다.</div>`;
+    }
+
+    function renderAll() {
+      renderHero();
+      renderLists();
+    }
+
+    function startAutoDraw(coupon) {
+      if (!coupon || activeDrawingId === coupon.id || drawRequestLock) return;
+
+      activeDrawingId = coupon.id;
+      coupon.status = "drawing";
+      coreStatusEl.textContent = "DRAWING";
+      setStatus("drawing");
+      renderLists();
+
+      if (drawingTimer) clearTimeout(drawingTimer);
+
+      drawingTimer = setTimeout(async () => {
+        await runServerDraw(coupon.id);
+      }, DRAW_DELAY_MS);
+    }
+
+    async function runServerDraw(couponId) {
+      if (drawRequestLock) return;
+      drawRequestLock = true;
+
+      try {
+        const data = await apiPost("/api/live_draw/run", { coupon_id: couponId });
+
+        if (!data.ok) {
+          showToast(data.message || "추첨 처리에 실패했습니다.");
+          activeDrawingId = null;
+          drawRequestLock = false;
+          await loadLiveDraw();
+          return;
+        }
+
+        const target = coupons.find(c => String(c.id) === String(couponId));
+        if (target) {
+          target.status = "done";
+          target.winnerEmailMasked =
+            data.winner_email_masked ||
+            data.maskedEmail ||
+            maskEmail(data.winner_email);
+        }
+
+        activeDrawingId = null;
+        setStatus("winner");
+        showToast("🎉 추첨이 완료되었습니다.");
+        renderAll();
+
+        setTimeout(() => {
+          setStatus("waiting");
+          loadLiveDraw();
+        }, 3000);
+      } catch (err) {
+        showToast("서버 통신 오류로 추첨을 완료하지 못했습니다.");
+        activeDrawingId = null;
+      } finally {
+        drawRequestLock = false;
+      }
+    }
+
+    async function loadLiveDraw() {
+      try {
+        let items = [];
+
+        try {
+          const data = await apiGet("/api/live_draw/coupons");
+          items = data.items || [];
+        } catch (e) {
+          const fallback = await apiGet("/api/coupons");
+          items = fallback.items || [];
+        }
+
+        coupons = items
+          .map(normalizeCoupon)
+          .filter(c => c.active !== false);
+
+        renderAll();
+      } catch (err) {
+        showToast("쿠폰 추첨 데이터를 불러오지 못했습니다.");
+        coupons = [];
+        renderAll();
+      }
+    }
+
+    function tick() {
+      renderAll();
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toastEl.classList.remove("show");
+      }, 2600);
+    }
+
+    loadLiveDraw();
+    setInterval(tick, 1000);
+    setInterval(loadLiveDraw, POLL_MS);
+  </script>
+</body>
+</html>
