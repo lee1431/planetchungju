@@ -517,6 +517,29 @@
     .toast { position: fixed; left: 50%; bottom: 30px; z-index: 120; transform: translateX(-50%) translateY(30px); opacity: 0; pointer-events: none; padding: 14px 24px; border-radius: 999px; color: #fff; background: #0f172a; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15); font-weight: 700; transition: 0.25s ease; text-align: center; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+	.live-pill {
+	  display: inline-flex;
+	  align-items: center;
+	  gap: 6px;
+	  padding: 6px 12px;
+	  border: 1px solid #fecaca;
+	  border-radius: 999px;
+	  background: var(--danger-light);
+	  color: var(--danger);
+	  font-size: 12px;
+	  font-weight: 800;
+	  margin-left: 20px;
+	}
+	
+	.live-dot {
+	  width: 6px;
+	  height: 6px;
+	  border-radius: 50%;
+	  background: var(--danger);
+	  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+	  animation: livePulse 1.4s infinite;
+	}
+
     /* 모바일 최적화 미디어 쿼리 */
     @media (max-width: 680px) {
       .topbar { height: auto; }
@@ -579,6 +602,7 @@
         <a class="active" href="./coupon.html">쿠폰</a>
 		<a href="./map.html">쿠폰맵</a>
 		<a href="./draw.html">라이브추첨</a>
+		<a class="active" href="./draw.html">라이브추첨<div class="live-pill"><span class="live-dot"></span>LIVE</div></a>
       </nav>
     </div>
   </header>
