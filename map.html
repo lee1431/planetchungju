@@ -1052,8 +1052,11 @@
   }
 
   function formatWon(value) {
+    if (value === "" || value === null || value === undefined) return "-";
+  
     const num = Number(value);
-    if (!Number.isFinite(num) || num <= 0) return "-";
+    if (!Number.isFinite(num) || num < 0) return "-";
+  
     return `${num.toLocaleString()}원`;
   }
 
