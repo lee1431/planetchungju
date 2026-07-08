@@ -712,6 +712,12 @@
       animation: livePulse 1.4s infinite;
     }
 
+    keyframes livePulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      80% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
     @media (max-width: 900px) {
       .summary-row { grid-template-columns: 1fr; }
       #map { height: 68vh; min-height: 520px; }
