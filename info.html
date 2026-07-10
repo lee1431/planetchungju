@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="description" content="LocalFlow 50% 쿠폰 지원 프로젝트 - 업주의 부담 없이 신규 고객을 늘리는 지역 상생 실험" />
+  <title>LocalFlow 50% 쿠폰 지원 프로젝트</title>
+  <style>
+    :root {
+      --blue: #2563eb;
+      --blue-dark: #1749a5;
+      --blue-soft: #eff6ff;
+      --cyan-soft: #ecfeff;
+      --green: #16a34a;
+      --green-soft: #f0fdf4;
+      --orange: #f59e0b;
+      --orange-soft: #fff7ed;
+      --red: #ef4444;
+      --red-soft: #fff1f2;
+      --ink: #172033;
+      --muted: #64748b;
+      --line: #dbe5f2;
+      --card: #ffffff;
+      --shadow: 0 18px 50px rgba(37, 99, 235, .10);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(37, 99, 235, .08), transparent 28%),
+        radial-gradient(circle at 90% 15%, rgba(59, 130, 246, .08), transparent 24%),
+        #f7fbff;
+      font-family: Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto;
+      background: rgba(255, 255, 255, .96);
+      border: 1px solid rgba(219, 229, 242, .9);
+      border-radius: 34px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      position: relative;
+      padding: 58px 58px 46px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.98), rgba(239,246,255,.94)),
+        #fff;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 440px;
+      height: 440px;
+      right: -180px;
+      top: -210px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, .07);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      letter-spacing: -.04em;
+    }
+
+    .pin {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50% 50% 50% 8px;
+      transform: rotate(-45deg);
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      box-shadow: 0 8px 22px rgba(37, 99, 235, .28);
+      flex: 0 0 auto;
+    }
+
+    .pin::after {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: white;
+      transform: rotate(45deg);
+    }
+
+    .brand-name { font-size: clamp(30px, 4vw, 52px); }
+
+    h1 {
+      margin: 0;
+      max-width: 840px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.12;
+      letter-spacing: -.055em;
+    }
+
+    h1 strong { color: var(--blue); }
+
+    .subtitle {
+      margin: 20px 0 0;
+      font-size: clamp(18px, 2.2vw, 26px);
+      color: var(--blue-dark);
+      font-weight: 800;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 26px;
+      align-items: stretch;
+      margin-top: 38px;
+    }
+
+    .intro-card,
+    .visual-card {
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(219,229,242,.95);
+      border-radius: var(--radius-xl);
+    }
+
+    .intro-card {
+      padding: 30px;
+      background: rgba(255,255,255,.9);
+    }
+
+    .intro-card h2,
+    .section-title {
+      margin: 0 0 14px;
+      color: var(--blue-dark);
+      font-size: 26px;
+      letter-spacing: -.035em;
+    }
+
+    .intro-card p { margin: 0; font-size: 18px; color: #334155; }
+
+    .visual-card {
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: linear-gradient(145deg, #eff6ff, #ffffff);
+    }
+
+    .shop-illustration {
+      width: min(360px, 100%);
+      text-align: center;
+    }
+
+    .awning {
+      height: 54px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      overflow: hidden;
+      border-radius: 14px 14px 8px 8px;
+      box-shadow: 0 7px 0 #cbd5e1;
+    }
+
+    .awning span:nth-child(odd) { background: #2563eb; }
+    .awning span:nth-child(even) { background: white; }
+
+    .shop-body {
+      width: 86%;
+      height: 132px;
+      margin: 7px auto 0;
+      position: relative;
+      border: 6px solid #334155;
+      border-top: 0;
+      background: linear-gradient(#dbeafe, #eff6ff);
+    }
+
+    .shop-body::before,
+    .shop-body::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      border: 5px solid #334155;
+      background: #bfdbfe;
+    }
+
+    .shop-body::before {
+      width: 60px;
+      height: 92px;
+      left: 22px;
+    }
+
+    .shop-body::after {
+      width: 88px;
+      height: 55px;
+      right: 22px;
+      bottom: 30px;
+    }
+
+    .visual-label {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: white;
+      color: var(--blue-dark);
+      font-weight: 800;
+      box-shadow: 0 10px 30px rgba(37,99,235,.12);
+    }
+
+    section {
+      padding: 48px 58px;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    .section-head p { margin: 0; color: var(--muted); }
+
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .money-card {
+      position: relative;
+      min-height: 210px;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      background: white;
+    }
+
+    .money-card:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -19px;
+      top: 50%;
+      z-index: 3;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: white;
+      color: #64748b;
+      border: 1px solid var(--line);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .money-card.green { background: var(--green-soft); border-color: #bbf7d0; }
+    .money-card.blue { background: var(--blue-soft); border-color: #bfdbfe; }
+    .money-card.cyan { background: var(--cyan-soft); border-color: #a5f3fc; }
+    .money-card.orange { background: var(--orange-soft); border-color: #fed7aa; }
+
+    .money-label { font-weight: 800; color: #334155; }
+    .money-value { font-size: clamp(28px, 3vw, 38px); font-weight: 950; letter-spacing: -.045em; }
+    .money-icon { font-size: 46px; line-height: 1; }
+
+    .highlight-bar {
+      margin-top: 20px;
+      padding: 17px 22px;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #fff7ed, #fffbeb);
+      border: 1px solid #fde68a;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .highlight-bar strong { color: var(--red); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 42px;
+    }
+
+    .benefit-grid,
+    .goal-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .benefit {
+      min-height: 142px;
+      padding: 20px 14px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 10px;
+      border-radius: var(--radius-md);
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .benefit .ico,
+    .goal .ico {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: white;
+      border: 1px solid var(--line);
+      font-size: 30px;
+    }
+
+    .example-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .example-card {
+      position: relative;
+      padding: 24px 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      text-align: center;
+      background: white;
+    }
+
+    .example-card:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      z-index: 2;
+      transform: translateY(-50%);
+      font-size: 27px;
+      font-weight: 900;
+      color: #94a3b8;
+    }
+
+    .example-card strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 30px;
+      letter-spacing: -.04em;
+    }
+
+    .example-card:nth-child(1) { background: var(--green-soft); }
+    .example-card:nth-child(2) { background: var(--blue-soft); }
+    .example-card:nth-child(3) { background: var(--orange-soft); }
+
+    .example-note {
+      margin: 18px 0 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .example-note strong:first-child { color: var(--blue); }
+    .example-note strong:last-child { color: var(--red); }
+
+    .goal-copy { margin: -4px 0 24px; color: #334155; }
+
+    .goal {
+      padding: 18px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      text-align: center;
+      background: #fff;
+    }
+
+    .goal .ico { margin: 0 auto 12px; }
+    .goal b { display: block; margin-bottom: 4px; }
+    .goal span { color: var(--muted); font-size: 14px; }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 12px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      min-height: 148px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 10px;
+      padding: 18px 10px;
+      text-align: center;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: white;
+      counter-increment: step;
+    }
+
+    .step::before {
+      content: counter(step);
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      font-weight: 900;
+    }
+
+    .step .ico { font-size: 33px; }
+    .step span { font-weight: 800; font-size: 14px; }
+
+    .cost-panel {
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      gap: 26px;
+      align-items: center;
+      padding: 30px;
+      border-radius: 26px;
+      background: linear-gradient(135deg, #eff6ff, #ffffff 62%, #ecfeff);
+      border: 1px solid #bfdbfe;
+    }
+
+    .cost-badge {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .won {
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+      color: white;
+      font-size: 38px;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(37,99,235,.25);
+    }
+
+    .cost-badge h3 { margin: 0 0 6px; font-size: 25px; }
+    .cost-badge p { margin: 0; color: #334155; }
+    .cost-badge strong { color: var(--blue-dark); font-size: 22px; }
+
+    .cta {
+      text-align: right;
+    }
+
+    .cta strong {
+      display: block;
+      font-size: clamp(23px, 3vw, 36px);
+      line-height: 1.25;
+      color: var(--blue-dark);
+      letter-spacing: -.045em;
+    }
+
+    .cta small { color: var(--muted); }
+
+    footer {
+      padding: 24px 58px 34px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .hero, section { padding-left: 30px; padding-right: 30px; }
+      .hero-grid, .two-col, .cost-panel { grid-template-columns: 1fr; }
+      .flow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .money-card:nth-child(2)::after { display: none; }
+      .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .cta { text-align: left; }
+    }
+
+    @media (max-width: 660px) {
+      .page {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border-left: 0;
+        border-right: 0;
+      }
+
+      .hero, section { padding: 34px 18px; }
+      footer { padding: 22px 18px 28px; }
+      .brand { gap: 10px; }
+      .pin { width: 30px; height: 30px; }
+      .brand-name { font-size: 29px; }
+      h1 { font-size: 38px; }
+      .hero-grid { margin-top: 28px; }
+      .flow-grid,
+      .benefit-grid,
+      .goal-grid,
+      .example-flow,
+      .steps { grid-template-columns: 1fr; }
+
+      .money-card,
+      .step { min-height: auto; }
+
+      .money-card:not(:last-child)::after,
+      .example-card:not(:last-child)::after {
+        content: "↓";
+        right: 50%;
+        top: auto;
+        bottom: -25px;
+        transform: translateX(50%);
+      }
+
+      .money-card:nth-child(2)::after { display: grid; }
+      .example-card { margin-bottom: 14px; }
+      .step { grid-template-columns: 42px 42px 1fr; place-items: center start; text-align: left; }
+      .step::before { grid-column: 1; }
+      .step .ico { grid-column: 2; }
+      .step span { grid-column: 3; font-size: 16px; }
+      .cost-badge { grid-template-columns: 64px 1fr; }
+      .won { width: 64px; height: 64px; font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="brand">
+        <span class="pin" aria-hidden="true"></span>
+        <span class="brand-name">LocalFlow</span>
+      </div>
+
+      <h1><strong>50% 쿠폰</strong> 지원 프로젝트</h1>
+      <p class="subtitle">업주의 부담 없이 신규 고객을 늘리는 실험</p>
+
+      <div class="hero-grid">
+        <article class="intro-card">
+          <h2>프로젝트 개요</h2>
+          <p>
+            LocalFlow는 지역 소상공인의 신규 고객 유입과 재방문을 위해
+            운영자가 쿠폰 비용 일부를 직접 지원하는 지역 상생 프로젝트입니다.
+          </p>
+        </article>
+
+        <div class="visual-card" aria-label="지역 매장과 고객을 연결하는 LocalFlow 프로젝트">
+          <div class="shop-illustration">
+            <div class="awning" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="shop-body" aria-hidden="true"></div>
+            <div class="visual-label">📍 지역 매장 + 신규 고객 + LocalFlow</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">운영 방식</h2>
+          <p>1만원 상품을 기준으로 한 실제 정산 구조입니다.</p>
+        </div>
+      </div>
+
+      <div class="flow-grid">
+        <article class="money-card green">
+          <div class="money-label">상품 판매가</div>
+          <div class="money-value">10,000원</div>
+          <div class="money-icon">🏷️</div>
+        </article>
+        <article class="money-card blue">
+          <div class="money-label">고객 결제</div>
+          <div class="money-value">5,000원</div>
+          <div class="money-icon">💳</div>
+        </article>
+        <article class="money-card cyan">
+          <div class="money-label">LocalFlow 지원</div>
+          <div class="money-value">10,000원</div>
+          <div class="money-icon">🤲</div>
+        </article>
+        <article class="money-card orange">
+          <div class="money-label">업주 실제 수령</div>
+          <div class="money-value">15,000원</div>
+          <div class="money-icon">🏪</div>
+        </article>
+      </div>
+
+      <div class="highlight-bar">
+        업주는 정가 그대로 판매한 것보다 <strong>5,000원을 더 수령</strong>하며, 신규 고객까지 확보합니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="two-col">
+        <div>
+          <h2 class="section-title">업주가 얻는 것</h2>
+          <div class="benefit-grid">
+            <div class="benefit"><span class="ico">👥</span><span>신규 고객 방문</span></div>
+            <div class="benefit"><span class="ico">📱</span><span>SNS 홍보</span></div>
+            <div class="benefit"><span class="ico">📍</span><span>LocalFlow 노출</span></div>
+            <div class="benefit"><span class="ico">🔁</span><span>재방문 고객 확보</span></div>
+            <div class="benefit"><span class="ico">📈</span><span>실제 매출 증가</span></div>
+            <div class="benefit"><span class="ico">🤝</span><span>지역 상생 참여</span></div>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="section-title">지원 효과 예시</h2>
+          <div class="example-flow">
+            <div class="example-card">운영자 지원금<strong>100만원</strong></div>
+            <div class="example-card">고객 결제<strong>50만원</strong></div>
+            <div class="example-card">업주 총매출<strong>150만원</strong></div>
+          </div>
+          <p class="example-note">
+            즉, <strong>100만원</strong>의 지원으로 약 <strong>150만원</strong> 규모의 실제 판매가 발생합니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="two-col">
+        <div>
+          <h2 class="section-title">LocalFlow 목표</h2>
+          <p class="goal-copy">
+            단순히 할인 이벤트를 만드는 것이 아닙니다.<br />
+            지역 안에서 소비가 계속 순환하도록 만드는 것이 목표입니다.
+          </p>
+          <div class="goal-grid">
+            <div class="goal">
+              <div class="ico">🏪</div>
+              <b>업주는</b>
+              <span>새로운 고객을 얻고</span>
+            </div>
+            <div class="goal">
+              <div class="ico">👨‍👩‍👧‍👦</div>
+              <b>시민은</b>
+              <span>할인 혜택을 받고</span>
+            </div>
+            <div class="goal">
+              <div class="ico">❤️</div>
+              <b>지역에는</b>
+              <span>새로운 소비가 발생합니다</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="section-title">왜 이 방식인가</h2>
+          <div class="intro-card">
+            <p>
+              업주에게 할인 부담을 넘기지 않고, LocalFlow가 직접 지원함으로써
+              고객에게는 강한 방문 동기를 만들고 업주에게는 실제 매출 증가를 제공합니다.
+              쿠폰 사용 이후 재방문과 입소문까지 이어지는 구조를 실험합니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="section-title">참여 절차</h2>
+      <div class="steps">
+        <div class="step"><span class="ico">📋</span><span>업체 등록</span></div>
+        <div class="step"><span class="ico">🎟️</span><span>쿠폰 생성</span></div>
+        <div class="step"><span class="ico">🙋</span><span>시민 응모</span></div>
+        <div class="step"><span class="ico">✅</span><span>쿠폰 지급</span></div>
+        <div class="step"><span class="ico">🏬</span><span>매장 방문</span></div>
+        <div class="step"><span class="ico">▦</span><span>QR 확인</span></div>
+        <div class="step"><span class="ico">✔️</span><span>쿠폰 사용 완료</span></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="cost-panel">
+        <div class="cost-badge">
+          <div class="won">₩</div>
+          <div>
+            <h3>비용</h3>
+            <p>초기 시범 운영은 LocalFlow 운영자가 지원합니다.</p>
+            <strong>업주 부담 없음</strong>
+          </div>
+        </div>
+
+        <div class="cta">
+          <strong>LocalFlow와 함께<br />지역의 새로운 소비를 만듭니다.</strong>
+          <small>신규 고객 유입 · 실제 매출 증가 · 지역 소비 순환</small>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 2026 LocalFlow. 지역 소상공인과 시민을 연결하는 로컬 상생 프로젝트.
+    </footer>
+  </main>
+</body>
+</html>
