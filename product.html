@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalFlow | 제철직송 상품</title>
+  <meta name="description" content="LocalFlow 제철직송 상품 상세 페이지" />
+  <link rel="icon" type="image/png" href="./assets/img/fav.png">
+  <style>
+    :root{
+      --text:#0f172a;--muted:#64748b;--line:#e2e8f0;--card:#fff;
+      --primary:#2563eb;--primary-light:#eff6ff;--primary-dark:#1d4ed8;
+      --radius:16px;--soft-shadow:0 10px 30px rgba(15,23,42,.04);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;color:var(--text);
+      font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at 15% 15%,var(--primary-light),transparent 25%),#f8fafc;
+    }
+    a{color:inherit;text-decoration:none}
+    button{font:inherit;cursor:pointer}
+    .topbar{
+      height:72px;background:rgba(255,255,255,.84);backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;z-index:20;
+    }
+    .nav-inner{
+      width:min(1148px,calc(100% - 48px));height:100%;margin:0 auto;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.03em}
+    .brand-icon{
+      width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:#fff;
+      font-weight:900;font-size:19px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      box-shadow:0 4px 12px var(--primary-light)
+    }
+    .brand-name{font-size:20px;line-height:1}.brand-sub{margin-left:2px;color:var(--muted);font-size:12px;font-weight:600}
+    .nav{display:flex;align-items:center;gap:34px;font-size:15px;font-weight:700}
+    .nav a{height:72px;display:flex;align-items:center;color:var(--muted);position:relative;white-space:nowrap}
+    .nav a:hover,.nav a.active{color:var(--primary)}.nav a.active{font-weight:800}
+    .nav a.active::after{content:"";position:absolute;left:50%;bottom:0;width:100%;height:3px;border-radius:99px;transform:translateX(-50%);background:var(--primary)}
+    .page{width:min(1148px,calc(100% - 48px));margin:0 auto}
+    .back{display:inline-flex;align-items:center;gap:8px;margin:30px 0 18px;color:var(--muted);font-size:14px;font-weight:800}
+    .detail{
+      display:grid;grid-template-columns:1fr 1fr;gap:42px;padding:0 0 34px;
+    }
+    .visual{
+      min-height:460px;border:1px solid var(--line);border-radius:22px;position:relative;
+      display:grid;place-items:center;font-size:132px;overflow:hidden;
+      background:radial-gradient(circle at 25% 20%,rgba(255,255,255,.88),transparent 30%),linear-gradient(135deg,var(--tone-a),var(--tone-b));
+      box-shadow:var(--soft-shadow)
+    }
+    .region{
+      position:absolute;top:18px;left:18px;padding:7px 11px;border-radius:9px;background:rgba(255,255,255,.92);
+      font-size:13px;font-weight:800;color:#334155
+    }
+    .close{
+      position:absolute;top:18px;right:18px;padding:7px 11px;border-radius:9px;background:rgba(15,23,42,.84);
+      color:#fff;font-size:13px;font-weight:800
+    }
+    .summary{padding:12px 0}
+    .eyebrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tag{padding:6px 9px;border-radius:8px;font-size:12px;font-weight:800;background:#ecfdf5;color:#047857}
+    .tag.today{background:#eff6ff;color:#1d4ed8}.tag.parent{background:#fff1f2;color:#9f1239}.tag.deal{background:#fff7ed;color:#c2410c}
+    h1{margin:0 0 12px;font-size:clamp(34px,4vw,50px);letter-spacing:-.05em;line-height:1.14}
+    .lead{margin:0 0 22px;color:var(--muted);font-size:16px;line-height:1.7}
+    .pricebox{
+      margin:22px 0;padding:20px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--soft-shadow)
+    }
+    .pricebox small{display:block;color:#94a3b8;font-weight:700;margin-bottom:4px}
+    .pricebox strong{font-size:28px;letter-spacing:-.03em}
+    .facts{display:grid;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:22px 0}
+    .fact{display:grid;grid-template-columns:120px 1fr;gap:18px;padding:14px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+    .fact:last-child{border-bottom:0}.fact b{color:#475569}.fact span{color:#0f172a;font-weight:700}
+    .order{
+      width:100%;height:54px;border:0;border-radius:12px;color:#fff;font-weight:900;font-size:16px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    }
+    .order:disabled{opacity:.7;cursor:default}
+    .sections{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:18px 0 40px}
+    .card{padding:26px;border:1px solid var(--line);border-radius:var(--radius);background:#fff;box-shadow:var(--soft-shadow)}
+    .card h2{margin:0 0 12px;font-size:19px;letter-spacing:-.03em}.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+    .notice{margin:0 0 44px;padding:16px 18px;border:1px solid #dbeafe;border-radius:14px;background:#eff6ff;color:#334155;font-size:14px;font-weight:600}
+    .footer{border-top:1px solid var(--line);background:#fff}.footer-inner{width:min(1148px,calc(100% - 48px));min-height:80px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .footer-brand{color:var(--primary);font-weight:800}.copyright{color:var(--muted);font-size:13px}
+    .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(30px);opacity:0;padding:14px 22px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;font-weight:700;transition:.25s;z-index:50}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(max-width:980px){.detail{grid-template-columns:1fr}.sections{grid-template-columns:1fr}.nav{gap:20px}}
+    @media(max-width:680px){
+      .topbar{height:auto}.nav-inner{width:min(100% - 28px,1148px);min-height:72px;flex-direction:column;align-items:flex-start;gap:16px;padding:16px 0}
+      .nav{width:100%;overflow-x:auto;gap:24px;padding-bottom:4px}.nav a{height:34px;flex:0 0 auto}.nav a.active::after{bottom:-4px}
+      .page,.footer-inner{width:min(100% - 28px,1148px)}.visual{min-height:330px;font-size:96px}.fact{grid-template-columns:95px 1fr}.footer-inner{flex-direction:column;align-items:flex-start;padding:20px 0}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="nav-inner">
+      <a href="./index.html" class="brand" aria-label="LocalFlow 홈">
+        <span class="brand-icon">L</span>
+        <span><span class="brand-name">LocalFlow</span><span class="brand-sub">충주 로컬플로우</span></span>
+      </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="./index.html">홈</a>
+        <a href="./gallery.html">갤러리</a>
+        <a href="./coupon.html">쿠폰</a>
+        <a href="./map.html">쿠폰맵</a>
+        <a class="active" href="./season.html">제철직송</a>
+        <a href="./draw.html">라이브추첨</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <a class="back" href="./season.html">← 제철직송 목록으로</a>
+    <section class="detail" id="detail"></section>
+
+    <section class="sections">
+      <article class="card"><h2>왜 지금 제철인가</h2><p id="seasonWhy"></p></article>
+      <article class="card"><h2>보관 · 손질</h2><p id="care"></p></article>
+      <article class="card"><h2>부모님께 보내기</h2><p id="parentTip"></p></article>
+    </section>
+
+    <div class="notice">
+      현재는 상세페이지 프레임 시안입니다. 실제 운영 시 상품 ID를 API로 조회해 사진·가격·재고·마감·배송 정보가 자동으로 채워집니다.
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div><div class="footer-brand">LocalFlow</div><div class="copyright">© 2026 STANCE. LocalFlow Project.</div></div>
+      <a href="./season.html" style="color:var(--muted);font-size:13px;font-weight:700">제철직송으로 돌아가기 ›</a>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const THEMES=[
+      {primary:"#0d9488",light:"#f0fdfa",dark:"#115e59"},{primary:"#2563eb",light:"#eff6ff",dark:"#1d4ed8"},
+      {primary:"#059669",light:"#ecfdf5",dark:"#047857"},{primary:"#7c3aed",light:"#f5f3ff",dark:"#6d28d9"},
+      {primary:"#ea580c",light:"#fff7ed",dark:"#c2410c"},{primary:"#e11d48",light:"#fff1f2",dark:"#be123c"},
+      {primary:"#4f46e5",light:"#eef2ff",dark:"#3730a3"}
+    ];
+    const theme=THEMES[new Date().getDay()],root=document.documentElement;
+    root.style.setProperty("--primary",theme.primary);root.style.setProperty("--primary-light",theme.light);root.style.setProperty("--primary-dark",theme.dark);
+
+    const PRODUCTS = {
+      "1":{region:"동해 · 속초",emoji:"🐟",title:"가을 생선 한 상",desc:"구이로 먹기 좋은 동해안 생물 생선 구성 예시입니다.",price:"25,000원~",unit:"샘플 구성",close:"오늘 17:00",tags:["제철","오늘입고","부모님추천"],toneA:"#dbeafe",toneB:"#bfdbfe",stock:"20세트 예시",ship:"오늘 마감 · 익일 출고 예시",season:"가을철 동해안 생선은 어종별로 살과 지방감이 좋아지는 시기가 달라집니다. 실제 운영에서는 당일 어획·입고 어종에 맞춰 문구가 바뀝니다.",care:"수령 후 냉장 보관하고 빠르게 드시는 구성을 기본으로 합니다. 손질 여부와 냉동 가능 여부는 판매자가 등록한 정보로 표시합니다.",parent:"구이용 손질 여부, 가시가 많은지, 2인 기준 적정 수량처럼 부모님이 받았을 때 바로 드시기 쉬운 정보를 우선 표시합니다."},
+      "2":{region:"서해 · 태안",emoji:"🦀",title:"서해 제철 꽃게",desc:"탕·찜으로 드시기 좋은 서해 제철 수산물 예시입니다.",price:"시세 연동",unit:"샘플 상품",close:"물량 소진시",tags:["제철","오늘입고","부모님추천"],toneA:"#fef3c7",toneB:"#fde68a",stock:"당일 시세 물량",ship:"조업 상황에 따라 변동",season:"꽃게처럼 어획 시기와 암수, 산란 주기에 따라 맛과 가격이 크게 달라지는 품목은 제철 필터의 효과가 큽니다.",care:"수령 즉시 상태를 확인하고 당일 조리하거나 안내된 방식으로 냉동 보관하도록 표시합니다.",parent:"탕이나 찜처럼 익숙한 조리법과 적정 중량을 함께 제안하는 상품을 우선 노출합니다."},
+      "3":{region:"남해 · 통영",emoji:"🐙",title:"통영 산지 문어",desc:"삶아 숙회로 먹기 좋은 산지 문어 예시입니다.",price:"kg 시세",unit:"샘플 상품",close:"오늘 마감",tags:["제철","오늘마감"],toneA:"#ffe4e6",toneB:"#fecdd3",stock:"8kg 예시",ship:"오늘 주문분 우선 출고",season:"산지 경매와 입고 물량이 좋은 날에만 노출하는 당일성 상품을 가정한 예시입니다.",care:"생물 상태와 손질 방식에 따라 보관법이 달라져 판매자 입력값을 그대로 상세페이지에 연결합니다.",parent:"숙회용 손질 가능 여부와 삶는 법을 짧게 제공하면 선물 후 조리 부담을 줄일 수 있습니다."},
+      "4":{region:"충북 · 충주",emoji:"🍎",title:"충주 햇사과",desc:"그 시기 수확되는 품종만 노출하는 산지 과일 예시입니다.",price:"29,000원~",unit:"샘플 구성",close:"이번 주 출하",tags:["제철","부모님추천"],toneA:"#fee2e2",toneB:"#fecaca",stock:"주간 출하 물량",ship:"수확 일정에 맞춰 출고",season:"저장 과일이 아니라 실제 수확 시기에 맞는 품종을 짧게 노출하는 구조입니다.",care:"서늘한 곳 또는 냉장 보관 등 품목에 맞는 기본 보관 안내를 표시합니다.",parent:"선물 포장보다 당도·크기·수확일·먹기 좋은 시점을 중심으로 설명합니다."},
+      "5":{region:"충남 · 천안",emoji:"🍐",title:"가을 햇배",desc:"수확 직후 산지에서 출고하는 과일 예시입니다.",price:"32,000원~",unit:"샘플 구성",close:"주 3회 출하",tags:["제철","부모님추천"],toneA:"#fef9c3",toneB:"#fef08a",stock:"산지 출하분",ship:"출하일 기준 순차 발송",season:"저장 상품보다 막 수확되는 시점을 우선 보여주는 제철 큐레이션 예시입니다.",care:"수령 후 냉장 보관하고 후숙 필요 여부를 함께 안내합니다.",parent:"두 분이 드시기 좋은 개수와 크기를 우선 추천해 과도한 대용량 구성을 피합니다."},
+      "6":{region:"전남 · 해남",emoji:"🌾",title:"올해 첫 햅쌀",desc:"막 수확이 시작된 햅쌀처럼 계절 전환점에 맞춰 짧게 노출되는 농산물 예시입니다.",price:"산지 시세",unit:"샘플 상품",close:"당일 수량 한정",tags:["제철","오늘입고","오늘마감"],toneA:"#ecfccb",toneB:"#d9f99d",stock:"당일 도정 물량 예시",ship:"도정 일정에 맞춰 출고",season:"첫 수확·첫 도정처럼 시기 자체가 상품 가치가 되는 농산물을 짧게 보여주는 방식입니다.",care:"습기와 직사광선을 피하고 소분 보관 등 기본 보관법을 안내합니다.",parent:"일상적으로 바로 소비할 수 있는 품목이라 부모님 선물용으로 부담이 적다는 점을 보여줍니다."}
+    };
+
+    const params=new URLSearchParams(location.search),id=params.get("id")||"1",item=PRODUCTS[id]||PRODUCTS["1"];
+
+    function tagClass(tag){if(tag==="오늘입고")return"today";if(tag==="부모님추천")return"parent";if(tag==="오늘마감")return"deal";return""}
+
+    document.title="LocalFlow | "+item.title;
+    document.getElementById("detail").innerHTML=`
+      <div class="visual" style="--tone-a:${item.toneA};--tone-b:${item.toneB}">
+        <span class="region">${item.region}</span><span class="close">${item.close}</span><span aria-hidden="true">${item.emoji}</span>
+      </div>
+      <div class="summary">
+        <div class="eyebrow">${item.tags.map(t=>`<span class="tag ${tagClass(t)}">${t}</span>`).join("")}</div>
+        <h1>${item.title}</h1>
+        <p class="lead">${item.desc}</p>
+        <div class="pricebox"><small>${item.unit}</small><strong>${item.price}</strong></div>
+        <div class="facts">
+          <div class="fact"><b>산지</b><span>${item.region}</span></div>
+          <div class="fact"><b>현재 물량</b><span>${item.stock}</span></div>
+          <div class="fact"><b>주문 마감</b><span>${item.close}</span></div>
+          <div class="fact"><b>출고</b><span>${item.ship}</span></div>
+        </div>
+        <button class="order" type="button" id="orderBtn">현재는 샘플 · 주문 준비중</button>
+      </div>`;
+    document.getElementById("seasonWhy").textContent=item.season;
+    document.getElementById("care").textContent=item.care;
+    document.getElementById("parentTip").textContent=item.parent;
+
+    document.getElementById("orderBtn").addEventListener("click",()=>showToast("판매자 연결 후 주문 또는 외부 결제 링크가 이 버튼에 연결됩니다."));
+    function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove("show"),2500)}
+  </script>
+</body>
+</html>
